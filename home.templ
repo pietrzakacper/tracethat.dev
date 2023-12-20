@@ -1,0 +1,32 @@
+package main
+
+templ index() {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Devtools Project</title>
+			@scripts()
+		</head>
+		<body>
+			@home()
+		</body>
+	</html>
+}
+
+templ scripts() {
+	<script src="https://unpkg.com/htmx.org@1.9.9"></script>
+	<script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
+}
+
+templ home() {
+	<div>
+		Hello
+		<div hx-ext="sse" sse-connect="/events" sse-swap="message" hx-swap="beforeend"></div>
+	</div>
+}
+
+templ event(e Event) {
+	<div>{ e.name }</div>
+}

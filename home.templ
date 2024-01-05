@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 templ index() {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -18,15 +20,90 @@ templ index() {
 templ scripts() {
 	<script src="https://unpkg.com/htmx.org@1.9.9"></script>
 	<script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
+	<script src="https://cdn.tailwindcss.com"></script>
+	@eventComponentDef()
 }
 
 templ home() {
-	<div>
-		Hello
-		<div hx-ext="sse" sse-connect="/events" sse-swap="message" hx-swap="beforeend"></div>
+	<div class="w-full py-8 px-6 md:px-12 lg:px-24">
+		<div class="shadow-lg rounded-lg">
+			<div class="relative w-full overflow-auto">
+				<table class="w-full caption-bottom text-sm">
+					<thead class="[&_tr]:border-b">
+						<tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+							<th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 w-[200px]">
+								Name
+							</th>
+							<th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+								Status
+							</th>
+							<th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+								Start Time
+							</th>
+							<th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+								End Time
+							</th>
+						</tr>
+					</thead>
+					<tbody class="[&_tr:last-child]:border-0" hx-ext="sse" sse-connect="/events" sse-swap="message" hx-swap="beforeend"></tbody>
+				</table>
+			</div>
+		</div>
 	</div>
 }
 
+func timeWithMs(t time.Time) string {
+	return t.Format("15:04:05.000")
+}
+
 templ event(e Event) {
-	<div>{ e.name }</div>
+	<tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted bg-blue-100">
+		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">{ e.Name }</td>
+		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ e.Status }</td>
+		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.startTs) }</td>
+		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.endTs) }</td>
+	</tr>
+}
+
+templ eventComponentDef() {
+	<script>
+		const template = document.createElement('template');
+		template.innerHTML = `
+			<style>
+				:host {
+					display: inline-block;
+					border: 1px solid black;
+					padding: 10px;
+					width: 100%;
+					margin: 10px;
+				}
+			</style>
+			<div id="container">
+				<div id="name"></div>
+				<div id="start"></div>
+			</div>
+		`;
+
+		class MyCounter extends HTMLElement {
+			constructor() {
+				super();
+				this.count = 0;
+				this.attachShadow({ mode: 'open' });
+			}
+
+			connectedCallback() {
+				this.shadowRoot.appendChild(template.content.cloneNode(true));
+				this.update();
+			}
+
+			update(count) {
+				const jsonBlob = this.getAttribute('jsonBlob')
+				const payload = JSON.parse(jsonBlob)
+
+				this.shadowRoot.getElementById('evt').innerHTML = jsonBlob;
+			}
+		}
+
+		customElements.define('my-counter', MyCounter);
+	</script>
 }

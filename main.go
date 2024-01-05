@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -10,7 +11,14 @@ import (
 )
 
 type Event struct {
-	name string
+	Status        string // ok, error, in-progress
+	CallId        string
+	Name          string
+	ArgumentsJson string
+	ReturnJson    string
+	startTs       time.Time
+	endTs         time.Time
+	callStack     []string
 }
 
 func main() {
@@ -36,7 +44,8 @@ func main() {
 
 			w.Write([]byte("data: "))
 
-			e := Event{name: "Yo From The Server!"}
+			id := rand.Intn(100)
+			e := Event{Status: "ok", CallId: fmt.Sprintf("call-%d", id), Name: "GetUser", ArgumentsJson: fmt.Sprintf(`{"id": %d}`, id), ReturnJson: fmt.Sprintf(`{"id": %d, "name": "Alice"}`, id), startTs: time.Now(), endTs: time.Now(), callStack: []string{"GetUser", "GetUserById", "GetUserByIdFromDb"}}
 			event(e).Render(context.Background(), w)
 
 			w.Write([]byte("\n\n"))

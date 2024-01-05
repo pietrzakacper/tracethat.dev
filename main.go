@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -11,20 +12,27 @@ import (
 )
 
 type Event struct {
-	Status        string // ok, error, in-progress
-	CallId        string
-	Name          string
-	ArgumentsJson string
-	ReturnJson    string
-	startTs       time.Time
-	endTs         time.Time
-	callStack     []string
+	Status    string // ok, error, in-progress
+	CallId    string
+	Name      string
+	Arguments []any
+	Return    any
+	startTs   time.Time
+	endTs     time.Time
+	callStack []string
+}
+
+func (e Event) toJSON() string {
+	val, _ := json.Marshal(e)
+	return string(val)
 }
 
 func main() {
 	component := index()
 
+	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/", templ.Handler(component))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.Handle("/events", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		f, ok := w.(http.Flusher)
@@ -39,13 +47,11 @@ func main() {
 		w.Header().Set("Connection", "keep-alive")
 		w.Header().Set("Transfer-Encoding", "chunked")
 
-		for {
-			time.Sleep(1 * time.Second)
-
+		for i := 0; i < 20; i++ {
 			w.Write([]byte("data: "))
 
 			id := rand.Intn(100)
-			e := Event{Status: "ok", CallId: fmt.Sprintf("call-%d", id), Name: "GetUser", ArgumentsJson: fmt.Sprintf(`{"id": %d}`, id), ReturnJson: fmt.Sprintf(`{"id": %d, "name": "Alice"}`, id), startTs: time.Now(), endTs: time.Now(), callStack: []string{"GetUser", "GetUserById", "GetUserByIdFromDb"}}
+			e := Event{Status: "ok", CallId: fmt.Sprintf("call-%d", id), Name: "GetUser", Arguments: []any{1, "hello"}, Return: map[string]any{"name": "Kacper", "age": 24}, startTs: time.Now(), endTs: time.Now(), callStack: []string{"GetUser", "GetUserById", "GetUserByIdFromDb"}}
 			event(e).Render(context.Background(), w)
 
 			w.Write([]byte("\n\n"))

@@ -3,6 +3,7 @@ function renderJsonTree(json) {
         name: json.Name,
         arguments: json.Arguments,
         return: json.Return,
+        callStack: json.CallStack,
     }
 
 

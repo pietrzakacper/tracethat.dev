@@ -1,0 +1,28 @@
+package view
+
+templ Landing(token string) {
+	@layout() {
+		<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+			<header class="absolute top-0 left-0 w-full p-4 flex justify-center"><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="m8 3 4 8 5-5 5 15H2L8 3z"></path></svg><span class="sr-only">Company Logo</span></a></header>
+			<main class="flex flex-row items-center justify-center space-x-4">
+				<section class="flex flex-col items-center justify-center space-y-4">
+					<a
+ 						href={ templ.URL("/" + token) }
+ 						class="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50"
+ 						href="#"
+					>
+						Start New Session
+					</a>
+				</section><span class="text-gray-900">OR</span>
+				<section class="flex flex-col items-center justify-center space-y-4">
+					<div class="w-full max-w-sm space-y-2">
+						<form class="flex space-x-2">
+							<input class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 max-w-lg flex-1" id="session-id" placeholder="Enter session ID"/>
+							<button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2" type="submit">Go</button>
+						</form>
+					</div>
+				</section>
+			</main>
+		</div>
+	}
+}

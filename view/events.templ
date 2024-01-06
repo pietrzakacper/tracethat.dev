@@ -1,0 +1,66 @@
+package view
+
+import "time"
+
+import "fmt"
+import "devtools-project/model"
+import "encoding/json"
+
+templ Events(token, sessionId string) {
+	@layout() {
+		<div
+ 			x-data="{ selectedEvt: null }"
+ 			class="w-full py-8 px-6 md:px-12 lg:px-24 flex flex-col md:flex-row"
+		>
+			<div class="shadow-lg rounded-lg flex-1 overflow-x-auto h-[calc(100vh-4rem)]">
+				<table class="table table-pin-rows">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<td>Duration</td>
+							<td>Start</td>
+							<td>End</td>
+						</tr>
+					</thead>
+					<tbody
+ 						hx-ext="sse"
+ 						sse-connect={ fmt.Sprintf("/events?token=%s&session=%s", token, sessionId) }
+ 						sse-swap="message"
+ 						hx-swap="beforeend"
+					></tbody>
+				</table>
+			</div>
+			<div
+ 				x-show="!!selectedEvt"
+ 				class="shadow-lg rounded-lg flex-1 ml-0 md:ml-6 mt-6 md:mt-0 p-6 h-[calc(100vh-4rem)]"
+			>
+				<h2 class="text-2xl font-bold mb-4">Event Details</h2>
+				<div
+ 					x-effect="selectedEvt && renderJsonTree(selectedEvt)"
+ 					id="json-tree"
+				></div>
+			</div>
+		</div>
+	}
+}
+
+func timeWithMs(t time.Time) string {
+	return t.Format("15:04:05.000")
+}
+
+func toJSON(e model.Event) string {
+	val, _ := json.Marshal(e)
+	return string(val)
+}
+
+templ Event(e model.Event) {
+	<tr
+ 		@click={ fmt.Sprintf("selectedEvt = JSON.parse('%s')", toJSON(e)) }
+ 		class="border-b transition-colors hover:bg-blue-200 data-[state=selected]:bg-muted bg-blue-100 cursor-pointer w-full"
+	>
+		<th class="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">{ e.Name }</th>
+		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ e.Status }</td>
+		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.StartTs) }</td>
+		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.EndTs) }</td>
+	</tr>
+}

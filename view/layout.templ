@@ -1,0 +1,27 @@
+package view
+
+templ layout() {
+	<!DOCTYPE html>
+	<html data-theme="emerald" lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Devtools Project</title>
+			@scripts()
+		</head>
+		<body hx-boost="true">
+			{ children... }
+		</body>
+	</html>
+}
+
+templ scripts() {
+	<script src="https://unpkg.com/htmx.org@1.9.9"></script>
+	<script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
+	<script src="https://unpkg.com/alpinejs" defer></script>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link href="https://cdn.jsdelivr.net/npm/daisyui@4.5.0/dist/full.min.css" rel="stylesheet" type="text/css"/>
+	<link rel="stylesheet" href="/static/jsontree.css"/>
+	<script src="/static/jsontree.js" defer></script>
+	<script src="/static/jsontree.controller.js" defer></script>
+}

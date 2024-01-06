@@ -2,36 +2,50 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"devtools-project/model"
+	"devtools-project/view"
 	"fmt"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
-
-	"github.com/a-h/templ"
 )
 
-type Event struct {
-	Status    string // ok, error, in-progress
-	CallId    string
-	Name      string
-	Arguments []any
-	Return    any
-	startTs   time.Time
-	endTs     time.Time
-	callStack []string
+type Session = struct {
+	c chan model.Event // channel to propagate events to client
+}
+type Space = struct {
+	events   []model.Event
+	sessions map[string]Session // sessionId -> Session
 }
 
-func (e Event) toJSON() string {
-	val, _ := json.Marshal(e)
-	return string(val)
+type Spaces = map[string]Space // spaceId -> Space
+
+func generateSessionId() string {
+	return fmt.Sprintf("%d", rand.Intn(1000000))
+}
+
+func generateNewToken() string {
+	return fmt.Sprintf("%d", rand.Uint64())
 }
 
 func main() {
-	component := index()
 
 	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/", templ.Handler(component))
+
+	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := strings.TrimPrefix(r.URL.Path, "/")
+
+		// show generate token page
+		if token == "" {
+			view.Landing(generateNewToken()).Render(context.Background(), w)
+		} else {
+			sessionId := generateSessionId()
+			view.Events(token, sessionId).Render(context.Background(), w)
+		}
+
+	}))
+
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.Handle("/events", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -50,13 +64,22 @@ func main() {
 		for i := 0; i < 20; i++ {
 			w.Write([]byte("data: "))
 
-			id := rand.Intn(100)
-			e := Event{Status: "ok", CallId: fmt.Sprintf("call-%d", id), Name: "GetUser", Arguments: []any{1, "hello"}, Return: map[string]any{"name": "Kacper", "age": 24}, startTs: time.Now(), endTs: time.Now(), callStack: []string{"GetUser", "GetUserById", "GetUserByIdFromDb"}}
-			event(e).Render(context.Background(), w)
+			time.Sleep(1 * time.Second)
 
+			id := rand.Intn(100)
+			e := model.Event{Status: "ok", CallId: fmt.Sprintf("call-%d", id), Name: "GetUser", Arguments: []any{1, "hello"}, Return: map[string]any{"name": "Kacper", "age": 24}, StartTs: time.Now(), EndTs: time.Now(), CallStack: []string{"GetUser", "GetUserById", "GetUserByIdFromDb"}}
+			view.Event(e).Render(context.Background(), w)
 			w.Write([]byte("\n\n"))
+
 			f.Flush()
 		}
+
+		for {
+			time.Sleep(1 * time.Second)
+			w.Write([]byte("\n\n"))
+
+		}
+
 	}))
 
 	fmt.Println("Listening on :3000")

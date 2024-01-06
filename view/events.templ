@@ -24,7 +24,7 @@ templ Events(token, sessionId string) {
 					</thead>
 					<tbody
  						hx-ext="sse"
- 						sse-connect={ fmt.Sprintf("/events?token=%s&session=%s", token, sessionId) }
+ 						sse-connect={ fmt.Sprintf("/events?token=%s&sessionId=%s", token, sessionId) }
  						sse-swap="message"
  						hx-swap="beforeend"
 					></tbody>

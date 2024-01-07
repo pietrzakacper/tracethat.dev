@@ -4,12 +4,15 @@ import (
 	"context"
 	"devtools-project/model"
 	"devtools-project/view"
+	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"strings"
 	"sync"
-	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 type Consumer struct {
@@ -80,7 +83,7 @@ func (s Spaces) AddProducer(token string, c <-chan model.Event) {
 	}()
 }
 
-func (s Spaces) AddConsumer(token string, sessionId string, c chan<- model.Event) {
+func (s Spaces) AddConsumer(token string, sessionId string) <-chan model.Event {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -89,7 +92,11 @@ func (s Spaces) AddConsumer(token string, sessionId string, c chan<- model.Event
 	}
 
 	space, _ := s[token]
+
+	c := make(chan model.Event)
 	space.AddConsumer(sessionId, c)
+
+	return c
 }
 
 func generateSessionId() string {
@@ -102,21 +109,6 @@ func generateNewToken() string {
 
 func main() {
 	s := Spaces{}
-
-	c := make(chan model.Event)
-
-	s.AddProducer("123", c)
-
-	go func() {
-		for {
-			time.Sleep(1 * time.Second)
-
-			id := rand.Intn(100)
-			e := model.Event{Status: "ok", CallId: fmt.Sprintf("call-%d", id), Name: "GetUser", Arguments: []any{id, "hello"}, Return: map[string]any{"name": "Kacper", "age": 24}, StartTs: time.Now(), EndTs: time.Now(), CallStack: []string{"GetUser", "GetUserById", "GetUserByIdFromDb"}}
-
-			c <- e
-		}
-	}()
 
 	fs := http.FileServer(http.Dir("./static"))
 
@@ -139,6 +131,52 @@ func main() {
 
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
+	upgrader := websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+
+	http.Handle("/report", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.URL.Query().Get("token")
+
+		if token == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		c := make(chan model.Event)
+
+		s.AddProducer(token, c)
+
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		for {
+			messageType, p, err := conn.ReadMessage()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			e := model.Event{}
+			err = json.Unmarshal(p, &e)
+
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			fmt.Printf("event received %+v\n", e)
+			c <- e
+
+			fmt.Printf("received message %v %v %v\n", messageType, string(p), err)
+		}
+	}))
+
 	http.Handle("/events", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		f, ok := w.(http.Flusher)
 		if !ok {
@@ -152,16 +190,13 @@ func main() {
 		w.Header().Set("Connection", "keep-alive")
 		w.Header().Set("Transfer-Encoding", "chunked")
 
-		eventsStream := make(chan model.Event)
-
 		token := r.URL.Query().Get("token")
 		sessionId := r.URL.Query().Get("sessionId")
 
-		s.AddConsumer(token, sessionId, eventsStream)
+		c := s.AddConsumer(token, sessionId)
 
 		for {
-			e := <-eventsStream
-			fmt.Printf("Sending event: %+v\n", e)
+			e := <-c
 			w.Write([]byte("data: "))
 			view.Event(e).Render(context.Background(), w)
 			w.Write([]byte("\n\n"))

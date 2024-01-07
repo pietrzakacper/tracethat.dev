@@ -1,14 +1,11 @@
 package model
 
-import "time"
-
 type Event struct {
-	Status    string // ok, error, in-progress
-	CallId    string
-	Name      string
-	Arguments []any
-	Return    any
-	StartTs   time.Time
-	EndTs     time.Time
-	CallStack []string
+	Name         string `json:"name"`
+	Status       string `json:"status"` // ok, error, in-progress
+	CallId       string `json:"callId"`
+	StartEpochMs int    `json:"startEpochMs"`
+	EndEpochMs   int    `json:"endEpochMs"`
+
+	Details map[string]any `json:"details"`
 }

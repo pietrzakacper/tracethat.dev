@@ -32,9 +32,12 @@ templ Events(token, sessionId string) {
 			</div>
 			<div
  				x-show="!!selectedEvt"
+ 				x-transition
  				class="shadow-lg rounded-lg flex-1 ml-0 md:ml-6 mt-6 md:mt-0 p-6 h-[calc(100vh-4rem)]"
 			>
-				<h2 class="text-2xl font-bold mb-4">Event Details</h2>
+				<script src="/static/event-details.js"></script>
+				<header class="flex flex-wrap gap-2" x-html="renderHeader(selectedEvt)"></header>
+				<div class="border-b border-gray-200 my-4"></div>
 				<div
  					x-effect="selectedEvt && renderJsonTree(selectedEvt)"
  					id="json-tree"
@@ -44,8 +47,13 @@ templ Events(token, sessionId string) {
 	}
 }
 
-func timeWithMs(t time.Time) string {
-	return t.Format("15:04:05.000")
+func timeWithMs(epochMs int) string {
+	return time.UnixMilli(int64(epochMs)).Format("15:04:05.000")
+}
+
+func durationAsSeconds(startEpochMs, endEpochMs int) string {
+	durationMs := (endEpochMs - startEpochMs)
+	return fmt.Sprintf("%.3fs", float64(durationMs)/1000)
 }
 
 func toJSON(e model.Event) string {
@@ -53,14 +61,64 @@ func toJSON(e model.Event) string {
 	return string(val)
 }
 
+var bgColors = [...]string{
+	"bg-blue-100",
+	"bg-green-100",
+	"bg-yellow-100",
+	"bg-red-100",
+	"bg-purple-100",
+	"bg-pink-100",
+	"bg-indigo-100",
+	"bg-gray-100",
+	"bg-blue-200",
+	"bg-green-200",
+	"bg-yellow-200",
+	"bg-red-200",
+	"bg-purple-200",
+	"bg-pink-200",
+	"bg-indigo-200",
+	"bg-gray-200",
+	"bg-blue-300",
+	"bg-green-300",
+	"bg-yellow-300",
+	"bg-red-300",
+	"bg-purple-300",
+	"bg-pink-300",
+	"bg-indigo-300",
+	"bg-gray-300",
+	"bg-blue-400",
+	"bg-green-400",
+	"bg-yellow-400",
+	"bg-red-400",
+	"bg-purple-400",
+	"bg-pink-400",
+	"bg-indigo-400",
+	"bg-gray-400",
+}
+
+func hashStrToInt(s string) uint64 {
+	h := uint64(0)
+	for _, c := range s {
+		h = uint64(c) + (h << 6) + (h << 16) - h
+	}
+	return h
+}
+func bgColor(s string) string {
+	color := bgColors[hashStrToInt(s)%uint64(len(bgColors))]
+
+	return fmt.Sprintf("%s hover:%s/50", color, color)
+}
+
 templ Event(e model.Event) {
 	<tr
  		@click={ fmt.Sprintf("selectedEvt = JSON.parse('%s')", toJSON(e)) }
- 		class="border-b transition-colors hover:bg-blue-200 data-[state=selected]:bg-muted bg-blue-100 cursor-pointer w-full"
+ 		id={ e.CallId }
+ 		bgColor={ bgColor(e.Name) }
+ 		class={ "border-b transition-colors cursor-pointer w-full", bgColor(e.Name) }
 	>
-		<th class="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">{ e.Name }</th>
-		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ e.Status }</td>
-		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.StartTs) }</td>
-		<td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.EndTs) }</td>
+		<th id="name" class="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">{ e.Name }</th>
+		<td id="duration" class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ durationAsSeconds(e.StartEpochMs, e.EndEpochMs) }</td>
+		<td id="start" class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.StartEpochMs) }</td>
+		<td id="end" class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.EndEpochMs) }</td>
 	</tr>
 }

@@ -1,15 +1,10 @@
 function renderJsonTree(json) {
-    const data = {
-        name: json.Name,
-        arguments: json.Arguments,
-        return: json.Return,
-        callStack: json.CallStack,
-    }
-
+    const data = json.details
 
     const $container = document.getElementById('json-tree')
 
     Array.from($container.children).forEach(c => c.remove())
 
-    jsonTree.create(data, $container);
+    const tree = jsonTree.create(data, $container);
+    tree.expand(n => n?.parent?.isRoot)
 }

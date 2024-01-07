@@ -41,6 +41,7 @@ templ Events(token, sessionId string) {
 				<div
  					x-effect="selectedEvt && renderJsonTree(selectedEvt)"
  					id="json-tree"
+ 					class="bg-neutral-100 py-4 px-6 rounded-lg overflow-auto h-[calc(100vh-15rem)]"
 				></div>
 			</div>
 		</div>
@@ -64,7 +65,6 @@ func toJSON(e model.Event) string {
 var bgColors = [...]string{
 	"bg-blue-100",
 	"bg-green-100",
-	"bg-yellow-100",
 	"bg-red-100",
 	"bg-purple-100",
 	"bg-pink-100",
@@ -72,7 +72,6 @@ var bgColors = [...]string{
 	"bg-gray-100",
 	"bg-blue-200",
 	"bg-green-200",
-	"bg-yellow-200",
 	"bg-red-200",
 	"bg-purple-200",
 	"bg-pink-200",
@@ -80,7 +79,6 @@ var bgColors = [...]string{
 	"bg-gray-200",
 	"bg-blue-300",
 	"bg-green-300",
-	"bg-yellow-300",
 	"bg-red-300",
 	"bg-purple-300",
 	"bg-pink-300",
@@ -88,7 +86,6 @@ var bgColors = [...]string{
 	"bg-gray-300",
 	"bg-blue-400",
 	"bg-green-400",
-	"bg-yellow-400",
 	"bg-red-400",
 	"bg-purple-400",
 	"bg-pink-400",
@@ -116,9 +113,9 @@ templ Event(e model.Event) {
  		bgColor={ bgColor(e.Name) }
  		class={ "border-b transition-colors cursor-pointer w-full", bgColor(e.Name) }
 	>
-		<th id="name" class="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">{ e.Name }</th>
-		<td id="duration" class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ durationAsSeconds(e.StartEpochMs, e.EndEpochMs) }</td>
-		<td id="start" class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.StartEpochMs) }</td>
-		<td id="end" class="p-4 align-middle [&:has([role=checkbox])]:pr-0">{ timeWithMs(e.EndEpochMs) }</td>
+		<th id="name" class="p-4 align-middle font-medium whitespace-nowrap">{ e.Name }</th>
+		<td id="duration" class="p-4 align-middle">{ durationAsSeconds(e.StartEpochMs, e.EndEpochMs) }</td>
+		<td id="start" class="p-4 align-middle">{ timeWithMs(e.StartEpochMs) }</td>
+		<td id="end" class="p-4 align-middle">{ timeWithMs(e.EndEpochMs) }</td>
 	</tr>
 }

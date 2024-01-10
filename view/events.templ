@@ -35,8 +35,7 @@ templ Events(token, sessionId string) {
  				x-transition
  				class="shadow-lg rounded-lg flex-1 ml-0 md:ml-6 mt-6 md:mt-0 p-6 h-[calc(100vh-4rem)]"
 			>
-				<script src="/static/event-details.js"></script>
-				<header class="flex flex-wrap gap-2" x-html="renderHeader(selectedEvt)"></header>
+				<header class="flex flex-wrap gap-2" x-html="window.renderHeader(selectedEvt)"></header>
 				<div class="border-b border-gray-200 my-4"></div>
 				<div
  					x-effect="selectedEvt && renderJsonTree(selectedEvt)"
@@ -114,7 +113,7 @@ templ Event(e model.Event) {
  		class={ "border-b transition-colors cursor-pointer w-full", bgColor(e.Name) }
 	>
 		<th id="name" class="p-4 align-middle font-medium whitespace-nowrap">{ e.Name }</th>
-		<td id="duration" class="p-4 align-middle">{ durationAsSeconds(e.StartEpochMs, e.EndEpochMs) }</td>
+		<td id="duration" class="p-4 align-middle tabular-nums">{ durationAsSeconds(e.StartEpochMs, e.EndEpochMs) }</td>
 		<td id="start" class="p-4 align-middle">{ timeWithMs(e.StartEpochMs) }</td>
 		<td id="end" class="p-4 align-middle">{ timeWithMs(e.EndEpochMs) }</td>
 	</tr>

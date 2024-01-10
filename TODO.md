@@ -6,8 +6,8 @@
 * [X] ~~*Create a websocket server*~~ [2024-01-06]
 * [X] ~~*Think about backwards compatibility of the protocol*~~ [2024-01-07]
 * [X] ~~*Add coloring by name*~~ [2024-01-07]
+* [X] ~~*Create the JS reporter*~~ [2024-01-07]
 * [ ] Auto scroll down
-* [ ] Create the JS reporter
 * [ ] Validate Event
 * [ ] Impose memory limits per space
 * [ ] Create auto cleanup of idle spaces
@@ -18,3 +18,4 @@
 * [ ] Deploy
 * [ ] Release JS reporter to npm
 * [ ] E2E encryption
+* [ ] Layout problems on smaller devices (jumping on big json expansion)

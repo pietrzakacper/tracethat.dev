@@ -28,7 +28,7 @@ export class FunctionTracer {
       }
 
       const callId = generateId();
-      const callStack = new Error().stack?.replace('\n', '').split("at ")?.slice(2)
+      const callStack = new Error().stack?.replaceAll('\n', '').split("at ")?.map(s => s.trim())?.slice(2)
 
       const startTs = new Date().getTime();
 

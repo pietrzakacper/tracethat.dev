@@ -32,7 +32,6 @@ templ Events(token, sessionId string) {
 			</div>
 			<div
  				x-show="!!selectedEvt"
- 				x-transition
  				class="shadow-lg rounded-lg flex-1 ml-0 md:ml-6 mt-6 md:mt-0 p-6 h-[calc(100vh-4rem)]"
 			>
 				<header class="flex flex-wrap gap-2" x-html="window.renderHeader(selectedEvt)"></header>

@@ -1,6 +1,11 @@
-import { registerToken, traceThat } from 'tracethat.dev'
+import { registerToken, traceThat, setServerUrl } from 'tracethat.dev'
 
-registerToken('123')
+if (process.env.SERVER_URL) {
+    setServerUrl(process.env.SERVER_URL)
+}
+
+let token = process.env.TOKEN || '123'
+registerToken(token)
 
 const ping = (address) => {
     return new Promise((resolve, reject) => {

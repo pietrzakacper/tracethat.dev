@@ -8,10 +8,10 @@
 * [X] ~~*Add coloring by name*~~ [2024-01-07]
 * [X] ~~*Create the JS reporter*~~ [2024-01-07]
 * [X] ~~*Deploy*~~ [2024-01-12]
+* [X] ~~*Impose memory limits per space*~~ [2024-01-12]
+* [X] ~~*Create auto cleanup of idle spaces*~~ [2024-01-12]
 * [ ] Auto scroll down
 * [ ] Validate Event
-* [ ] Impose memory limits per space
-* [ ] Create auto cleanup of idle spaces
 * [ ] Make tokens crypto safe
 * [ ] Prevent tokens bruto force discovery (ban IPs)
 * [ ] Create logo and favicon
@@ -20,4 +20,6 @@
 * [ ] Create documentation for FE
 * [ ] Release JS reporter to npm
 * [ ] E2E encryption
+* [ ] Introduce log level
 * [ ] Layout problems on smaller devices (jumping on big json expansion)
+* [ ] Setup Sentry errors monitoring

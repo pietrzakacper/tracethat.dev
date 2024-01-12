@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"devtools-project/controller"
 	"devtools-project/model"
 	"devtools-project/view"
 	"encoding/json"
@@ -11,94 +12,9 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 
 	"github.com/gorilla/websocket"
 )
-
-type Consumer struct {
-	c chan<- model.Event // channel to propagate events to client
-}
-type Space struct {
-	eventsLock *sync.Mutex
-	events     []model.Event
-
-	consumersLock *sync.Mutex
-	consumers     map[string]Consumer // sessionId -> Consumer
-}
-
-func NewSpace() *Space {
-	return &Space{
-		eventsLock:    &sync.Mutex{},
-		events:        []model.Event{},
-		consumersLock: &sync.Mutex{},
-		consumers:     make(map[string]Consumer),
-	}
-}
-
-func (s *Space) Broadcast(e model.Event) {
-	s.eventsLock.Lock()
-	s.events = append(s.events, e)
-	s.eventsLock.Unlock()
-
-	for _, session := range s.consumers {
-		session.c <- e
-	}
-}
-
-func (s *Space) AddConsumer(sessionId string, c chan<- model.Event) {
-	s.consumersLock.Lock()
-	defer s.consumersLock.Unlock()
-
-	if _, has := s.consumers[sessionId]; has {
-		return
-	}
-
-	s.consumers[sessionId] = Consumer{c: c}
-
-	go func() {
-		// propagate historical events
-		for _, e := range s.events {
-			fmt.Printf("propagating historical event %+v\n", e)
-			c <- e
-		}
-	}()
-}
-
-type Spaces map[string]*Space // spaceId -> Space
-var lock = sync.RWMutex{}
-
-func (s Spaces) AddProducer(token string, c <-chan model.Event) {
-	lock.Lock()
-	defer lock.Unlock()
-
-	if _, has := s[token]; !has {
-		s[token] = NewSpace()
-	}
-
-	space, _ := s[token]
-	go func() {
-		for {
-			space.Broadcast(<-c)
-		}
-	}()
-}
-
-func (s Spaces) AddConsumer(token string, sessionId string) <-chan model.Event {
-	lock.Lock()
-	defer lock.Unlock()
-
-	if _, has := s[token]; !has {
-		s[token] = NewSpace()
-	}
-
-	space, _ := s[token]
-
-	c := make(chan model.Event)
-	space.AddConsumer(sessionId, c)
-
-	return c
-}
 
 func generateSessionId() string {
 	return fmt.Sprintf("%d", rand.Intn(1000000))
@@ -109,8 +25,7 @@ func generateNewToken() string {
 }
 
 func main() {
-
-	s := Spaces{}
+	s := controller.NewSpaces()
 
 	fs := http.FileServer(http.Dir("./static"))
 

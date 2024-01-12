@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 
@@ -108,6 +109,7 @@ func generateNewToken() string {
 }
 
 func main() {
+
 	s := Spaces{}
 
 	fs := http.FileServer(http.Dir("./static"))
@@ -205,6 +207,12 @@ func main() {
 		}
 	}))
 
-	fmt.Println("Listening on :3000")
-	http.ListenAndServe(":3000", nil)
+	portFromEnv := os.Getenv("PORT")
+
+	if portFromEnv == "" {
+		portFromEnv = "3000"
+	}
+
+	fmt.Println("Listening on :" + portFromEnv)
+	http.ListenAndServe(":"+portFromEnv, nil)
 }

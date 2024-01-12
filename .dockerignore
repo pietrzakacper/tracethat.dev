@@ -1,0 +1,9 @@
+# flyctl launch added from .gitignore
+**/*_templ.go
+**/.vscode
+
+# flyctl launch added from reporter-js/.gitignore
+reporter-js/**/node_modules
+reporter-js/**/dist
+reporter-js/**/.vscode
+fly.toml

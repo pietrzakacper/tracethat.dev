@@ -10,12 +10,19 @@ templ layout() {
 			@scripts()
 		</head>
 		<body hx-boost="true">
+			<a href="/">
+				<img src="/static/logo.png" class="z-10	fixed top-4 left-4 w-12 h-12 rounded border-2 border-solid border-[darkslateblue]"/>
+			</a>
 			{ children... }
 		</body>
 	</html>
 }
 
 templ scripts() {
+	<link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png"/>
+	<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png"/>
+	<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png"/>
+	<link rel="manifest" href="/static/favicon/site.webmanifest"/>
 	<script src="https://unpkg.com/htmx.org@1.9.9"></script>
 	<script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
 	<script src="https://unpkg.com/alpinejs" defer></script>

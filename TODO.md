@@ -11,10 +11,10 @@
 * [X] ~~*Impose memory limits per space*~~ [2024-01-12]
 * [X] ~~*Create auto cleanup of idle spaces*~~ [2024-01-12]
 * [X] ~~*Create instruction for connecting*~~ [2024-01-12]
+* [X] ~~*Create logo and favicon*~~ [2024-01-12]
 * [ ] Auto scroll down
 * [ ] Validate Event
 * [ ] Make tokens crypto safe
-* [ ] Create logo and favicon
 * [ ] Create documentation for BE
 * [ ] Create documentation for FE
 * [ ] Release JS reporter to npm

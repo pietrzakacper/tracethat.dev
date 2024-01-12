@@ -10,12 +10,11 @@
 * [X] ~~*Deploy*~~ [2024-01-12]
 * [X] ~~*Impose memory limits per space*~~ [2024-01-12]
 * [X] ~~*Create auto cleanup of idle spaces*~~ [2024-01-12]
+* [X] ~~*Create instruction for connecting*~~ [2024-01-12]
 * [ ] Auto scroll down
 * [ ] Validate Event
 * [ ] Make tokens crypto safe
-* [ ] Prevent tokens bruto force discovery (ban IPs)
 * [ ] Create logo and favicon
-* [ ] Create instruction for connecting
 * [ ] Create documentation for BE
 * [ ] Create documentation for FE
 * [ ] Release JS reporter to npm

@@ -1,4 +1,3 @@
-
 function renderHeader(selectedEvt) {
     if (!selectedEvt) return
 

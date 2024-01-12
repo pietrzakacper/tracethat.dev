@@ -13,6 +13,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alecthomas/chroma/formatters/html"
+	"github.com/alecthomas/chroma/lexers"
+	"github.com/alecthomas/chroma/styles"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -40,8 +44,9 @@ func main() {
 		if token == "" {
 			view.Landing(generateNewToken()).Render(context.Background(), w)
 		} else {
+			instructionHtml := getInstructionHtml(token)
 			sessionId := generateSessionId()
-			view.Events(token, sessionId).Render(context.Background(), w)
+			view.Events(token, sessionId, instructionHtml).Render(context.Background(), w)
 		}
 
 	}))
@@ -73,7 +78,7 @@ func main() {
 			return
 		}
 		for {
-			messageType, p, err := conn.ReadMessage()
+			_, p, err := conn.ReadMessage()
 			if err != nil {
 				log.Println(err)
 				return
@@ -87,10 +92,7 @@ func main() {
 				return
 			}
 
-			fmt.Printf("event received %+v\n", e)
 			c <- e
-
-			fmt.Printf("received message %v %v %v\n", messageType, string(p), err)
 		}
 	}))
 
@@ -128,6 +130,43 @@ func main() {
 		portFromEnv = "3000"
 	}
 
+	getInstructionHtml("lol")
+
 	fmt.Println("Listening on :" + portFromEnv)
 	http.ListenAndServe(":"+portFromEnv, nil)
+}
+
+func getInstructionHtml(token string) string {
+	style := styles.Get("dracula")
+	if style == nil {
+		style = styles.Fallback
+	}
+	formatter := html.New()
+
+	rawInstruction := fmt.Sprintf(`
+	import { traceThat, registerToken } from 'tracethat.dev'
+	
+	registerToken('%s')
+	
+	const hello => (name) => { 
+		return `+
+		"`Hello ${name}!`"+
+		`
+	}
+	
+	traceThat(hello)('world')
+
+		`, token)
+
+	lexer := lexers.Get("javascript")
+	iterator, err := lexer.Tokenise(nil, rawInstruction)
+
+	strWriter := &strings.Builder{}
+	err = formatter.Format(strWriter, style, iterator)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return strWriter.String()
 }

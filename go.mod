@@ -7,4 +7,9 @@ require (
 	github.com/gorilla/websocket v1.5.1
 )
 
-require golang.org/x/net v0.17.0 // indirect
+require (
+	bitbucket.org/pcastools/hash v1.0.5 // indirect
+	github.com/alecthomas/chroma v0.10.0 // indirect
+	github.com/dlclark/regexp2 v1.4.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
+)

@@ -24,7 +24,7 @@ async function main() {
     while (true) {
         await new Promise(res => setTimeout(res, 1000))
         await traceThat(ping)('http://www.google.com').catch(console.error)
-        traceThat('lolz', () => 1)()
+        traceThat((process.env.EVT_NAME || 'test event') + Math.random().toFixed(5), () => 1)()
     }
 }
 

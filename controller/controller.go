@@ -76,6 +76,21 @@ func (s spaces) AddConsumer(token string, sessionId string) <-chan model.Event {
 	return c
 }
 
+func (s spaces) HasEvents(token string) bool {
+	lock.Lock()
+	defer lock.Unlock()
+	if _, has := s[token]; !has {
+		return false
+	}
+
+	space := s[token]
+
+	space.eventsLock.Lock()
+	defer space.eventsLock.Unlock()
+
+	return len(space.events) > 0
+}
+
 func (s spaces) removeInactiveSpaces() {
 	lock.Lock()
 	defer lock.Unlock()

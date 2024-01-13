@@ -44,9 +44,10 @@ func main() {
 		if token == "" {
 			view.Landing(generateNewToken()).Render(context.Background(), w)
 		} else {
+			hasEvents := s.HasEvents(token)
 			instructionHtml := getInstructionHtml(token)
 			sessionId := generateSessionId()
-			view.Events(token, sessionId, instructionHtml).Render(context.Background(), w)
+			view.Events(token, sessionId, instructionHtml, hasEvents).Render(context.Background(), w)
 		}
 
 	}))

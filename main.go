@@ -138,7 +138,7 @@ func main() {
 }
 
 func getInstructionHtml(token string) string {
-	style := styles.Get("dracula")
+	style := styles.Get("abap")
 	if style == nil {
 		style = styles.Fallback
 	}

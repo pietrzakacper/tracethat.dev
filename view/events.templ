@@ -6,6 +6,7 @@ import "fmt"
 import "devtools-project/model"
 import "encoding/json"
 import "bitbucket.org/pcastools/hash"
+import "encoding/base64"
 
 templ Events(token, sessionId, instructionHtml string, hasEvents bool) {
 	@layout() {
@@ -20,13 +21,13 @@ templ Events(token, sessionId, instructionHtml string, hasEvents bool) {
  			class="flex flex-col w-full py-4 px-6 md:px-12 lg:px-24 drawer transition-[margin-top] duration-[1s] ease-[ease-in-out]"
 		>
 			<div class="relative w-full mb-6 shadow-lg">
-				<style> pre { border: 2px solid black; border-radius: 0.5rem; }</style>
+				<style> pre { border: 2px solid black; border-radius: 0.5rem; z-index:2; }</style>
 				@templ.Raw(instructionHtml)
 				<div
  					x-on:click="showInstruction = !showInstruction"
  					x-text="showInstruction ? 'hide instruction' : 'show instruction'"
- 					class="absolute opacity-40 bg-gray-500 w-full cursor-pointer text-center text-white p-px bottom-0 hover:opacity-70 rounded-t-none rounded-lg"
-				>close instruction</div>
+ 					class="absolute bg-gray-200 w-full cursor-pointer text-center text-black p-px bottom-0 hover:bg-gray-400 rounded-t-none rounded-lg border-2 border-solid border-[black]"
+				></div>
 			</div>
 			<div
  				x-data="{ selectedEvt: null }"
@@ -77,7 +78,7 @@ templ Events(token, sessionId, instructionHtml string, hasEvents bool) {
 					<div
  						x-effect="selectedEvt && renderJsonTree(selectedEvt)"
  						id="json-tree"
- 						class="py-4 px-6 rounded-lg overflow-auto h-[calc(100vh-16rem)]"
+ 						class="py-4 rounded-lg overflow-auto h-[calc(100vh-16rem)] break-words w-[calc(50vw-5rem)];"
 					></div>
 				</div>
 			</div>
@@ -136,10 +137,14 @@ func bgColor(s string) string {
 	return fmt.Sprintf("%s hover:%s/50", color, color)
 }
 
+func toBase64(s string) string {
+	return base64.StdEncoding.EncodeToString([]byte(s))
+}
+
 templ Event(e model.Event) {
 	<tr
  		x-init="eventsCount = eventsCount + 1"
- 		@click={ fmt.Sprintf("selectedEvt = JSON.parse('%s')", toJSON(e)) }
+ 		@click={ fmt.Sprintf("selectedEvt = '%s'", toBase64(toJSON(e))) }
  		id={ e.CallId }
  		bgColor={ bgColor(e.Name) }
  		class={ "border-b transition-colors cursor-pointer w-full", bgColor(e.Name) }

@@ -1,5 +1,7 @@
-function renderHeader(selectedEvt) {
-    if (!selectedEvt) return
+function renderHeader(selectedEvtB64) {
+    if (!selectedEvtB64) return
+
+    const selectedEvt = JSON.parse(atob(selectedEvtB64))
 
     const id = selectedEvt.callId
     const $evt = document.getElementById(id)

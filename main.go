@@ -131,8 +131,6 @@ func main() {
 		portFromEnv = "3000"
 	}
 
-	getInstructionHtml("lol")
-
 	fmt.Println("Listening on :" + portFromEnv)
 	http.ListenAndServe(":"+portFromEnv, nil)
 }

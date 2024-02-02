@@ -147,7 +147,7 @@ func getInstructionHtml(token string) string {
 	
 	registerToken('%s')
 	
-	const hello => (name) => { 
+	const hello = (name) => { 
 		return `+
 		"`Hello ${name}!`"+
 		`

@@ -8,8 +8,6 @@ require (
 )
 
 require (
-	bitbucket.org/pcastools/hash v1.0.5 // indirect
-	github.com/a-h/templ v0.2.543 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 )

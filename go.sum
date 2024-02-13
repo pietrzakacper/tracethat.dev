@@ -1,7 +1,3 @@
-bitbucket.org/pcastools/hash v1.0.5 h1:Z26b2PcLdC64C07KbGkxZRYOyvkEmxOc8o+wCQ2Bmo8=
-bitbucket.org/pcastools/hash v1.0.5/go.mod h1:PwZDvsw1oSN5uo9+r3ztepeAPUekYPBaaxh0pmUaXDo=
-github.com/a-h/templ v0.2.543 h1:8YyLvyUtf0/IE2nIwZ62Z/m2o2NqwhnMynzOL78Lzbk=
-github.com/a-h/templ v0.2.543/go.mod h1:jP908DQCwI08IrnTalhzSEH9WJqG/Q94+EODQcJGFUA=
 github.com/alecthomas/chroma v0.10.0 h1:7XDcGkCQopCNKjZHfYrNLraA+M7e0fMiJ/Mfikbfjek=
 github.com/alecthomas/chroma v0.10.0/go.mod h1:jtJATyUxlIORhUOFNA9NZDWGAQ8wpxQQqNSB4rjA/1s=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

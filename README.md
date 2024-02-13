@@ -2,3 +2,33 @@
 *No-setup remote debugging for any app*
 
 ![](./docs/demo.gif)
+
+## Developing locally
+### Golang Server
+1. Do only once before first build
+```bash
+# Install go from official webiste and make sure you have your GOPATH/bin folder in your PATH env
+go install github.com/a-h/templ/cmd/templ@latest # install Templ
+go mod tidy # install deps
+```
+
+2. Do on every build/change
+```bash
+templ generate # Builds .templ to .go files
+go ./... # Runs the server
+```
+
+### JavaScript Reporter
+```bash
+cd reporter-js
+npm i # run only once
+npm run build # build on each change
+# Run the example using locally build reporter and local server
+SERVER_URL=ws://localhost:3000/report TOKEN=123 npx tsx example/ping.ts
+```
+
+## Contributing
+This project is meant to be built by the community.
+Please refer to the list of `Issues` but don't limit yourself to it.
+If you have an idea/bugfix I'm open for any kind of contributions.
+Feel free to contact me on [LinkedIn](https://www.linkedin.com/in/kacper-pietrzak/) in case you want to help. 

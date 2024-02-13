@@ -1,7 +1,7 @@
 # tracethat.dev
-*No-setup remote debugging for any app*
-
-![](./docs/demo.gif)
+*No-setup remote debugging for any app*  
+***Use it yourself at [tracethat.dev](https://tracethat.dev)
+![](./docs/demo.gif)***
 
 ## Developing locally
 ### Golang Server

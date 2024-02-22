@@ -12,10 +12,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api/events": {
+      "/api/*": {
         target: "http://localhost:8080",
         ws: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },

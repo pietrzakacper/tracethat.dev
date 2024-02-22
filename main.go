@@ -61,7 +61,7 @@ func main() {
 
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
-	http.Handle("/report", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/api/report", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := r.URL.Query().Get("token")
 
 		if token == "" {
@@ -97,7 +97,7 @@ func main() {
 		}
 	}))
 
-	http.Handle("/events", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/api/events", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		f, ok := w.(http.Flusher)
 		if !ok {
 			http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)

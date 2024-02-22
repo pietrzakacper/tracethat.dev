@@ -117,8 +117,15 @@ func main() {
 
 		for {
 			e := <-c
+			j, err := json.Marshal(e)
+
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
 			w.Write([]byte("data: "))
-			view.Event(e).Render(context.Background(), w)
+			w.Write(j)
 			w.Write([]byte("\n\n"))
 
 			f.Flush()
@@ -144,15 +151,15 @@ func getInstructionHtml(token string) string {
 
 	rawInstruction := fmt.Sprintf(`
 	import { traceThat, registerToken } from 'tracethat.dev'
-	
+
 	registerToken('%s')
-	
-	const hello = (name) => { 
+
+	const hello = (name) => {
 		return `+
 		"`Hello ${name}!`"+
 		`
 	}
-	
+
 	traceThat(hello)('world')
 
 		`, token)

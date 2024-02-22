@@ -1,0 +1,19 @@
+version: "3.4"
+name: tracethat
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./go.mod:/app/go.mod
+      - ./go.sum:/app/go.sum
+      - ./main.go:/app/main.go
+      - ./controller:/app/controller
+      - ./model:/app/model
+      - ./static:/app/static
+      - ./view:/app/view
+    ports:
+      - "8080:8080"

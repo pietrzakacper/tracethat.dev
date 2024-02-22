@@ -6,6 +6,7 @@ WORKDIR /app
 # Download Go modules
 COPY go.mod go.sum ./
 RUN go mod download
+RUN go install github.com/a-h/templ/cmd/templ@latest
 
 COPY *.go  ./
 COPY view/ ./view
@@ -13,7 +14,6 @@ COPY static/ ./static
 COPY model/ ./model
 COPY controller/ ./controller
 
-RUN go install github.com/a-h/templ/cmd/templ@latest
 RUN templ generate
 
 # Build

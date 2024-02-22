@@ -4,6 +4,9 @@ import { columns } from "./EventsTable.columns";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { getRowBackgroundClassNames } from "@/utils/colors";
+import { StringParam, useSearchParam } from "@/hooks/useSearchParam";
+import { Highlight, themes } from "prism-react-renderer";
+import { useMemo } from "react";
 
 interface EventViewerProps {
   events: TraceEvent[];
@@ -58,24 +61,36 @@ export const EventsTable = ({ events, setSelectedEventCallId }: EventViewerProps
   );
 };
 
+const getCodeBlock = (token: string) =>
+  `
+import { traceThat, registerToken } from "tracethat.dev";
+
+registerToken("${token}")
+
+const hello = (name) => {
+  return \`Hello ${name}!\`;
+}
+
+traceThat(hello)("world");
+`.trim();
+
 const Snippet = () => {
-  const code = `<pre tabindex="0" style="background-color:#fff;"><code><span style="display:flex;"><span>
-  </span></span><span style="display:flex;"><span>	<span style="color:#00f">import</span> { <span style="color:#000">traceThat</span>, <span style="color:#000">registerToken</span> } <span style="color:#000">from</span> <span style="color:#5a2">'tracethat.dev'</span>
-  </span></span><span style="display:flex;"><span>
-  </span></span><span style="display:flex;"><span>	<span style="color:#000">registerToken</span>(<span style="color:#5a2">'test'</span>)
-  </span></span><span style="display:flex;"><span>
-  </span></span><span style="display:flex;"><span>	<span style="color:#00f">const</span> <span style="color:#000">hello</span> = (<span style="color:#000">name</span>) =&gt; {
-  </span></span><span style="display:flex;"><span>		<span style="color:#00f">return</span> <span style="color:#5a2">\`</span><span style="color:#5a2">Hello </span><span style="color:#5a2">\${</span><span style="color:#000">name</span><span style="color:#5a2">}</span><span style="color:#5a2">!</span><span style="color:#5a2">\`</span>
-  </span></span><span style="display:flex;"><span>	}
-  </span></span><span style="display:flex;"><span>
-  </span></span><span style="display:flex;"><span>	<span style="color:#000">traceThat</span>(<span style="color:#000">hello</span>)(<span style="color:#5a2">'world'</span>)
-  </span></span><span style="display:flex;"><span>
-  </span></span><span style="display:flex;"><span>
-  </span></span></code></pre>`;
+  const [token] = useSearchParam("token", StringParam);
+  const code = useMemo(() => getCodeBlock(token), [token]);
 
   return (
-    <div>
-      <div className="font-mono text-base" dangerouslySetInnerHTML={{ __html: code }} />
-    </div>
+    <Highlight theme={themes.oneLight} code={code} language="ts">
+      {({ className, tokens, getLineProps, getTokenProps }) => (
+        <pre className={cn(className, "font-mono text-left py-2 px-3 rounded-sm text-foreground select-text")}>
+          {tokens.map((line, i) => (
+            <div key={i} {...getLineProps({ line })}>
+              {line.map((token, key) => (
+                <span key={key} {...getTokenProps({ token })} />
+              ))}
+            </div>
+          ))}
+        </pre>
+      )}
+    </Highlight>
   );
 };

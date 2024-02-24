@@ -1,13 +1,31 @@
 @font-face {
-  font-family: "Geist VF";
-  src: url(/fonts/GeistVariableVF.woff2) format("woff2");
+  font-family: JetBrainsMono;
+  font-style: normal;
   font-weight: 100 900;
   font-display: swap;
+  src: url("/fonts/JetBrainsMono/JetBrainsMono.ttf") format("ttf");
 }
 
 @font-face {
-  font-family: "Geist Mono VF";
-  src: url(/fonts/GeistMonoVariableVF.woff2) format("woff2");
+  font-family: JetBrainsMono;
+  font-style: italic;
   font-weight: 100 900;
   font-display: swap;
+  src: url("/fonts/JetBrainsMono/JetBrainsMono-Italic.ttf") format("ttf");
+}
+
+@font-face {
+  font-family: InterVariable;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter/InterVariable.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: InterVariable;
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter/InterVariable-Italic.woff2") format("woff2");
 }

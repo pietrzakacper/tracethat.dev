@@ -12,7 +12,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api/*": {
+      "/api/events": {
         target: "http://localhost:8080",
         ws: true,
       },

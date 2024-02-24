@@ -14,9 +14,17 @@ const config = {
       },
     },
     extend: {
+      gridTemplateRows: {
+        layout: "auto 1fr",
+      },
       fontFamily: {
-        sans: ['"Geist VF"', ...defaultTheme.fontFamily.sans],
-        mono: ['"Geist Mono VF"', ...defaultTheme.fontFamily.mono],
+        sans: [
+          ['"InterVariable"', ...defaultTheme.fontFamily.sans],
+          {
+            fontFeatureSettings: '"liga" 1, "calt" 1',
+          },
+        ],
+        mono: ['"JetBrainsMono"', ...defaultTheme.fontFamily.mono],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,6 +59,10 @@ const config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        logo: {
+          foreground: "hsl(var(--logo-foreground))",
+          background: "hsl(var(--logo-background))",
         },
       },
       borderRadius: {

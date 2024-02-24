@@ -22,10 +22,10 @@ export const Landing = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
       <header className="flex flex-col mb-16">
         <div>
-          <h1 className="text-[4rem] text-[black] font-bold text-center">traceThat(…)</h1>
+          <h1 className="text-[4rem] text-foreground font-bold text-center">traceThat(…)</h1>
         </div>
         <div>
-          <h2 className="text-[2rem] text-[black] font-light opacity-60">no-setup observability for any app</h2>
+          <h2 className="text-[2rem] text-muted-foreground font-light">no-setup observability for any app</h2>
         </div>
       </header>
       <main className="flex flex-row items-center justify-center space-x-4">
@@ -34,7 +34,7 @@ export const Landing = () => {
             <Link to={{ pathname: "/", search: `?token=${randomToken}` }}>Start New Session</Link>
           </Button>
         </section>
-        <span className="text-gray-900">OR</span>
+        <span className="text-muted-foreground">OR</span>
         <section className="flex flex-col items-center justify-center space-y-4">
           <div className="w-full max-w-sm space-y-2">
             <form className="flex space-x-2" onSubmit={onSubmit}>

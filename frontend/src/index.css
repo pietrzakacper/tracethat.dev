@@ -33,10 +33,13 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    --logo-background: 213 97% 87%;
+    --logo-foreground: 222.2 84% 4.9%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 213 17% 12%;
     --foreground: 210 40% 98%;
 
     --card: 222.2 84% 4.9%;
@@ -51,7 +54,7 @@
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 210 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
     --accent: 217.2 32.6% 17.5%;
@@ -60,9 +63,12 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 210 15% 20%;
+    --input: 210 15% 20%;
     --ring: 212.7 26.8% 83.9%;
+
+    --logo-background: 213 97% 87%;
+    --logo-foreground: 234 17% 12%;
   }
 }
 

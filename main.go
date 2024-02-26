@@ -109,6 +109,7 @@ func main() {
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
 		w.Header().Set("Transfer-Encoding", "chunked")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		token := r.URL.Query().Get("token")
 		sessionId := r.URL.Query().Get("sessionId")

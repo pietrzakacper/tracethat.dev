@@ -8,11 +8,12 @@ import { Logo } from "@/components/Logo";
 import { Link } from "@/components/Link";
 import { Button } from "@/components/ui/button/button";
 import { Github } from "lucide-react";
+import { ENDPOINTS } from "@/lib/endpoints";
 
 export function EventsList() {
   const [token] = useSearchParam("token", StringParam);
   const [sessionId] = useState(() => Math.random().toString(36).slice(2));
-  const { data } = useSSE(`/api/events?token=${token}&sessionId=${sessionId}`, parseTraceEvent);
+  const { data } = useSSE(ENDPOINTS.events({ token, sessionId }), parseTraceEvent);
   const [selectedEventCallId, setSelectedEventCallId] = useState<string | null>(null);
 
   const firstEvent = data[0];

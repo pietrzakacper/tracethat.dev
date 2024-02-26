@@ -7,14 +7,12 @@
 ### Golang Server
 1. Do only once before first build
 ```bash
-# Install go from official webiste and make sure you have your GOPATH/bin folder in your PATH env
-go install github.com/a-h/templ/cmd/templ@latest # install Templ
+# Install go from official webiste
 go mod tidy # install deps
 ```
 
 2. Do on every build/change
 ```bash
-templ generate # Builds .templ to .go files
 go ./... # Runs the server
 ```
 
@@ -24,7 +22,7 @@ cd reporter-js
 npm i # run only once
 npm run build # build on each change
 # Run the example using locally build reporter and local server
-SERVER_URL=ws://localhost:3000/report TOKEN=123 npx tsx example/ping.ts
+SERVER_URL=ws://localhost:3000/api/report TOKEN=123 npx tsx example/ping.ts
 ```
 
 ## Contributing

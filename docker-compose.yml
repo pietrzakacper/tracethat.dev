@@ -14,6 +14,5 @@ services:
       - ./controller:/app/controller
       - ./model:/app/model
       - ./static:/app/static
-      - ./view:/app/view
     ports:
       - "8080:8080"

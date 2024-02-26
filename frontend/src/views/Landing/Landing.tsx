@@ -2,11 +2,11 @@ import history from "history/browser";
 import { Link } from "@/components/Link";
 import { Button } from "@/components/ui/button/button";
 import { useMemo, useState } from "react";
-import { v4 as uuid } from "uuid";
 import { Input } from "@/components/ui/input/input";
+import { getRandomId } from "@/utils/getRandomId";
 
 export const Landing = () => {
-  const randomToken = useMemo(() => uuid(), []);
+  const randomToken = useMemo(() => getRandomId(), []);
   const [customToken, setCustomToken] = useState("");
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {

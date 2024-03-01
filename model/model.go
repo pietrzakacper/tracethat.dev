@@ -5,7 +5,7 @@ type Event struct {
 	Status       string `json:"status"` // ok, error, in-progress
 	CallId       string `json:"callId"`
 	StartEpochMs int    `json:"startEpochMs"`
-	EndEpochMs   int    `json:"endEpochMs"`
+	EndEpochMs   int    `json:"endEpochMs,omitempty"`
 
 	Details map[string]any `json:"details"`
 }

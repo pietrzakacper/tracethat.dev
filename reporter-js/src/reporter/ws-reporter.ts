@@ -1,10 +1,6 @@
-import { WebSocket } from "ws";
-import { disableDevtools, runtimeConfig } from "../runtime-config";
+import WebSocket from "isomorphic-ws";
+import { runtimeConfig } from "../runtime-config";
 import { Reporter } from './interface'
-
-function createMessage(type: "hello" | "register-event", body: any) {
-  return JSON.stringify([type, body]);
-}
 
 function sendRegisterEventMessage(
   ws: WebSocket,
@@ -42,15 +38,15 @@ class WebSocketReporter implements Reporter {
     this.connectedPromise = new Promise((res, rej) => {
       this.ws = new WebSocket(`${runtimeConfig.serverUrl}?token=${token}`);
 
-      this.ws.on("open", function open() {
+      this.ws.onopen = function open() {
         // The WebSocket type doesn't expose this property, but every Socket has it
-        // we need to unref it so that it doesn't stop the process from exiting 
+        // we need to unref it so that it doesn't stop the Node.JS process from exiting 
         // @ts-ignore
         this._socket?.unref()
 
         res();
-      });
-      this.ws.on("error", rej);
+      };
+      this.ws.onerror = rej;
     });
 
     return this.connectedPromise

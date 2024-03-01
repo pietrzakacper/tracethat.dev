@@ -4,3 +4,4 @@ node_modules
 tsconfig.json
 *.spec.js
 *.spec.d.ts
+example/

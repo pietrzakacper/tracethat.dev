@@ -3,10 +3,13 @@ import { z } from "zod";
 
 export const TraceEvent = z.object({
   name: z.string(),
-  status: z.union([z.literal("ok"), z.literal("error"), z.literal("in-progress")]),
+  status: z.union([z.literal("ok"), z.literal("error"), z.literal("running")]),
   callId: z.string(),
   startEpochMs: z.number(),
-  endEpochMs: z.number(),
+  endEpochMs: z
+    .number()
+    .optional()
+    .transform((v) => (v === 0 ? undefined : v)),
   details: z.record(z.any()),
 });
 export type TraceEvent = z.infer<typeof TraceEvent>;

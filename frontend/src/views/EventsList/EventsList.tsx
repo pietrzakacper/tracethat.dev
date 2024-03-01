@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSSE } from "../../hooks/useSSE";
-import { parseTraceEvent } from "../../validators/TraceEvent";
+import { TraceEvent, parseTraceEvent } from "../../validators/TraceEvent";
 import { EventViewer } from "./elements/EventViewer";
 import { EventsTable } from "./elements/EventsTable";
 import { StringParam, useSearchParam } from "@/hooks/useSearchParam";
@@ -9,6 +9,7 @@ import { Link } from "@/components/Link";
 import { Button } from "@/components/ui/button/button";
 import { Github } from "lucide-react";
 import { ENDPOINTS } from "@/lib/endpoints";
+import { ModeToggle } from "@/components/ModeToggle";
 
 export function EventsList() {
   const [token] = useSearchParam("token", StringParam);
@@ -16,7 +17,35 @@ export function EventsList() {
   const { data } = useSSE(ENDPOINTS.events({ token, sessionId }), parseTraceEvent);
   const [selectedEventCallId, setSelectedEventCallId] = useState<string | null>(null);
 
-  const firstEvent = data[0];
+  const sortedData = useMemo(() => {
+    const visitedEvents = new Set<string>();
+
+    const sortedData = data.toSorted((a, b) => {
+      const startEpochMsA = a.startEpochMs;
+      const endEpochMsA = a.endEpochMs;
+      const startEpochMsB = b.startEpochMs;
+      const endEpochMsB = b.endEpochMs;
+
+      const epochMsA = endEpochMsA || startEpochMsA;
+      const epochMsB = endEpochMsB || startEpochMsB;
+
+      return epochMsA - epochMsB;
+    });
+
+    const outputData: TraceEvent[] = [];
+    for (let i = sortedData.length - 1; i >= 0; i--) {
+      const event = sortedData[i];
+      if (!visitedEvents.has(event.callId)) {
+        outputData.unshift(event);
+      }
+
+      visitedEvents.add(event.callId);
+    }
+
+    return outputData;
+  }, [data]);
+
+  const firstEvent = sortedData[0];
   useEffect(() => {
     if (firstEvent != null) {
       setSelectedEventCallId(firstEvent.callId);
@@ -34,21 +63,24 @@ export function EventsList() {
           <Logo />
         </Link>
         <div className="flex-1" />
-        <Button variant="outline" asChild size="icon">
-          <a href="https://github.com/pietrzakacper/tracethat.dev" target="_blank" rel="noopener noreferrer">
-            <Github className="w-4 h-4" />
-          </a>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ModeToggle />
+          <Button variant="outline" asChild size="icon">
+            <a href="https://github.com/pietrzakacper/tracethat.dev" target="_blank" rel="noopener noreferrer">
+              <Github className="w-4 h-4" />
+            </a>
+          </Button>
+        </div>
       </header>
       <div className="border-r min-h-0">
         <EventsTable
-          events={data}
+          events={sortedData}
           selectedEventCallId={selectedEventCallId}
           setSelectedEventCallId={setSelectedEventCallId}
         />
       </div>
       <div className="min-h-0">
-        <EventViewer events={data} selectedEventCallId={selectedEventCallId} />
+        <EventViewer events={sortedData} selectedEventCallId={selectedEventCallId} />
       </div>
     </div>
   );

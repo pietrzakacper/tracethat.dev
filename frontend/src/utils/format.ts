@@ -12,5 +12,5 @@ export function formatTime(date: Date) {
 }
 
 export function formatDuration(duration: number) {
-  return duration.toFixed(3) + "s";
+  return duration.toFixed(3) + "ms";
 }

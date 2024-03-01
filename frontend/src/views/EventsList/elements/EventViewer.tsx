@@ -7,6 +7,7 @@ import { getColor } from "@/utils/colors";
 import { formatDuration, formatTime } from "@/utils/format";
 import { NBSP } from "@/utils/text";
 import { TraceEvent } from "@/validators/TraceEvent";
+import { Loader2 } from "lucide-react";
 import { useMemo } from "react";
 import ReactJson, { ThemeObject } from "react-json-view";
 
@@ -34,9 +35,9 @@ export const EventViewer = ({ events, selectedEventCallId }: EventViewerProps) =
     );
   }
 
-  const duration = selectedEvent.endEpochMs - selectedEvent.startEpochMs;
+  const duration = (selectedEvent.endEpochMs ?? 0) - selectedEvent.startEpochMs;
   const start = new Date(selectedEvent.startEpochMs);
-  const end = new Date(selectedEvent.endEpochMs);
+  const end = new Date(selectedEvent.endEpochMs ?? 0);
   const { hover, icon: Icon, base } = getColor(selectedEvent.name);
 
   return (
@@ -53,7 +54,11 @@ export const EventViewer = ({ events, selectedEventCallId }: EventViewerProps) =
         <div className="flex gap-2">
           <Badge variant="default">
             Duration:{NBSP}
-            <span className="select-text tabular-nums">{formatDuration(duration)}</span>
+            {selectedEvent.endEpochMs != null ? (
+              <span className="select-text tabular-nums">{formatDuration(duration)}</span>
+            ) : (
+              <Loader2 className="ml-1 h-4 w-4 animate-spin" />
+            )}
           </Badge>
           <Badge variant="default">
             Start:{NBSP}
@@ -61,7 +66,11 @@ export const EventViewer = ({ events, selectedEventCallId }: EventViewerProps) =
           </Badge>
           <Badge variant="default">
             End:{NBSP}
-            <span className="select-text tabular-nums">{formatTime(end)}</span>
+            {selectedEvent.endEpochMs != null ? (
+              <span className="select-text tabular-nums">{formatTime(end)}</span>
+            ) : (
+              <Loader2 className="ml-1 h-4 w-4 animate-spin" />
+            )}
           </Badge>
         </div>
       </div>

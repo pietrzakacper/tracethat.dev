@@ -1,6 +1,6 @@
 import history from "history/browser";
 import type { Location } from "history";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 
 export const StringParam = z.string().min(1);
@@ -29,24 +29,37 @@ type ParamType =
 
 function getSearchParam<T extends ParamType>(param: string, location: Location, parseType?: T): z.infer<T> {
   const value = new URLSearchParams(location.search).get(param) ?? undefined;
+  const parser = parseType == null ? OptionalStringParam : parseType;
 
-  if (parseType == null) {
-    return OptionalStringParam.parse(value);
-  }
-
-  return parseType.parse(value);
+  return parser.parse(value);
 }
 
-export const useSearchParam = <T extends ParamType = typeof OptionalStringParam>(param: string, paramType?: T) => {
-  const [value, setValue] = useState(() => getSearchParam(param, history.location, paramType));
+const LocationContext = createContext<Location | null>(null);
+export const LocationContextProvider = LocationContext.Provider;
+const useLocationContext = () => {
+  const context = useContext(LocationContext);
+  if (context == null) {
+    throw new Error("useLocationContext must be used within a LocationProvider");
+  }
+
+  return context;
+};
+
+export const useLocation = () => {
+  const [location, setLocation] = useState(history.location);
 
   useEffect(() => {
     return history.listen(({ location }) => {
-      const newValue = getSearchParam(param, location, paramType);
-
-      setValue(newValue);
+      setLocation(location);
     });
-  }, [param, paramType]);
+  }, []);
+
+  return location;
+};
+
+export const useSearchParam = <T extends ParamType = typeof OptionalStringParam>(param: string, paramType?: T) => {
+  const location = useLocationContext();
+  const value = useMemo(() => getSearchParam(param, location, paramType), [param, paramType, location]);
 
   return [value];
 };

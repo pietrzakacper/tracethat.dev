@@ -3,7 +3,6 @@ package main
 import (
 	"devtools-project/controller"
 	"devtools-project/model"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,7 +12,7 @@ import (
 )
 
 func main() {
-	s := controller.NewSpaces()
+	s := controller.NewRooms()
 
 	fs := http.FileServer(http.Dir("./static"))
 
@@ -27,16 +26,16 @@ func main() {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
 	http.Handle("/api/report", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.URL.Query().Get("token")
+		roomId := r.URL.Query().Get("roomId")
 
-		if token == "" {
+		if roomId == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		c := make(chan model.Event)
 
-		s.AddProducer(token, c)
+		s.AddProducer(roomId, c)
 
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -50,15 +49,12 @@ func main() {
 				return
 			}
 
-			e := model.Event{}
-			err = json.Unmarshal(p, &e)
-
 			if err != nil {
 				log.Println(err)
 				return
 			}
 
-			c <- e
+			c <- model.Event(p)
 		}
 	}))
 
@@ -76,22 +72,16 @@ func main() {
 		w.Header().Set("Transfer-Encoding", "chunked")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		token := r.URL.Query().Get("token")
+		roomId := r.URL.Query().Get("roomId")
 		sessionId := r.URL.Query().Get("sessionId")
 
-		c := s.AddConsumer(token, sessionId)
+		c := s.AddConsumer(roomId, sessionId)
 
 		for {
 			e := <-c
-			j, err := json.Marshal(e)
-
-			if err != nil {
-				log.Println(err)
-				continue
-			}
 
 			w.Write([]byte("data: "))
-			w.Write(j)
+			w.Write([]byte(e))
 			w.Write([]byte("\n\n"))
 
 			f.Flush()

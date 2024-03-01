@@ -1,12 +1,14 @@
 import WebSocket from "isomorphic-ws";
 import { runtimeConfig } from "../runtime-config";
 import { Reporter } from './interface'
+import { sleep } from "../utils";
+import { encrypt, sha256 } from "../crypto";
 
-function sendRegisterEventMessage(
+async function sendRegisterEventMessage(
   ws: WebSocket,
   payload: any
 ) {
-  const msg = JSON.stringify(payload)
+  const msg = await encrypt(JSON.stringify(payload), runtimeConfig.token!)
 
   ws.send(msg);
 }
@@ -16,38 +18,35 @@ class WebSocketReporter implements Reporter {
   private connectedPromise: Promise<void> | null;
 
   async open(): Promise<void> {
-    if (!runtimeConfig.token) {
-      await new Promise(res => setTimeout(res, 100))
-    }
-
-    if (!runtimeConfig.token) {
-      console.error("[tracethat.dev] Couldn't open a socket, no token provided");
-      return;
-    }
-
-    const token = runtimeConfig.token
-
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      return Promise.resolve();
-    }
-
-    if (this.ws?.readyState === WebSocket.CONNECTING) {
+    if (this.connectedPromise && this.ws?.readyState !== WebSocket.CLOSED) {
       return this.connectedPromise!;
     }
 
-    this.connectedPromise = new Promise((res, rej) => {
-      this.ws = new WebSocket(`${runtimeConfig.serverUrl}?token=${token}`);
+    this.connectedPromise = (async (): Promise<void> => {
+      if (!runtimeConfig.token) {
+        await sleep(100)
+      }
 
-      this.ws.onopen = function open() {
-        // The WebSocket type doesn't expose this property, but every Socket has it
-        // we need to unref it so that it doesn't stop the Node.JS process from exiting 
-        // @ts-ignore
-        this._socket?.unref()
+      if (!runtimeConfig.token) {
+        console.error("[tracethat.dev] Couldn't open a socket, no token provided");
+        return;
+      }
+      const roomId = await sha256(runtimeConfig.token)
 
-        res();
-      };
-      this.ws.onerror = rej;
-    });
+      return new Promise<void>((res, rej) => {
+        this.ws = new WebSocket(`${runtimeConfig.serverUrl}?roomId=${roomId}`);
+
+        this.ws.onopen = function open() {
+          // The WebSocket type doesn't expose this property, but every Socket has it
+          // we need to unref it so that it doesn't stop the Node.JS process from exiting 
+          // @ts-ignore
+          this._socket?.unref()
+
+          res();
+        };
+        this.ws.onerror = rej;
+      });
+    })()
 
     return this.connectedPromise
   }

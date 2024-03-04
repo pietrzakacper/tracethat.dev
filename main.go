@@ -14,9 +14,9 @@ import (
 func main() {
 	s := controller.NewRooms()
 
-	fs := http.FileServer(http.Dir("./static"))
+	fs := http.FileServer(http.Dir("./frontend/dist"))
 
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.Handle("/", fs)
 
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,

@@ -1,6 +1,6 @@
 export const runtimeConfig = {
     enabled: true,
-    serverUrl: "wss://tracethat.dev/report",
+    serverUrl: "wss://tracethat.dev/api/report",
     token: null as string | null,
 }
 

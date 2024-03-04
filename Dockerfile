@@ -11,6 +11,7 @@ COPY *.go  ./
 COPY static/ ./static
 COPY model/ ./model
 COPY controller/ ./controller
+COPY frontend/dist ./frontend/dist
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/trace-that

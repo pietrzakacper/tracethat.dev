@@ -18,7 +18,7 @@ go ./... # Runs the server
 
 ### JavaScript Reporter
 ```bash
-cd reporter-js
+cd reporters/javascript
 npm i # run only once
 npm run build # build on each change
 # Run the example using locally build reporter and local server

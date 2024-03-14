@@ -1,4 +1,4 @@
-package tracethat
+package lib
 
 import "fmt"
 

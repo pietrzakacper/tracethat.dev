@@ -76,8 +76,19 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground select-none;
+  }
+}
+
+@layer components {
+  .overflow-anchor-none {
+    overflow-anchor: none;
+  }
+
+  .overflow-anchor-auto {
+    overflow-anchor: auto;
   }
 }
 

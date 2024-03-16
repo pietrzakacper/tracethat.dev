@@ -1,3 +1,5 @@
+import { getRandomIntInRange } from "./getRandomIntInRange";
+
 export function getRandomId(count: number = 4) {
   const words = Array.from({ length: count }).map(getRandomWord);
 
@@ -5,7 +7,7 @@ export function getRandomId(count: number = 4) {
 }
 
 function getRandomWord() {
-  return WORDLIST[Math.floor(Math.random() * WORDLIST.length)];
+  return WORDLIST[getRandomIntInRange(0, WORDLIST.length - 1)];
 }
 
 const WORDLIST = [

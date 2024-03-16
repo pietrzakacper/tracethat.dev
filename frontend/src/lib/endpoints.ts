@@ -1,8 +1,7 @@
-// get the server url without trailing slash
-const SERVER_URL = (import.meta.env.VITE_SERVER_URL || "").replace(/\/$/, "");
+import { SERVER_URL } from "./constants";
 
 export const ENDPOINTS = {
-  events: (params: { roomId: string, sessionId: string }) =>
-    `${SERVER_URL}/api/events?roomId=${params.roomId}&sessionId=${params.sessionId}`
-} as const
-
+  events: (params: { roomId: string; sessionId: string }) =>
+    `${SERVER_URL}/api/events?roomId=${params.roomId}&sessionId=${params.sessionId}`,
+  report: () => `${SERVER_URL.replace("http", "ws")}/api/report`,
+} as const;

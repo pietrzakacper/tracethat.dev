@@ -4,10 +4,19 @@ import { Button } from "@/components/ui/button/button";
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input/input";
 import { getRandomId } from "@/utils/getRandomId";
+import { Header } from "@/components/Header";
+import { Rocket } from "lucide-react";
+import { useExampleTracer } from "@/hooks/useExampleTracer";
+import { LANDING_TOKEN } from "@/lib/constants";
+import { useEventsList } from "@/hooks/useEventsList";
+import { EventsTable } from "@/layouts/EventsTable/EventsTable";
 
 export const Landing = () => {
+  const userId = useMemo(() => getRandomId(), []);
   const randomToken = useMemo(() => getRandomId(), []);
   const [customToken, setCustomToken] = useState("");
+  const onTraceClick = useExampleTracer({ token: LANDING_TOKEN, eventName: `Clicked by ${userId}` });
+  const { data } = useEventsList(LANDING_TOKEN);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -19,24 +28,36 @@ export const Landing = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-      <header className="flex flex-col mb-16">
-        <div>
-          <h1 className="text-[4rem] text-foreground font-bold text-center">traceThat(…)</h1>
-        </div>
-        <div>
-          <h2 className="text-[2rem] text-muted-foreground font-light">no-setup observability for any app</h2>
-        </div>
-      </header>
-      <main className="flex flex-row items-center justify-center space-x-4">
-        <section className="flex flex-col items-center justify-center space-y-4">
-          <Button asChild size="lgWide">
-            <Link to={{ pathname: "/", search: `?token=${randomToken}` }}>Start New Session</Link>
-          </Button>
+    <div className="w-full h-full grid grid-cols-[minmax(800px,_1fr)_2fr] grid-rows-layout">
+      <Header />
+      <div className="border-r min-h-0">
+        <EventsTable events={data} selectedEventCallId={null} />
+      </div>
+      <div className="min-h-0 min-w-0 flex flex-col items-center justify-center">
+        <header className="flex flex-col mb-8">
+          <div>
+            <h1 className="text-[4rem] text-foreground font-bold text-center">traceThat(…)</h1>
+          </div>
+          <div>
+            <h2 className="text-[2rem] text-muted-foreground font-light">no-setup observability for any app</h2>
+          </div>
+        </header>
+        <section className="flex flex-col items-center justify-center space-y-4 mb-8">
+          {onTraceClick && (
+            <Button size="lgWide" onClick={onTraceClick}>
+              Trace now
+              <Rocket className="w-4 h-4 ml-2" />
+            </Button>
+          )}
         </section>
-        <span className="text-muted-foreground">OR</span>
-        <section className="flex flex-col items-center justify-center space-y-4">
-          <div className="w-full max-w-sm space-y-2">
+        <main className="flex flex-row items-center justify-center space-x-4">
+          <section className="flex flex-1 items-center justify-end space-y-4">
+            <Button asChild variant="outline">
+              <Link to={{ pathname: "/", search: `?token=${randomToken}` }}>Start New Session</Link>
+            </Button>
+          </section>
+          <span className="text-muted-foreground">or</span>
+          <section className="flex flex-1 items-center justify-start space-y-4">
             <form className="flex space-x-2" onSubmit={onSubmit}>
               <Input
                 size="lg"
@@ -49,9 +70,9 @@ export const Landing = () => {
                 Go
               </Button>
             </form>
-          </div>
-        </section>
-      </main>
+          </section>
+        </main>
+      </div>
     </div>
   );
 };

@@ -6,9 +6,11 @@ type LinkProps = {
   to: To;
 } & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href">;
 
-export const Link = ({ to, ...props }: LinkProps) => {
+export const Link = ({ to, onClick: externalOnClick, ...props }: LinkProps) => {
   const onClick = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
+      externalOnClick?.(event);
+
       if (event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented) {
         return;
       }
@@ -16,7 +18,7 @@ export const Link = ({ to, ...props }: LinkProps) => {
       event.preventDefault();
       history.push(to);
     },
-    [to],
+    [externalOnClick, to],
   );
 
   return <a {...props} href={history.createHref(to)} onClick={onClick} />;

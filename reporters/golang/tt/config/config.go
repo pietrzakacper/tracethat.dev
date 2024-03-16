@@ -13,6 +13,7 @@ type RuntimeConfig struct {
 var runtimeConfig RuntimeConfig = RuntimeConfig{
 	Token:     "",
 	ServerUrl: "wss://tracethat.dev",
+	Enabled: true,
 }
 
 var mutex sync.RWMutex

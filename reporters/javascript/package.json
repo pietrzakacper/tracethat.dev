@@ -44,7 +44,6 @@
     "ws": "^8.16.0"
   },
   "devDependencies": {
-    "@flydotio/dockerfile": "^0.5.0",
     "@types/glob": "^8.1.0",
     "@types/node": "^20.11.15",
     "@types/tape": "^4.13.2",

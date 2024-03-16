@@ -1,14 +1,14 @@
 import WebSocket from "isomorphic-ws";
 import { runtimeConfig } from "../runtime-config";
 import { Reporter } from './interface'
-import { sleep } from "../utils";
+import { sleep, stringify } from "../utils";
 import { encrypt, sha256 } from "../crypto";
 
 async function sendRegisterEventMessage(
   ws: WebSocket,
   payload: any
 ) {
-  const msg = await encrypt(JSON.stringify(payload), runtimeConfig.token!)
+  const msg = await encrypt(stringify(payload), runtimeConfig.token!)
 
   ws.send(msg);
 }

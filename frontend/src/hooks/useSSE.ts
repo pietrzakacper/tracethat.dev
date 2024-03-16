@@ -14,16 +14,19 @@ export const useSSE = <T>(
   const [eventSource, setEventSource] = useState<EventSource | null>(null);
 
   useEffect(() => {
-    let source: EventSource | null = null
-    let cancelled = false
-    sha256(token).then(roomId => {
-      if (cancelled) return
-      const url = ENDPOINTS.events({ roomId, sessionId })
+    let source: EventSource | null = null;
+    let cancelled = false;
+    sha256(token).then((roomId) => {
+      if (cancelled) return;
+      const url = ENDPOINTS.events({ roomId, sessionId });
       source = new EventSource(url);
       setEventSource(source);
-    })
+    });
 
-    return () => { cancelled = true; source?.close() };
+    return () => {
+      cancelled = true;
+      source?.close();
+    };
   }, [token, sessionId]);
 
   useEffect(() => {
@@ -31,7 +34,7 @@ export const useSSE = <T>(
       return;
     }
 
-    let cancelled = false
+    let cancelled = false;
     const onMessage = async (event: MessageEvent) => {
       let decryptedData = safeJSONParse(event.data)
       let parsedData: T | null = null
@@ -54,8 +57,11 @@ export const useSSE = <T>(
 
     eventSource.addEventListener("message", onMessage);
 
-    return () => { cancelled = true; eventSource.removeEventListener("message", onMessage); }
-  }, [eventSource, parseData]);
+    return () => {
+      cancelled = true;
+      eventSource.removeEventListener("message", onMessage);
+    };
+  }, [eventSource, parseData, token]);
 
   useEffect(() => {
     if (eventSource === null || onError == null) {

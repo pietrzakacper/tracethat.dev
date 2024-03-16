@@ -1,9 +1,4 @@
 {
-    "editor.formatOnSave": true,
-    "[templ]": {
-        "editor.defaultFormatter": "a-h.templ"
-    },
-    "tailwindCSS.includeLanguages": {
-        "templ": "html"
-    }
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

@@ -49,7 +49,7 @@ export const useSSE = <T>(
       decryptedData = await decrypt(event.data, token)
       if (cancelled) return
 
-      parsedData = parseData(decryptedData);
+      parsedData = parseData(safeJSONParse(decryptedData));
       if (parsedData === null) return
 
       setData((prevData) => [...prevData, parsedData!]);

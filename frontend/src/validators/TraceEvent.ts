@@ -17,6 +17,7 @@ export const parseTraceEvent = (data: unknown): TraceEvent | null => {
   const result = TraceEvent.safeParse(data);
 
   if (!result.success) {
+    console.info(result.error)
     return null;
   }
 

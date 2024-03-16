@@ -19,6 +19,10 @@ type event struct {
 }
 
 func Log(eventName string, payload ...interface{}) {
+	if !config.Load().Enabled {
+		return 
+	}
+
 	if payload == nil {
 		payload = make([]interface{}, 0)
 	}
@@ -46,6 +50,10 @@ func Log(eventName string, payload ...interface{}) {
 }
 
 func LogWithTime(eventName string, payload ...interface{}) func() {
+	if !config.Load().Enabled {
+		return func() {}
+	}
+
 	if payload == nil {
 		payload = make([]interface{}, 0)
 	}

@@ -26,6 +26,8 @@ func main() {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
 	http.Handle("/api/report", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("new /api/report connection from %s \n", r.RemoteAddr)
+
 		roomId := r.URL.Query().Get("roomId")
 
 		if roomId == "" {
@@ -49,22 +51,18 @@ func main() {
 				return
 			}
 
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
 			c <- model.Event(p)
 		}
 	}))
 
 	http.Handle("/api/events", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("new /api/events connection from %s \n", r.RemoteAddr)
+
 		f, ok := w.(http.Flusher)
 		if !ok {
 			http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
 			return
 		}
-		fmt.Println("new /events connection")
 
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-cache")

@@ -1,6 +1,8 @@
 import { ENDPOINTS } from "@/lib/endpoints";
 import { decrypt, sha256 } from "@/utils/crypto";
 import { useEffect, useState } from "react";
+import { safeJSONParse } from "@/utils/safeJSONParse";
+
 
 export const useSSE = <T>(
   token: string,
@@ -31,12 +33,23 @@ export const useSSE = <T>(
 
     let cancelled = false
     const onMessage = async (event: MessageEvent) => {
-      const decryptedData = await decrypt(event.data, token)
-      if (cancelled) return
-      const parsedData = parseData(decryptedData);
-      if (parsedData !== null) {
-        setData((prevData) => [...prevData, parsedData]);
+      let decryptedData = safeJSONParse(event.data)
+      let parsedData: T | null = null
+      // if decrypted data got JSON.parsed, try to parse it
+      if (decryptedData !== null) {
+        parsedData = parseData(decryptedData);
+        if (parsedData === null) return
+        return setData((prevData) => [...prevData, parsedData!]);
       }
+
+      // if we failed to JSON.parse it, it's probably encrypted
+      decryptedData = await decrypt(event.data, token)
+      if (cancelled) return
+
+      parsedData = parseData(decryptedData);
+      if (parsedData === null) return
+
+      setData((prevData) => [...prevData, parsedData!]);
     };
 
     eventSource.addEventListener("message", onMessage);

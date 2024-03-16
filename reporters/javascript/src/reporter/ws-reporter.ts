@@ -34,7 +34,7 @@ class WebSocketReporter implements Reporter {
       const roomId = await sha256(runtimeConfig.token)
 
       return new Promise<void>((res, rej) => {
-        this.ws = new WebSocket(`${runtimeConfig.serverUrl}?roomId=${roomId}`);
+        this.ws = new WebSocket(`${runtimeConfig.serverUrl}/api/report?roomId=${roomId}`);
 
         this.ws.onopen = function open() {
           // The WebSocket type doesn't expose this property, but every Socket has it

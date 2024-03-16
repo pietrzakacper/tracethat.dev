@@ -1,4 +1,3 @@
-import { safeJSONParse } from "@/utils/safeJSONParse";
 import { z } from "zod";
 
 export const TraceEvent = z.object({
@@ -10,12 +9,12 @@ export const TraceEvent = z.object({
     .number()
     .optional()
     .transform((v) => (v === 0 ? undefined : v)),
-  details: z.record(z.any()),
+  details: z.any(),
 });
 export type TraceEvent = z.infer<typeof TraceEvent>;
 
 export const parseTraceEvent = (data: unknown): TraceEvent | null => {
-  const result = TraceEvent.safeParse(safeJSONParse(data));
+  const result = TraceEvent.safeParse(data);
 
   if (!result.success) {
     return null;

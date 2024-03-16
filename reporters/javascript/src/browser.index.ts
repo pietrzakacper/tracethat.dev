@@ -1,19 +1,19 @@
-import { traceThat } from './trace-that'
+import { traceThat } from "./trace-that";
 
-import { disableDevtools, setServerUrl, registerToken } from './runtime-config'
+import { disableDevtools, setServerUrl, registerToken } from "./runtime-config";
 
 const TT = {
-    disableDevtools,
-    setServerUrl,
-    registerToken
-}
+  disableDevtools,
+  setServerUrl,
+  registerToken,
+};
 
 declare global {
-    interface Window {
-        traceThat: typeof traceThat,
-        TT: typeof TT
-    }
+  interface Window {
+    traceThat: typeof traceThat;
+    TT: typeof TT;
+  }
 }
 
-window.traceThat = traceThat
-window.TT = TT
+window.traceThat = traceThat;
+window.TT = TT;

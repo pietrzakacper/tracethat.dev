@@ -4,50 +4,52 @@ import { Reporter } from "../reporter/interface";
 import { runtimeConfig } from "../runtime-config";
 
 export class FunctionTracer {
-  constructor(private reporter: Reporter) { }
+  constructor(private reporter: Reporter) {}
 
-  traceThat<Args extends any[], Return extends any>(
-    cb: (...args: Args) => Return
-  ): (...args: Args) => Return;
+  traceThat<Args extends any[], Return extends any>(cb: (...args: Args) => Return): (...args: Args) => Return;
 
   traceThat<Args extends any[], Return extends any>(
     customName: string,
-    cb: (...args: Args) => Return
+    cb: (...args: Args) => Return,
   ): (...args: Args) => Return;
 
   traceThat<Args extends any[], Return extends any>(
     cb: ((...args: Args) => Return) | string,
-    namedCb?: (...args: Args) => Return
+    namedCb?: (...args: Args) => Return,
   ): (...args: Args) => Return {
     const fn = typeof cb === "string" ? namedCb! : cb;
     const functionName = typeof cb === "string" ? cb : cb.name || "(anonymous)";
 
     return (...args: Args): Return => {
       if (!runtimeConfig.enabled) {
-        return fn(...args)
+        return fn(...args);
       }
 
       const callId = generateId();
-      const callStack = new Error().stack?.replaceAll('\n', '').split("at ")?.map(s => s.trim())?.slice(2)
+      const callStack = new Error().stack
+        ?.replaceAll("\n", "")
+        .split("at ")
+        ?.map((s) => s.trim())
+        ?.slice(2);
 
       const startTs = new Date().getTime();
 
-      // this.reporter.registerEvent({
-      //   status: 'running',
-      //   callId,
-      //   name: functionName,
-      //   startEpochMs: startTs,
-      //   details: {
-      //     arguments: args,
-      //     callStack
-      //   }
-      // });
+      this.reporter.registerEvent({
+        status: "running",
+        callId,
+        name: functionName,
+        startEpochMs: startTs,
+        details: {
+          arguments: args,
+          callStack,
+        },
+      });
 
       const registerError = (e: any) => {
         const endTs = new Date().getTime();
 
         this.reporter.registerEvent({
-          status: 'error',
+          status: "error",
           callId,
           name: functionName,
           startEpochMs: startTs,
@@ -56,7 +58,7 @@ export class FunctionTracer {
             arguments: args,
             error: serializeError(e),
             callStack,
-          }
+          },
         });
       };
 
@@ -74,7 +76,7 @@ export class FunctionTracer {
 
         this.reporter
           .registerEvent({
-            status: 'ok',
+            status: "ok",
             callId,
             name: functionName,
             startEpochMs: startTs,
@@ -83,12 +85,10 @@ export class FunctionTracer {
               callStack,
               arguments: args,
               return: output,
-            }
+            },
           })
           .catch((e) => {
-            console.error(
-              `traceThat: Couldn't connect to tracethat.dev server`
-            );
+            console.error(`traceThat: Couldn't connect to tracethat.dev server`);
             console.error(e);
           });
 

@@ -1,5 +1,5 @@
 export interface Reporter {
-    open(): Promise<void>;
+  open(): Promise<void>;
 
-    registerEvent(payload: any):Promise<void>;
+  registerEvent(payload: any): Promise<void>;
 }

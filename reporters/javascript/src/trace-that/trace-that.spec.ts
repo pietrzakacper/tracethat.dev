@@ -28,7 +28,7 @@ test("traceThat: reports arguments and return value of synchronous fn", async (t
   t.equals(result, 3);
 
   const [, registerEventPayload] = mockReporter.calls.find(
-    ([fn, payload]) => fn === "registerEvent" && payload?.status === 'ok'
+    ([fn, payload]) => fn === "registerEvent" && payload?.status === "ok",
   )!;
 
   t.equal(registerEventPayload.name, "(anonymous)");
@@ -54,7 +54,7 @@ test("traceThat: reports arguments and return value of async fn", async (t) => {
   t.equals(result, 3);
 
   const [, registerEventPayload] = mockReporter.calls.find(
-    ([fn, payload]) => fn === "registerEvent" && payload?.status === 'ok'
+    ([fn, payload]) => fn === "registerEvent" && payload?.status === "ok",
   )!;
 
   t.equal(registerEventPayload.name, "(anonymous)");
@@ -74,16 +74,16 @@ test("traceThat: reports exception of synchronous fn", async (t) => {
 
   try {
     tracedFunction(1);
-  } catch { }
+  } catch {}
 
   const [, registerEventPayload] = mockReporter.calls.find(
-    ([fn, payload]) => fn === "registerEvent" && payload?.status === 'error'
+    ([fn, payload]) => fn === "registerEvent" && payload?.status === "error",
   )!;
 
   t.equal(registerEventPayload.name, "(anonymous)");
   t.deepEqual(registerEventPayload.details.arguments, [1]);
-  t.equal(typeof registerEventPayload.details.error, 'object')
-  t.equal(registerEventPayload.details.error.message, 'Crashed on 1')
+  t.equal(typeof registerEventPayload.details.error, "object");
+  t.equal(registerEventPayload.details.error.message, "Crashed on 1");
 
   t.end();
 });
@@ -99,18 +99,18 @@ test("traceThat: reports exception of async fn", async (t) => {
 
   try {
     await tracedFunction(1);
-  } catch { }
+  } catch {}
 
   const registerEventSpy = mockReporter.calls.find(
-    ([fn, payload]) => fn === "registerEvent" && payload?.status === 'error'
+    ([fn, payload]) => fn === "registerEvent" && payload?.status === "error",
   )!;
 
-  t.ok(registerEventSpy)
+  t.ok(registerEventSpy);
 
   t.equal(registerEventSpy[1].name, "(anonymous)");
   t.deepEqual(registerEventSpy[1].details.arguments, [1]);
-  t.equal(typeof registerEventSpy[1].details.error, 'object')
-  t.equal(registerEventSpy[1].details.error.message, 'Crashed on 1')
+  t.equal(typeof registerEventSpy[1].details.error, "object");
+  t.equal(registerEventSpy[1].details.error.message, "Crashed on 1");
 
   t.end();
 });
@@ -132,7 +132,7 @@ test.skip("traceThat: reports that function is running", async (t) => {
   t.equals(result, 3);
 
   const [, registerEventPayload] = mockReporter.calls.find(
-    ([fn, payload]) => fn === "registerEvent" && payload?.status === 'running'
+    ([fn, payload]) => fn === "registerEvent" && payload?.status === "running",
   )!;
 
   t.equal(registerEventPayload.name, "(anonymous) (running)");

@@ -1,4 +1,4 @@
-import { ENDPOINTS } from "@/lib/endpoints";
+import { SERVER_URL } from "@/lib/constants";
 import { getRandomIntInRange } from "@/utils/getRandomIntInRange";
 import { wait } from "@/utils/wait";
 import { useCallback } from "react";
@@ -16,7 +16,7 @@ export const useExampleTracer = ({ token, eventName = "onTraceClick" }: UseExamp
         return null;
       }
 
-      setServerUrl(ENDPOINTS.report());
+      setServerUrl(SERVER_URL.replace('http', 'ws'));
       registerToken(token);
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -22,7 +22,7 @@ cd reporters/javascript
 npm i # run only once
 npm run build # build on each change
 # Run the example using locally build reporter and local server
-SERVER_URL=ws://localhost:3000/api/report TOKEN=123 npx tsx example/ping.ts
+SERVER_URL=ws://localhost:3000 TOKEN=123 npx tsx example/ping.ts
 ```
 
 ## Contributing

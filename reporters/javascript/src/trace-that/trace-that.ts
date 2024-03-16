@@ -21,6 +21,7 @@ export class FunctionTracer {
     const functionName = typeof cb === "string" ? cb : cb.name || "(anonymous)";
 
     return (...args: Args): Return => {
+
       if (!runtimeConfig.enabled) {
         return fn(...args);
       }
@@ -86,10 +87,6 @@ export class FunctionTracer {
               arguments: args,
               return: output,
             },
-          })
-          .catch((e) => {
-            console.error(`traceThat: Couldn't connect to tracethat.dev server`);
-            console.error(e);
           });
 
         return output;

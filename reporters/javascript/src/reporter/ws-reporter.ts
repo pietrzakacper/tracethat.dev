@@ -6,19 +6,19 @@ import { encrypt, sha256 } from "../crypto";
 
 async function sendRegisterEventMessage(ws: WebSocket, payload: any) {
   const msg = await encrypt(stringify(payload), runtimeConfig.token!);
-
   ws.send(msg);
 }
 
+const TIME_FOR_SOCKET_TO_START_CONNECTING = 500
+
 class OpenedWebSocket {
   public ws: WebSocket;
-  private promiseWithResolvers = new PromiseWithResolvers<void, WebSocket.ErrorEvent>();
+  private promiseWithResolvers = new PromiseWithResolvers<void, WebSocket.ErrorEvent | Error>();
 
   private constructor(public token: string, roomId: string) {
     this.promiseWithResolvers = new PromiseWithResolvers();
     const promiseWithResolvers = this.promiseWithResolvers;
     this.ws = new WebSocket(`${runtimeConfig.serverUrl}/api/report?roomId=${roomId}`);
-
     this.ws.onopen = function open() {
       // The WebSocket type doesn't expose this property, but every Socket has it
       // we need to unref it so that it doesn't stop the Node.JS process from exiting
@@ -26,7 +26,18 @@ class OpenedWebSocket {
 
       promiseWithResolvers.resolve();
     };
-    this.ws.onerror = promiseWithResolvers.reject;
+
+    this.ws.onerror = (err) => {
+      this.ws.close()
+      promiseWithResolvers.reject(err); 
+    }
+
+    setTimeout(() => {
+      if(this.ws.readyState === this.ws.CLOSED) {
+        this.ws.close()
+        promiseWithResolvers.reject(new Error('socket closed')); 
+      }
+    }, TIME_FOR_SOCKET_TO_START_CONNECTING)
   }
 
   public static async open() {
@@ -70,17 +81,25 @@ class WebSocketReporter implements Reporter {
       if (openedWebSocket) {
         this.openedWebSocket = openedWebSocket;
       }
-    });
+    }).catch(() => {
+      // reconnect on error
+      this.connectedPromise = null
+    })
 
     return this.connectedPromise;
   }
 
   async registerEvent(payload: any) {
-    await this.open();
+    try {
+      await this.open();
+    } catch {
+      console.error("Couldn't open a socket, failed to send an event");
+      return
+    }
     const ws = this.openedWebSocket?.ws;
 
     if (!ws || ws.readyState !== WebSocket.OPEN) {
-      console.error("Couldn't open a socket, failed to send an event");
+      console.error("Ssocked closed, failed to send an event");
       return;
     }
 

@@ -56,18 +56,19 @@ func (r *webSocketReporter) Open() error {
 	if config.Load().Token == "" {
 		time.Sleep(100 * time.Millisecond)
 	}
-
-	if config.Load().Token == "" {
+	
+	token := config.Load().Token
+	if token == "" {
 		log.Println("[tracethat.dev] Couldn't open a socket, no token provided")
 		return fmt.Errorf("no token provided")
 	}
 
 	h := sha256.New()
-	h.Write([]byte(config.Load().Token))
+	h.Write([]byte(token))
 	roomId := fmt.Sprintf("%x", h.Sum(nil))
 
 	url := config.Load().ServerUrl + "/api/report?roomId=" + roomId
-	fmt.Println(url)
+	
 	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		return err
@@ -90,8 +91,19 @@ func (r *webSocketReporter) RegisterEvent(payload interface{}) error {
 
 	err := sendRegisterEventMessage(r.ws, payload)
 	if err != nil {
+		go r.cleanup()
 		return err
 	}
 
 	return nil
+}
+
+func (r *webSocketReporter) cleanup() {
+	r.connectedMutex.Lock()
+	defer r.connectedMutex.Unlock()
+	if r.ws != nil {
+		r.ws.NetConn().Close()
+		r.connected = false
+		r.ws = nil
+	}
 }

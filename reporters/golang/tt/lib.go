@@ -1,8 +1,6 @@
 package tt
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
@@ -20,21 +18,16 @@ type event struct {
 	Details      interface{} `json:"details"`
 }
 
-type P = map[string]any
-
-func Log(eventName string, payload P) {
-	p, err := json.Marshal(payload)
-	fmt.Printf("Sending %s\n", string(p))
-
-	if err != nil {
-		log.Fatal(err)
+func Log(eventName string, payload ...interface{}) {
+	if payload == nil {
+		payload = make([]interface{}, 0)
 	}
-
 	reporter := reporter.GetWebSocketReporterInstance()
 
-	err = reporter.Open()
+	err := reporter.Open()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Couldn't connect to tracethat.dev server %v", err)
+		return
 	}
 
 	err = reporter.RegisterEvent(event{
@@ -47,7 +40,48 @@ func Log(eventName string, payload P) {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Couldn't send event tracethat.dev %v", err)
+		return
+	}
+}
+
+func LogWithTime(eventName string, payload ...interface{}) func() {
+	if payload == nil {
+		payload = make([]interface{}, 0)
+	}
+	reporter := reporter.GetWebSocketReporterInstance()
+
+	err := reporter.Open()
+	if err != nil {
+		log.Printf("Couldn't connect to tracethat.dev server %v", err)
+		return func() {}
+	}
+
+	callId := uuid.New().String()
+	startEpochMs := time.Now().UnixMilli()
+
+	err = reporter.RegisterEvent(event{
+		Name:         eventName,
+		Status:       "running",
+		CallId:       callId,
+		StartEpochMs: startEpochMs,
+		Details:      payload,
+	})
+
+	if err != nil {
+		log.Printf("Couldn't send event tracethat.dev %v", err)
+		return func() {}
+	}
+
+	return func() {
+		err = reporter.RegisterEvent(event{
+			Name:         eventName,
+			Status:       "ok",
+			CallId:       callId,
+			StartEpochMs: startEpochMs,
+			EndEpochMs:   time.Now().UnixMilli(),
+			Details:      payload,
+		})
 	}
 }
 

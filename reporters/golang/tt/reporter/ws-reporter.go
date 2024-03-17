@@ -70,6 +70,7 @@ func (r *webSocketReporter) Open() error {
 	url := config.Load().ServerUrl + "/api/report?roomId=" + roomId
 	
 	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
+
 	if err != nil {
 		return err
 	}
@@ -77,7 +78,37 @@ func (r *webSocketReporter) Open() error {
 	r.ws = ws
 	r.connected = true
 
+	go r.keepAlive()
+
 	return nil
+}
+
+const (
+	// Time allowed to write a message to the peer.
+	writeWait = 10 * time.Second
+
+	pingPeriod = 20 * time.Second
+)
+
+func (r *webSocketReporter) keepAlive() {
+	ticker := time.NewTicker(pingPeriod)
+
+	for {
+		<-ticker.C
+		r.connectedMutex.RLock()
+		if r.ws == nil {
+			return
+		}
+		r.ws.SetWriteDeadline(time.Now().Add(writeWait))
+		err := r.ws.WriteMessage(websocket.PingMessage, nil); 
+		r.connectedMutex.RUnlock()
+
+		if err != nil {
+			log.Printf("cleanup - write deadline err: %v\n", err)
+			r.cleanup()
+			return
+		}
+	}
 }
 
 func (r *webSocketReporter) RegisterEvent(payload interface{}) error {
@@ -91,6 +122,7 @@ func (r *webSocketReporter) RegisterEvent(payload interface{}) error {
 
 	err := sendRegisterEventMessage(r.ws, payload)
 	if err != nil {
+		log.Printf("cleanup - register event err: %v\n", err)
 		go r.cleanup()
 		return err
 	}
@@ -102,7 +134,7 @@ func (r *webSocketReporter) cleanup() {
 	r.connectedMutex.Lock()
 	defer r.connectedMutex.Unlock()
 	if r.ws != nil {
-		r.ws.NetConn().Close()
+		r.ws.Close()
 		r.connected = false
 		r.ws = nil
 	}

@@ -1,0 +1,1 @@
+- js/go reporter verbose mode for dev

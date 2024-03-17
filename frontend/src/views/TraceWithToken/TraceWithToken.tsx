@@ -31,8 +31,8 @@ export function TraceWithToken() {
           onEventClose={onEventClose}
           setSelectedEventCallId={setSelectedEventCallId}
           viewerPlaceholder={
-            <div className="min-h-0 min-w-0">
-              <div className="h-full flex flex-col p-4">
+            <div className="min-h-0 min-w-0 flex flex-col">
+              <div className="flex flex-1 flex-col p-4 overflow-auto">
                 <Snippet token={token} />
               </div>
             </div>

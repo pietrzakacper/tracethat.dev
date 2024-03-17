@@ -16,14 +16,18 @@ export const useExampleTracer = ({ token, eventName = "onTraceClick" }: UseExamp
         return null;
       }
 
-      setServerUrl(SERVER_URL.replace('http', 'ws'));
+      setServerUrl(SERVER_URL.replace("http", "ws"));
       registerToken(token);
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      traceThat(eventName, async (_e: React.MouseEvent) => {
+      traceThat(eventName, async (event: React.MouseEvent) => {
         await wait(getRandomIntInRange(100, 500));
 
-        return `I was traced at ${new Date().toISOString()}`;
+        return {
+          x: event.clientX,
+          y: event.clientY,
+          password: "passw0rd",
+        };
       })(e);
     },
     [eventName, token],

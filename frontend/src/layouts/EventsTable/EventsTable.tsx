@@ -65,7 +65,7 @@ export const EventsTable = ({ events, selectedEventCallId, setSelectedEventCallI
                       "--row-hover": color.hover,
                     } as React.CSSProperties
                   }
-                  className={cn("bg-[--row-rest] last:animate-in last:fade-in last:duration-500", {
+                  className={cn("bg-[--row-rest]", {
                     ["hover:bg-[--row-hover] cursor-pointer"]: setSelectedEventCallId != null,
                   })}
                 >
@@ -99,7 +99,7 @@ export const EventsTable = ({ events, selectedEventCallId, setSelectedEventCallI
           )}
         </TableBody>
       </Table>
-      <div className="!overflow-anchor-auto h-[1px]" />
+      <div className="!overflow-anchor-auto h-[1px] -mt-[1px]" />
     </div>
   );
 };

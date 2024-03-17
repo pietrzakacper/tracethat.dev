@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
+import animate from "tailwindcss-animate";
 
 const config = {
   darkMode: ["class"],
@@ -69,6 +70,7 @@ const config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        tiny: "calc(var(--radius) - 6px)",
       },
       keyframes: {
         "accordion-down": {
@@ -84,9 +86,12 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      screens: {
+        "viewer-2-cols": "1024px",
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 } satisfies Config;
 
 export default config;

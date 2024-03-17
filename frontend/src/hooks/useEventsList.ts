@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSSE } from "./useSSE";
 import { TraceEvent, parseTraceEvent } from "@/validators/TraceEvent";
 
 export const useEventsList = (token: string) => {
   const [sessionId] = useState(() => Math.random().toString(36).slice(2));
   const { data } = useSSE(token, sessionId, parseTraceEvent);
-  const [selectedEventCallId, setSelectedEventCallId] = useState<string | null>(null);
 
   const sortedData = useMemo(() => {
     const visitedEvents = new Set<string>();
@@ -35,16 +34,7 @@ export const useEventsList = (token: string) => {
     return outputData;
   }, [data]);
 
-  const firstEvent = sortedData[0];
-  useEffect(() => {
-    if (firstEvent != null) {
-      setSelectedEventCallId(firstEvent.callId);
-    }
-  }, [firstEvent]);
-
   return {
     data: sortedData,
-    selectedEventCallId,
-    setSelectedEventCallId,
   };
 };

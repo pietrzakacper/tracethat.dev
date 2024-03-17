@@ -1,4 +1,4 @@
-import { Rocket, Github } from "lucide-react";
+import { Github, MousePointerClick } from "lucide-react";
 import { Logo } from "./Logo";
 import { ModeToggle } from "./ModeToggle";
 import { Button } from "./ui/button/button";
@@ -18,9 +18,9 @@ export const Header = () => {
       <div className="flex-1" />
       <div className="flex items-center gap-2">
         {onTraceClick && (
-          <Button variant="secondary" onClick={onTraceClick}>
-            Trace now
-            <Rocket className="w-4 h-4 ml-2" />
+          <Button variant="outline" onClick={onTraceClick}>
+            Click me!
+            <MousePointerClick className="w-4 h-4 ml-2" />
           </Button>
         )}
         <ModeToggle />

@@ -1,24 +1,23 @@
-import { Snippet } from "@/components/Snippet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button/button";
 import { useTheme } from "@/components/ui/theme-provider";
 import { Tooltip } from "@/components/ui/tooltip";
-import { StringParam, useSearchParam } from "@/hooks/useSearchParam";
 import { cn } from "@/lib/utils";
 import { getColor } from "@/utils/colors";
 import { formatDuration, formatTime } from "@/utils/format";
 import { NBSP } from "@/utils/text";
 import { TraceEvent } from "@/validators/TraceEvent";
 import { Loader2, X } from "lucide-react";
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import ReactJson, { ThemeObject } from "react-json-view";
 
 interface EventViewerProps {
   events: TraceEvent[];
   selectedEventCallId: string | null;
   onEventClose: () => void;
+  viewerPlaceholder: ReactNode;
 }
-export const EventViewer = ({ events, selectedEventCallId, onEventClose }: EventViewerProps) => {
+export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerPlaceholder }: EventViewerProps) => {
   const selectedEvent = useMemo(() => {
     if (selectedEventCallId == null) {
       return undefined;
@@ -28,14 +27,9 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose }: Event
   }, [events, selectedEventCallId]);
   const theme = useTheme();
   const viewerTheme = useMemo(() => (theme.theme === "light" ? ONE_LIGHT : ONE_DARK), [theme.theme]);
-  const [token] = useSearchParam("token", StringParam);
 
   if (selectedEvent == null) {
-    return (
-      <div className="h-full flex flex-col p-4">
-        <Snippet token={token} />
-      </div>
-    );
+    return viewerPlaceholder;
   }
 
   const duration = (selectedEvent.endEpochMs ?? 0) - selectedEvent.startEpochMs;
@@ -44,37 +38,41 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose }: Event
   const { hover, icon: Icon, base } = getColor(selectedEvent.name);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="min-h-0 min-w-0">
       <div
         style={{ "--bg-base": hover } as React.CSSProperties}
-        className={cn("w-full px-4 py-4 text-lg border-b flex items-center bg-[--bg-base]")}
+        className={cn("w-full text-lg border-b flex items-center bg-[--bg-base]")}
       >
-        <Icon style={{ color: base }} className={"h-4 w-4 fill-current mr-4"} />
-        <div className="select-text">{selectedEvent.name}</div>
+        <div className="flex overflow-x-auto items-center flex-1 py-4 pl-4">
+          <Icon style={{ color: base }} className={"h-4 w-4 fill-current mr-4 flex-shrink-0"} />
+          <div className="select-text">{selectedEvent.name}</div>
 
-        <div className="flex-1" />
+          <div className="flex-1 min-w-4" />
 
-        <div className="flex gap-2 items-center">
-          <Badge variant="default">
-            Duration:{NBSP}
-            {selectedEvent.endEpochMs != null ? (
-              <span className="select-text tabular-nums">{formatDuration(duration)}</span>
-            ) : (
-              <Loader2 className="ml-1 h-4 w-4 animate-spin" />
-            )}
-          </Badge>
-          <Badge variant="default">
-            Start:{NBSP}
-            <span className="select-text tabular-nums">{formatTime(start)}</span>
-          </Badge>
-          <Badge variant="default">
-            End:{NBSP}
-            {selectedEvent.endEpochMs != null ? (
-              <span className="select-text tabular-nums">{formatTime(end)}</span>
-            ) : (
-              <Loader2 className="ml-1 h-4 w-4 animate-spin" />
-            )}
-          </Badge>
+          <div className="flex gap-2 items-center">
+            <Badge variant="default">
+              Duration:{NBSP}
+              {selectedEvent.endEpochMs != null ? (
+                <span className="select-text tabular-nums">{formatDuration(duration)}</span>
+              ) : (
+                <Loader2 className="ml-1 h-4 w-4 animate-spin" />
+              )}
+            </Badge>
+            <Badge variant="default">
+              Start:{NBSP}
+              <span className="select-text tabular-nums">{formatTime(start)}</span>
+            </Badge>
+            <Badge variant="default">
+              End:{NBSP}
+              {selectedEvent.endEpochMs != null ? (
+                <span className="select-text tabular-nums">{formatTime(end)}</span>
+              ) : (
+                <Loader2 className="ml-1 h-4 w-4 animate-spin" />
+              )}
+            </Badge>
+          </div>
+        </div>
+        <div className="py-4 pr-4 flex items-center">
           <div className="w-[1px] h-6 mx-2 bg-primary/50" />
           <Tooltip content="Close event" delayDuration={0}>
             <Button size="icon" className="w-[1.375rem] h-[1.375rem]" onClick={onEventClose}>
@@ -85,7 +83,7 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose }: Event
       </div>
 
       <div className="p-4 overflow-auto flex-1">
-        <div className="font-mono select-text p-4 rounded-sm bg-muted">
+        <div className="font-mono select-text p-4 rounded-sm bg-muted overflow-x-auto w-full">
           <ReactJson
             // Needed to properly handle theme changes
             key={theme.theme}

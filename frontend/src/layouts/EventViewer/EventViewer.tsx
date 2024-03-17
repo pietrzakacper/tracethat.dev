@@ -38,7 +38,7 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
   const { hover, icon: Icon, base } = getColor(selectedEvent.name);
 
   return (
-    <div className="min-h-0 min-w-0">
+    <div className="min-h-0 min-w-0 flex flex-col">
       <div
         style={{ "--bg-base": hover } as React.CSSProperties}
         className={cn("w-full text-lg border-b flex items-center bg-[--bg-base]")}

@@ -44,32 +44,21 @@ const getGoBlock = (token: string) =>
 package main
 
 import (
-  "fmt"
-  "math/rand"
-  "os"
   "time"
 
   "github.com/pietrzakacper/tracethat.dev/reporters/golang/tt"
 )
 
-func iter() {
-  finish := tt.LogWithTime("iter")
-  defer finish()
+func hello(name string) {
+  defer tt.LogWithTime("hello", name)()
 
-  time.Sleep(500 * time.Millisecond)
-
-  tt.Log(fmt.Sprintf("event-%d", rand.Int()), map[string]any{
-    "hello":     "world",
-    "some-data": 123,
-  })
+  time.Sleep(time.Second)
 }
 
 func main() {
   tt.RegisterToken("${token}")
 
-  for {
-    iter()
-  }
+  hello("world")
 }
 `.trim();
 

@@ -130,7 +130,6 @@ func (r *webSocketReporter) cleanupIdleConnection() {
 		}
 
 		if time.Now().After(*v) {
-			log.Println("cleanup - idle")
 			r.timeOfCleanup.Store(nil)
 			r.cleanup()
 		}

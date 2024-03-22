@@ -1,4 +1,4 @@
-package tt
+package reporter
 
 import (
 	"encoding/json"
@@ -24,7 +24,13 @@ func sendRegisterEventMessage(ws *websocket.Conn, payload interface{}) error {
 	if err != nil {
 		return err
 	}
-	return ws.WriteMessage(websocket.TextMessage, msg)
+
+	encryptedMsg, err := encrypt(string(msg), config.Load().Token)
+	if err != nil {
+		return err
+	}
+	
+	return ws.WriteMessage(websocket.TextMessage, []byte(encryptedMsg))
 }
 
 type webSocketReporter struct {

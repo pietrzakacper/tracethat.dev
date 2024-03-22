@@ -1,1 +1,3 @@
 - js/go reporter verbose mode for dev
+- ui bugs json explorer
+- hello is error

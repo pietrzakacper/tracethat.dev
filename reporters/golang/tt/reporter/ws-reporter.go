@@ -126,7 +126,7 @@ func (r *webSocketReporter) cleanupIdleConnection() {
 		v := r.timeOfCleanup.Load()
 
 		if v == nil {
-			return
+			continue
 		}
 
 		if time.Now().After(*v) {

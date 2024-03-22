@@ -20,33 +20,37 @@ type event struct {
 
 func Log(eventName string, payload ...interface{}) {
 	if !config.Load().Enabled {
-		return 
+		return
 	}
 
 	if payload == nil {
 		payload = make([]interface{}, 0)
 	}
+
 	reporter := reporter.GetWebSocketReporterInstance()
 
-	err := reporter.Open()
-	if err != nil {
-		log.Printf("Couldn't connect to tracethat.dev server %v", err)
-		return
-	}
+	// @TODO add a way to block process from exiting
+	go func() {
+		err := reporter.Open()
+		if err != nil {
+			log.Printf("Couldn't connect to tracethat.dev server %v", err)
+			return
+		}
 
-	err = reporter.RegisterEvent(event{
-		Name:         eventName,
-		Status:       "ok",
-		CallId:       uuid.New().String(),
-		StartEpochMs: time.Now().UnixMilli(),
-		EndEpochMs:   time.Now().UnixMilli(),
-		Details:      payload,
-	})
+		err = reporter.RegisterEvent(event{
+			Name:         eventName,
+			Status:       "ok",
+			CallId:       uuid.New().String(),
+			StartEpochMs: time.Now().UnixMilli(),
+			EndEpochMs:   time.Now().UnixMilli(),
+			Details:      payload,
+		})
 
-	if err != nil {
-		log.Printf("Couldn't send event tracethat.dev %v", err)
-		return
-	}
+		if err != nil {
+			log.Printf("Couldn't send event tracethat.dev %v", err)
+			return
+		}
+	}()
 }
 
 func LogWithTime(eventName string, payload ...interface{}) func() {
@@ -58,30 +62,36 @@ func LogWithTime(eventName string, payload ...interface{}) func() {
 		payload = make([]interface{}, 0)
 	}
 	reporter := reporter.GetWebSocketReporterInstance()
-
-	err := reporter.Open()
-	if err != nil {
-		log.Printf("Couldn't connect to tracethat.dev server %v", err)
-		return func() {}
-	}
-
 	callId := uuid.New().String()
 	startEpochMs := time.Now().UnixMilli()
 
-	err = reporter.RegisterEvent(event{
-		Name:         eventName,
-		Status:       "running",
-		CallId:       callId,
-		StartEpochMs: startEpochMs,
-		Details:      payload,
-	})
+	go func() {
+		err := reporter.Open()
+		if err != nil {
+			log.Printf("Couldn't connect to tracethat.dev server %v", err)
+			return
+		}
 
-	if err != nil {
-		log.Printf("Couldn't send event tracethat.dev %v", err)
-		return func() {}
-	}
+		err = reporter.RegisterEvent(event{
+			Name:         eventName,
+			Status:       "running",
+			CallId:       callId,
+			StartEpochMs: startEpochMs,
+			Details:      payload,
+		})
+
+		if err != nil {
+			log.Printf("Couldn't send event tracethat.dev %v", err)
+		}
+	}()
 
 	return func() {
+		err := reporter.Open()
+		if err != nil {
+			log.Printf("Couldn't connect to tracethat.dev server %v", err)
+			return
+		}
+
 		err = reporter.RegisterEvent(event{
 			Name:         eventName,
 			Status:       "ok",
@@ -90,6 +100,10 @@ func LogWithTime(eventName string, payload ...interface{}) func() {
 			EndEpochMs:   time.Now().UnixMilli(),
 			Details:      payload,
 		})
+
+		if err != nil {
+			log.Printf("Couldn't send event tracethat.dev %v", err)
+		}
 	}
 }
 

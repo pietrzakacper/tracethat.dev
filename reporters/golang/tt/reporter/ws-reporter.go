@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"crypto/sha256"
@@ -30,6 +31,8 @@ type webSocketReporter struct {
 	ws             *websocket.Conn
 	connected      bool
 	connectedMutex *sync.RWMutex
+
+	timeOfCleanup atomic.Pointer[time.Time]
 }
 
 var instance *webSocketReporter
@@ -38,9 +41,14 @@ func GetWebSocketReporterInstance() *webSocketReporter {
 	if instance != nil {
 		return instance
 	}
+
 	r := &webSocketReporter{
 		connectedMutex: &sync.RWMutex{},
+		timeOfCleanup:  atomic.Pointer[time.Time]{},
 	}
+
+	go r.cleanupIdleConnection()
+
 	instance = r
 	return r
 }
@@ -56,7 +64,7 @@ func (r *webSocketReporter) Open() error {
 	if config.Load().Token == "" {
 		time.Sleep(100 * time.Millisecond)
 	}
-	
+
 	token := config.Load().Token
 	if token == "" {
 		log.Println("[tracethat.dev] Couldn't open a socket, no token provided")
@@ -68,7 +76,7 @@ func (r *webSocketReporter) Open() error {
 	roomId := fmt.Sprintf("%x", h.Sum(nil))
 
 	url := config.Load().ServerUrl + "/api/report?roomId=" + roomId
-	
+
 	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 
 	if err != nil {
@@ -78,37 +86,7 @@ func (r *webSocketReporter) Open() error {
 	r.ws = ws
 	r.connected = true
 
-	go r.keepAlive()
-
 	return nil
-}
-
-const (
-	// Time allowed to write a message to the peer.
-	writeWait = 10 * time.Second
-
-	pingPeriod = 20 * time.Second
-)
-
-func (r *webSocketReporter) keepAlive() {
-	ticker := time.NewTicker(pingPeriod)
-
-	for {
-		<-ticker.C
-		r.connectedMutex.RLock()
-		if r.ws == nil {
-			return
-		}
-		r.ws.SetWriteDeadline(time.Now().Add(writeWait))
-		err := r.ws.WriteMessage(websocket.PingMessage, nil); 
-		r.connectedMutex.RUnlock()
-
-		if err != nil {
-			log.Printf("cleanup - write deadline err: %v\n", err)
-			r.cleanup()
-			return
-		}
-	}
 }
 
 func (r *webSocketReporter) RegisterEvent(payload interface{}) error {
@@ -127,7 +105,36 @@ func (r *webSocketReporter) RegisterEvent(payload interface{}) error {
 		return err
 	}
 
+	go r.scheduleCleanup()
+
 	return nil
+}
+
+// time of inactivity to close the connection
+const cleanupTimeout = 30 * time.Second
+
+func (r *webSocketReporter) scheduleCleanup() {
+	t := time.Now().Add(cleanupTimeout)
+	r.timeOfCleanup.Store(&t)
+}
+
+func (r *webSocketReporter) cleanupIdleConnection() {
+	ticker := time.NewTicker(time.Second)
+	for {
+		<-ticker.C
+
+		v := r.timeOfCleanup.Load()
+
+		if v == nil {
+			return
+		}
+
+		if time.Now().After(*v) {
+			log.Println("cleanup - idle")
+			r.timeOfCleanup.Store(nil)
+			r.cleanup()
+		}
+	}
 }
 
 func (r *webSocketReporter) cleanup() {

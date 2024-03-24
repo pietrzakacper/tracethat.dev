@@ -7,9 +7,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
+
+const inactivityDeadline = 30 * time.Second
 
 func main() {
 	s := controller.NewRooms()
@@ -44,6 +47,11 @@ func main() {
 			log.Println(err)
 			return
 		}
+
+		inactivityTimer := time.AfterFunc(inactivityDeadline, func() {
+			conn.Close()
+		})
+
 		for {
 			_, p, err := conn.ReadMessage()
 			if err != nil {
@@ -52,6 +60,7 @@ func main() {
 			}
 
 			c <- model.Event(p)
+			inactivityTimer.Reset(inactivityDeadline)
 		}
 	}))
 

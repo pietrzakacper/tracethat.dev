@@ -2,10 +2,10 @@ package reporter
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"crypto/sha256"
@@ -19,7 +19,7 @@ type Reporter interface {
 	registerEvent(payload interface{}) error
 }
 
-func sendRegisterEventMessage(ws *websocket.Conn, payload interface{}) error {
+func (r *webSocketReporter) sendRegisterEventMessage(payload interface{}) error {
 	msg, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -29,16 +29,24 @@ func sendRegisterEventMessage(ws *websocket.Conn, payload interface{}) error {
 	if err != nil {
 		return err
 	}
-	
-	return ws.WriteMessage(websocket.TextMessage, []byte(encryptedMsg))
+
+	r.wsMutex.Lock()
+	defer r.wsMutex.Unlock()
+
+	if r.ws == nil {
+		return errors.New("socket closed")
+	}
+
+	r.ws.SetWriteDeadline(time.Now().Add(3 * time.Second))
+
+	return r.ws.WriteMessage(websocket.TextMessage, []byte(encryptedMsg))
 }
 
 type webSocketReporter struct {
-	ws             *websocket.Conn
-	connected      bool
-	connectedMutex *sync.RWMutex
+	ws      *websocket.Conn
+	wsMutex *sync.Mutex
 
-	timeOfCleanup atomic.Pointer[time.Time]
+	inactivityTimer *time.Timer
 }
 
 var instance *webSocketReporter
@@ -49,21 +57,21 @@ func GetWebSocketReporterInstance() *webSocketReporter {
 	}
 
 	r := &webSocketReporter{
-		connectedMutex: &sync.RWMutex{},
-		timeOfCleanup:  atomic.Pointer[time.Time]{},
+		wsMutex:         &sync.Mutex{},
+		inactivityTimer: nil,
 	}
-
-	go r.cleanupIdleConnection()
 
 	instance = r
 	return r
 }
 
-func (r *webSocketReporter) Open() error {
-	r.connectedMutex.Lock()
-	defer r.connectedMutex.Unlock()
+const inactivityDeadline = 30 * time.Second
 
-	if r.connected {
+func (r *webSocketReporter) open() error {
+	r.wsMutex.Lock()
+	defer r.wsMutex.Unlock()
+
+	if r.ws != nil {
 		return nil
 	}
 
@@ -90,64 +98,54 @@ func (r *webSocketReporter) Open() error {
 	}
 
 	r.ws = ws
-	r.connected = true
 
 	return nil
 }
 
 func (r *webSocketReporter) RegisterEvent(payload interface{}) error {
-	r.connectedMutex.RLock()
-	defer r.connectedMutex.RUnlock()
+	impl := func() error {
+		err := r.open()
 
-	if !r.connected {
-		log.Println("Couldn't open a socket, failed to send an event")
-		return fmt.Errorf("socket not connected")
-	}
-
-	err := sendRegisterEventMessage(r.ws, payload)
-	if err != nil {
-		log.Printf("cleanup - register event err: %v\n", err)
-		go r.cleanup()
-		return err
-	}
-
-	go r.scheduleCleanup()
-
-	return nil
-}
-
-// time of inactivity to close the connection
-const cleanupTimeout = 30 * time.Second
-
-func (r *webSocketReporter) scheduleCleanup() {
-	t := time.Now().Add(cleanupTimeout)
-	r.timeOfCleanup.Store(&t)
-}
-
-func (r *webSocketReporter) cleanupIdleConnection() {
-	ticker := time.NewTicker(time.Second)
-	for {
-		<-ticker.C
-
-		v := r.timeOfCleanup.Load()
-
-		if v == nil {
-			continue
+		if err != nil {
+			return err
 		}
 
-		if time.Now().After(*v) {
-			r.timeOfCleanup.Store(nil)
+		err = r.sendRegisterEventMessage(payload)
+
+		if err != nil {
+			log.Printf("cleanup - register event err: %v\n", err)
 			r.cleanup()
+			return err
 		}
+
+		if r.inactivityTimer == nil {
+			r.inactivityTimer = time.AfterFunc(inactivityDeadline, func() {
+				r.cleanup()
+			})
+		} else {
+			r.inactivityTimer.Reset(inactivityDeadline)
+		}
+
+		return nil
 	}
+
+	err := impl()
+
+	if err == nil {
+		return nil
+	}
+
+	err = impl()
+
+	return err
 }
 
 func (r *webSocketReporter) cleanup() {
-	r.connectedMutex.Lock()
-	defer r.connectedMutex.Unlock()
+	r.wsMutex.Lock()
+	defer r.wsMutex.Unlock()
+
 	if r.ws != nil {
 		r.ws.Close()
-		r.connected = false
 		r.ws = nil
 	}
 }

@@ -1,7 +1,7 @@
-Each reporter should implement these sets of requirements (if the language allows it).
+Each reporter should implement these sets of requirements.
 
 1. Should expose a function for tracing a function/arbitrary data
-When designing the reporter interface we should prioritize narrow interface surface e.g. few methods (ideally only one) and few configuration options (ideally none).
+When designing the reporter interface we should prioritize narrow interface surface e.g. few methods (ideally only one) and few parameters (ideally none).
 E.g. JS reporter allows us to wrap any function with `traceThat`
 ```javascript
 import { traceThat } from 'tracethat.dev'
@@ -48,6 +48,8 @@ Depending on the type of server that the reporter is connecting to, it might be 
 This is why we need to make sure we don't use connection that went stale and we do that by closing a connection on our side after 30s of no events sent.
 The next event sent after closing the socket should obviously make a new connection to the server.
 
-5. Should encrypt the data before sending it to the server 
+5. Should close and re-open the connection on any error
 
-6. Should have automated tests confirming all the requirements and any language specific functionality
+6. Should encrypt the data before sending it to the server 
+
+7. Should have automated tests confirming all the requirements and any language specific functionality

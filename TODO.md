@@ -1,3 +1,5 @@
 - js/go reporter verbose mode for dev
-- ui bugs json explorer
+- ui bug json explorer
 - hello is error
+- very big screen ui
+- token in url

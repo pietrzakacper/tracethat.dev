@@ -31,13 +31,7 @@ func Log(eventName string, payload ...interface{}) {
 
 	// @TODO add a way to block process from exiting
 	go func() {
-		err := reporter.Open()
-		if err != nil {
-			log.Printf("Couldn't connect to tracethat.dev server %v", err)
-			return
-		}
-
-		err = reporter.RegisterEvent(event{
+		err := reporter.RegisterEvent(event{
 			Name:         eventName,
 			Status:       "ok",
 			CallId:       uuid.New().String(),
@@ -66,13 +60,7 @@ func LogWithTime(eventName string, payload ...interface{}) func() {
 	startEpochMs := time.Now().UnixMilli()
 
 	go func() {
-		err := reporter.Open()
-		if err != nil {
-			log.Printf("Couldn't connect to tracethat.dev server %v", err)
-			return
-		}
-
-		err = reporter.RegisterEvent(event{
+		err := reporter.RegisterEvent(event{
 			Name:         eventName,
 			Status:       "running",
 			CallId:       callId,
@@ -86,24 +74,20 @@ func LogWithTime(eventName string, payload ...interface{}) func() {
 	}()
 
 	return func() {
-		err := reporter.Open()
-		if err != nil {
-			log.Printf("Couldn't connect to tracethat.dev server %v", err)
-			return
-		}
+		go func() {
+			err := reporter.RegisterEvent(event{
+				Name:         eventName,
+				Status:       "ok",
+				CallId:       callId,
+				StartEpochMs: startEpochMs,
+				EndEpochMs:   time.Now().UnixMilli(),
+				Details:      payload,
+			})
 
-		err = reporter.RegisterEvent(event{
-			Name:         eventName,
-			Status:       "ok",
-			CallId:       callId,
-			StartEpochMs: startEpochMs,
-			EndEpochMs:   time.Now().UnixMilli(),
-			Details:      payload,
-		})
-
-		if err != nil {
-			log.Printf("Couldn't send event tracethat.dev %v", err)
-		}
+			if err != nil {
+				log.Printf("Couldn't send event tracethat.dev %v", err)
+			}
+		}()
 	}
 }
 

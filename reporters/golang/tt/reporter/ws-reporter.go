@@ -39,7 +39,9 @@ func (r *webSocketReporter) sendRegisterEventMessage(payload interface{}) error 
 
 	r.ws.SetWriteDeadline(time.Now().Add(3 * time.Second))
 
-	return r.ws.WriteMessage(websocket.TextMessage, []byte(encryptedMsg))
+	err = r.ws.WriteMessage(websocket.TextMessage, []byte(encryptedMsg))
+
+	return err
 }
 
 type webSocketReporter struct {

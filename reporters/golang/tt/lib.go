@@ -2,6 +2,8 @@ package tt
 
 import (
 	"log"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,7 +18,16 @@ type event struct {
 	StartEpochMs int64       `json:"startEpochMs"`
 	EndEpochMs   int64       `json:"endEpochMs"`
 	Details      interface{} `json:"details"`
+	Rank         int64       `json:"rank"`
 }
+
+var wg sync.WaitGroup
+
+func Wait() {
+	wg.Wait()
+}
+
+var rankCounter atomic.Int64
 
 func Log(eventName string, payload ...interface{}) {
 	if !config.Load().Enabled {
@@ -29,8 +40,10 @@ func Log(eventName string, payload ...interface{}) {
 
 	reporter := reporter.GetWebSocketReporterInstance()
 
-	// @TODO add a way to block process from exiting
+	wg.Add(1)
+	rank := rankCounter.Add(1)
 	go func() {
+		defer wg.Done()
 		err := reporter.RegisterEvent(event{
 			Name:         eventName,
 			Status:       "ok",
@@ -38,11 +51,11 @@ func Log(eventName string, payload ...interface{}) {
 			StartEpochMs: time.Now().UnixMilli(),
 			EndEpochMs:   time.Now().UnixMilli(),
 			Details:      payload,
+			Rank:         rank,
 		})
 
 		if err != nil {
 			log.Printf("Couldn't send event tracethat.dev %v", err)
-			return
 		}
 	}()
 }
@@ -59,13 +72,17 @@ func LogWithTime(eventName string, payload ...interface{}) func() {
 	callId := uuid.New().String()
 	startEpochMs := time.Now().UnixMilli()
 
+	wg.Add(1)
+	rank := rankCounter.Add(1)
 	go func() {
+		defer wg.Done()
 		err := reporter.RegisterEvent(event{
 			Name:         eventName,
 			Status:       "running",
 			CallId:       callId,
 			StartEpochMs: startEpochMs,
 			Details:      payload,
+			Rank:         rank,
 		})
 
 		if err != nil {
@@ -74,14 +91,20 @@ func LogWithTime(eventName string, payload ...interface{}) func() {
 	}()
 
 	return func() {
+		wg.Add(1)
+		rank := rankCounter.Add(1)
+		endEpochMs := time.Now().UnixMilli()
+
 		go func() {
+			defer wg.Done()
 			err := reporter.RegisterEvent(event{
 				Name:         eventName,
 				Status:       "ok",
 				CallId:       callId,
 				StartEpochMs: startEpochMs,
-				EndEpochMs:   time.Now().UnixMilli(),
+				EndEpochMs:   endEpochMs,
 				Details:      payload,
+				Rank:         rank,
 			})
 
 			if err != nil {

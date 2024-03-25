@@ -7,15 +7,14 @@ import (
 )
 
 func hello(name string) {
-  defer tt.LogWithTime("hello", name)()
-
-  time.Sleep(time.Second)
+	defer tt.LogWithTime("hello", name)()
+	time.Sleep(time.Second)
 }
 
 func main() {
-  tt.RegisterToken("123")
+	tt.RegisterToken("123")
 
-  for {
-    hello("world")
-	}
+	hello("world")
+
+	tt.Wait()
 }

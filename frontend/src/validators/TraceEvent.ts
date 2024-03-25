@@ -10,6 +10,7 @@ export const TraceEvent = z.object({
     .optional()
     .transform((v) => (v === 0 ? undefined : v)),
   details: z.any(),
+  rank: z.number().optional(),
 });
 export type TraceEvent = z.infer<typeof TraceEvent>;
 
@@ -17,7 +18,7 @@ export const parseTraceEvent = (data: unknown): TraceEvent | null => {
   const result = TraceEvent.safeParse(data);
 
   if (!result.success) {
-    console.info(result.error)
+    console.info(result.error);
     return null;
   }
 

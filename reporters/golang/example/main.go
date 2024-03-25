@@ -12,9 +12,6 @@ func hello(name string) {
 }
 
 func main() {
-	tt.RegisterToken("123")
-
 	hello("world")
-
 	tt.Wait()
 }

@@ -30,7 +30,7 @@ func Wait() {
 var rankCounter atomic.Int64
 
 func Log(eventName string, payload ...interface{}) {
-	if !config.Load().Enabled {
+	if !config.Config.Load().Enabled {
 		return
 	}
 
@@ -61,7 +61,7 @@ func Log(eventName string, payload ...interface{}) {
 }
 
 func LogWithTime(eventName string, payload ...interface{}) func() {
-	if !config.Load().Enabled {
+	if !config.Config.Load().Enabled {
 		return func() {}
 	}
 
@@ -114,14 +114,4 @@ func LogWithTime(eventName string, payload ...interface{}) func() {
 	}
 }
 
-func DisableDevtools() {
-	config.DisableDevtools()
-}
-
-func SetServerUrl(url string) {
-	config.SetServerUrl(url)
-}
-
-func RegisterToken(token string) {
-	config.RegisterToken(token)
-}
+var Config = &config.Config

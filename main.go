@@ -85,13 +85,27 @@ func main() {
 		c := s.AddConsumer(roomId, sessionId)
 
 		for {
-			e := <-c
+			select {
 
-			w.Write([]byte("data: "))
-			w.Write([]byte(e))
-			w.Write([]byte("\n\n"))
+			case e := <-c:
+				payload := [...][]byte{[]byte("data: "), []byte(e), []byte("\n\n")}
 
-			f.Flush()
+				for _, p := range payload {
+					_, err := w.Write(p)
+					if err != nil {
+						return
+					}
+				}
+
+				f.Flush()
+
+			case <-r.Context().Done():
+				return
+
+			case <-time.After(inactivityDeadline):
+				return
+			}
+
 		}
 	}))
 

@@ -9,7 +9,7 @@ import (
 )
 
 type consumer struct {
-	c chan<- model.Event // channel to propagate events to consumer
+	c chan model.Event // channel to propagate events to consumer
 }
 
 const maxEventsPerRoom = 1000
@@ -70,10 +70,7 @@ func (s rooms) AddConsumer(roomId string, sessionId string) <-chan model.Event {
 
 	room := s[roomId]
 
-	c := make(chan model.Event)
-	room.addConsumer(sessionId, c)
-
-	return c
+	return room.addConsumer(sessionId)
 }
 
 func (s rooms) HasEvents(roomId string) bool {
@@ -121,8 +118,18 @@ func newRoom(roomId string) *room {
 func (s *room) broadcast(e model.Event) {
 	s.saveEvent(e)
 
-	for _, session := range s.consumers {
-		session.c <- e
+	for sessionId, session := range s.consumers {
+		go func(sessionId string, session consumer) {
+			select {
+			case session.c <- e:
+				return
+			case <-time.After(time.Second):
+				// if the consumer doesn't consume the event within a second, remove it
+				s.consumersLock.Lock()
+				delete(s.consumers, sessionId)
+				s.consumersLock.Unlock()
+			}
+		}(sessionId, session)
 	}
 }
 
@@ -141,6 +148,7 @@ func (s *room) saveEvent(e model.Event) {
 	}
 }
 
+// @TODO remove stale sessions
 func (s *room) registerActivity() {
 	s.lastActivity.Store(time.Now())
 }
@@ -154,18 +162,22 @@ func (s *room) propagateHistoricalEvents(c chan<- model.Event) {
 	}
 }
 
-func (s *room) addConsumer(sessionId string, c chan<- model.Event) {
+func (s *room) addConsumer(sessionId string) <-chan model.Event {
 	s.registerActivity()
 	s.consumersLock.Lock()
 	defer s.consumersLock.Unlock()
 
-	if _, has := s.consumers[sessionId]; has {
+	if v, has := s.consumers[sessionId]; has {
 		// only add consumer and propagate history if the session is new
 		// this prevents sending duplicated events to the same session
-		return
+		return v.c
 	}
+
+	c := make(chan model.Event)
 
 	s.consumers[sessionId] = consumer{c: c}
 
 	go s.propagateHistoricalEvents(c)
+
+	return c
 }

@@ -7,7 +7,6 @@ const BY_STATUS = ["error", "ok", "running"];
 export const useEventsList = (token: string) => {
   const [sessionId] = useState(() => Math.random().toString(36).slice(2));
   const { data } = useSSE(token, sessionId, parseTraceEvent);
-  console.log({ data });
   const sortedData = useMemo(() => {
     const visitedEvents = new Set<string>();
 

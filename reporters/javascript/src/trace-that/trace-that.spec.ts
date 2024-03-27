@@ -6,11 +6,6 @@ import { FunctionTracer } from "./trace-that";
 class MockReporter implements Reporter {
   public calls: [string, any][] = [];
 
-  open() {
-    this.calls.push(["open", undefined]);
-    return Promise.resolve();
-  }
-
   registerEvent(payload: any) {
     this.calls.push(["registerEvent", payload]);
     return Promise.resolve();

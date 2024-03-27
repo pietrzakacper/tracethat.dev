@@ -3,3 +3,4 @@
 - hello is error
 - very big screen ui
 - token in url
+- update instruction with new go example

@@ -23,7 +23,7 @@ type room struct {
 
 	lastActivity *atomic.Value // time.Time
 
-	consumersLock *sync.Mutex
+	consumersLock *sync.RWMutex
 	consumers     map[string]consumer // sessionId -> Consumer
 }
 
@@ -110,13 +110,16 @@ func newRoom(roomId string) *room {
 		eventsLock:    &sync.Mutex{},
 		events:        []model.Event{},
 		lastActivity:  lastActivity,
-		consumersLock: &sync.Mutex{},
+		consumersLock: &sync.RWMutex{},
 		consumers:     make(map[string]consumer),
 	}
 }
 
 func (s *room) broadcast(e model.Event) {
 	s.saveEvent(e)
+
+	s.consumersLock.RLock()
+	defer s.consumersLock.RUnlock()
 
 	for sessionId, session := range s.consumers {
 		go func(sessionId string, session consumer) {

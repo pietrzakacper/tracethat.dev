@@ -66,7 +66,7 @@ class WebSocketReporter implements Reporter {
   private openedWebSocket: OpenedWebSocket | null = null;
   private connectedPromise: Promise<void> | null;
 
-  async open(): Promise<void> {
+  private async open(): Promise<void> {
     const currentToken = runtimeConfig.token;
     const hasTokenChanged = this.openedWebSocket == null ? false : currentToken !== this.openedWebSocket.token;
 

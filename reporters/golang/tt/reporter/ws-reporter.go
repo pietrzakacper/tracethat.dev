@@ -14,11 +14,6 @@ import (
 	"github.com/pietrzakacper/tracethat.dev/reporters/golang/tt/config"
 )
 
-type Reporter interface {
-	open() error
-	registerEvent(payload interface{}) error
-}
-
 func (r *webSocketReporter) sendRegisterEventMessage(payload interface{}) error {
 	msg, err := json.Marshal(payload)
 	if err != nil {

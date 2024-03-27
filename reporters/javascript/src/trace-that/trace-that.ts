@@ -2,7 +2,7 @@ import { serializeError } from "../serialize-error";
 import { sleep, generateId } from "../utils";
 import { Reporter } from "../reporter/interface";
 import { runtimeConfig } from "../runtime-config";
-
+import {ProcessExitBlocker} from '../process-exit-blocker'
 export class FunctionTracer {
   constructor(private reporter: Reporter) {}
 
@@ -21,10 +21,13 @@ export class FunctionTracer {
     const functionName = typeof cb === "string" ? cb : cb.name || "(anonymous)";
 
     return (...args: Args): Return => {
-
       if (!runtimeConfig.enabled) {
         return fn(...args);
       }
+
+      const exitBlocker = ProcessExitBlocker.instance
+
+      exitBlocker.addPending(1)
 
       const callId = generateId();
       const callStack = new Error().stack
@@ -44,6 +47,8 @@ export class FunctionTracer {
           arguments: args,
           callStack,
         },
+      }).finally(() => {
+        exitBlocker.resolvePending();
       });
 
       const registerError = (e: any) => {
@@ -60,12 +65,15 @@ export class FunctionTracer {
             error: serializeError(e),
             callStack,
           },
+        }).finally(() => {
+          exitBlocker.resolvePending();
         });
       };
 
       let returned: Return;
       try {
         returned = fn(...args);
+        exitBlocker.addPending(1)
       } catch (e) {
         registerError(e);
 
@@ -87,6 +95,8 @@ export class FunctionTracer {
               arguments: args,
               return: output,
             },
+          }).finally(() => {
+            exitBlocker.resolvePending();
           });
 
         return output;

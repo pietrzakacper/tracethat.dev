@@ -1,7 +1,9 @@
+const env = typeof process !== 'undefined' ? process.env : {};
+
 export const runtimeConfig = {
-  enabled: true,
-  serverUrl: "wss://tracethat.dev",
-  token: null as string | null,
+  enabled: env.TT_DISABLE !== 'true',
+  serverUrl:  env.TT_SERVER_URL ?? "wss://tracethat.dev",
+  token: env.TT_TOKEN ?? null as string | null,
 }
 
 export const disableDevtools = () => {

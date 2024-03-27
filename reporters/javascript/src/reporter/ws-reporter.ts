@@ -1,109 +1,109 @@
 import WebSocket from "isomorphic-ws";
 import { runtimeConfig } from "../runtime-config";
 import { Reporter } from "./interface";
-import { PromiseWithResolvers, sleep, stringify } from "../utils";
+import { sleep, stringify } from "../utils";
 import { encrypt, sha256 } from "../crypto";
+import { ProcessExitBlocker } from "../process-exit-blocker";
 
 async function sendRegisterEventMessage(ws: WebSocket, payload: any) {
   const msg = await encrypt(stringify(payload), runtimeConfig.token!);
-  ws.send(msg);
+  ws.send(msg)
 }
 
-const TIME_FOR_SOCKET_TO_START_CONNECTING = 500
+const INACTIVITY_TIMEOUT_MS = 30 * 1000;
 
-class OpenedWebSocket {
-  public ws: WebSocket;
-  private promiseWithResolvers = new PromiseWithResolvers<void, WebSocket.ErrorEvent | Error>();
+class WebSocketReporter implements Reporter {
+  private ws: Promise<WebSocket> | null = null;
+  private cleanupTimeoutRef: NodeJS.Timeout | null = null;
 
-  private constructor(public token: string, roomId: string) {
-    this.promiseWithResolvers = new PromiseWithResolvers();
-    const promiseWithResolvers = this.promiseWithResolvers;
-    this.ws = new WebSocket(`${runtimeConfig.serverUrl}/api/report?roomId=${roomId}`);
-    this.ws.onopen = function open() {
-      // The WebSocket type doesn't expose this property, but every Socket has it
-      // we need to unref it so that it doesn't stop the Node.JS process from exiting
-      this._socket?.unref();
-
-      promiseWithResolvers.resolve();
-    };
-
-    this.ws.onerror = (err) => {
-      this.ws.close()
-      promiseWithResolvers.reject(err); 
-    }
-
-    setTimeout(() => {
-      if(this.ws.readyState === this.ws.CLOSED) {
-        this.ws.close()
-        promiseWithResolvers.reject(new Error('socket closed')); 
-      }
-    }, TIME_FOR_SOCKET_TO_START_CONNECTING)
+  constructor() {
+    ProcessExitBlocker.instance.onShouldExit(() => {
+      this.cleanup()
+    })
   }
 
-  public static async open() {
+  private async open(): Promise<WebSocket> {
+    if (this.ws) {
+      return this.ws;
+    }
+
     if (!runtimeConfig.token) {
       await sleep(100);
     }
 
     if (!runtimeConfig.token) {
       console.error("[tracethat.dev] Couldn't open a socket, no token provided");
-      return;
+      return Promise.reject("No token provided");
     }
 
-    const token = runtimeConfig.token;
     const roomId = await sha256(runtimeConfig.token);
-    const openedWebSocket = new OpenedWebSocket(token, roomId);
+    const ws = new WebSocket(`${runtimeConfig.serverUrl}/api/report?roomId=${roomId}`);
 
-    return openedWebSocket.promiseWithResolvers.promise.then(() => openedWebSocket);
-  }
+    return this.ws = new Promise((resolve, reject) => {
+      ws.onopen = function() {
+        // The WebSocket type doesn't expose this property, but every Socket has it
+        // we need to unref it so that it doesn't stop the Node.JS process from exiting
+        this._socket?.unref()
+        resolve(ws);
+      };
 
-  public dispose() {
-    this.ws.close();
-  }
-}
-
-class WebSocketReporter implements Reporter {
-  private openedWebSocket: OpenedWebSocket | null = null;
-  private connectedPromise: Promise<void> | null;
-
-  private async open(): Promise<void> {
-    const currentToken = runtimeConfig.token;
-    const hasTokenChanged = this.openedWebSocket == null ? false : currentToken !== this.openedWebSocket.token;
-
-    if (!hasTokenChanged && this.connectedPromise && this.openedWebSocket?.ws?.readyState !== WebSocket.CLOSED) {
-      return this.connectedPromise!;
-    }
-
-    this.openedWebSocket?.dispose();
-    this.openedWebSocket = null;
-
-    this.connectedPromise = OpenedWebSocket.open().then((openedWebSocket) => {
-      if (openedWebSocket) {
-        this.openedWebSocket = openedWebSocket;
+      ws.onerror = (err) => {
+        ws.close()
+        this.ws = null;
+        reject(err);
       }
-    }).catch(() => {
-      // reconnect on error
-      this.connectedPromise = null
     })
+  }
 
-    return this.connectedPromise;
+  private async cleanup() {
+    this.cleanupTimeoutRef && clearTimeout(this.cleanupTimeoutRef);
+
+    if(this.ws) {
+      return this.ws.then(ws => {
+        ws.close();
+        this.ws = null
+      });
+    }
+  }
+
+  private scheduleCleanup() {
+    this.cleanupTimeoutRef && clearTimeout(this.cleanupTimeoutRef);
+    this.cleanupTimeoutRef = setTimeout(() => { 
+      this.cleanup()
+    }, INACTIVITY_TIMEOUT_MS)
   }
 
   async registerEvent(payload: any) {
+    const impl = async () => {
+      try {
+        const ws = await this.open();
+  
+        if (ws.readyState !== WebSocket.OPEN) {
+          throw new Error("Socked closed, failed to send an event");
+        }
+  
+        await sendRegisterEventMessage(ws, payload);
+
+        this.scheduleCleanup();
+      } catch(e) {
+        await this.cleanup();
+        throw e;
+      }
+    }
+
     try {
-      await this.open();
-    } catch {
-      console.error("Couldn't open a socket, failed to send an event");
+      await impl()
       return
+    } catch (e) {
+      // first one failed, try again
     }
-    const ws = this.openedWebSocket?.ws;
-
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-      console.error("Ssocked closed, failed to send an event");
-      return;
+  
+    try {
+      await impl()
+    } catch(e) {
+      // not much a user can do here
+      console.error(e)
     }
-
-    sendRegisterEventMessage(ws, payload);
   }
 }
 

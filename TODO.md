@@ -4,3 +4,8 @@
 - very big screen ui
 - token in url
 - update instruction with new go example
+
+- frontend test
+- golang example test
+- js web test
+- js server test

@@ -7,7 +7,7 @@ import { ProcessExitBlocker } from "../process-exit-blocker";
 
 async function sendRegisterEventMessage(ws: WebSocket, payload: any) {
   const msg = await encrypt(stringify(payload), runtimeConfig.token!);
-  ws.send(msg)
+  ws.send(msg);
 }
 
 const INACTIVITY_TIMEOUT_MS = 30 * 1000;
@@ -18,8 +18,8 @@ class WebSocketReporter implements Reporter {
 
   constructor() {
     ProcessExitBlocker.instance.onShouldExit(() => {
-      this.cleanup()
-    })
+      this.cleanup(true);
+    });
   }
 
   private async open(): Promise<WebSocket> {
@@ -39,70 +39,71 @@ class WebSocketReporter implements Reporter {
     const roomId = await sha256(runtimeConfig.token);
     const ws = new WebSocket(`${runtimeConfig.serverUrl}/api/report?roomId=${roomId}`);
 
-    return this.ws = new Promise((resolve, reject) => {
-      ws.onopen = function() {
+    return (this.ws = new Promise((resolve, reject) => {
+      ws.onopen = function () {
         // The WebSocket type doesn't expose this property, but every Socket has it
         // we need to unref it so that it doesn't stop the Node.JS process from exiting
-        this._socket?.unref()
+        this._socket?.unref();
         resolve(ws);
       };
 
       ws.onerror = (err) => {
-        ws.close()
+        ws.close();
         this.ws = null;
         reject(err);
-      }
-    })
+      };
+    }));
   }
 
-  private async cleanup() {
+  private async cleanup(force = false) {
     this.cleanupTimeoutRef && clearTimeout(this.cleanupTimeoutRef);
 
-    if(this.ws) {
-      return this.ws.then(ws => {
+    if (this.ws) {
+      return this.ws.then((ws) => {
         ws.close();
-        this.ws = null
+        force && ws.terminate?.();
+        this.ws = null;
       });
     }
   }
 
   private scheduleCleanup() {
     this.cleanupTimeoutRef && clearTimeout(this.cleanupTimeoutRef);
-    this.cleanupTimeoutRef = setTimeout(() => { 
-      this.cleanup()
-    }, INACTIVITY_TIMEOUT_MS)
+    this.cleanupTimeoutRef = setTimeout(() => {
+      this.cleanup();
+    }, INACTIVITY_TIMEOUT_MS);
   }
 
   async registerEvent(payload: any) {
     const impl = async () => {
       try {
         const ws = await this.open();
-  
+
         if (ws.readyState !== WebSocket.OPEN) {
           throw new Error("Socked closed, failed to send an event");
         }
-  
+
         await sendRegisterEventMessage(ws, payload);
 
         this.scheduleCleanup();
-      } catch(e) {
+      } catch (e) {
         await this.cleanup();
         throw e;
       }
-    }
+    };
 
     try {
-      await impl()
-      return
+      await impl();
+      return;
     } catch (e) {
       // first one failed, try again
     }
-  
+
     try {
-      await impl()
-    } catch(e) {
+      await impl();
+    } catch (e) {
       // not much a user can do here
-      console.error(e)
+      console.error(e);
     }
   }
 }

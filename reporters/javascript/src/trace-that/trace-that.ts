@@ -2,7 +2,7 @@ import { serializeError } from "../serialize-error";
 import { sleep, generateId } from "../utils";
 import { Reporter } from "../reporter/interface";
 import { runtimeConfig } from "../runtime-config";
-import {ProcessExitBlocker} from '../process-exit-blocker'
+import { ProcessExitBlocker } from "../process-exit-blocker";
 export class FunctionTracer {
   constructor(private reporter: Reporter) {}
 
@@ -25,9 +25,9 @@ export class FunctionTracer {
         return fn(...args);
       }
 
-      const exitBlocker = ProcessExitBlocker.instance
+      const exitBlocker = ProcessExitBlocker.instance;
 
-      exitBlocker.addPending(1)
+      exitBlocker.addPending(1);
 
       const callId = generateId();
       const callStack = new Error().stack
@@ -38,44 +38,48 @@ export class FunctionTracer {
 
       const startTs = new Date().getTime();
 
-      this.reporter.registerEvent({
-        status: "running",
-        callId,
-        name: functionName,
-        startEpochMs: startTs,
-        details: {
-          arguments: args,
-          callStack,
-        },
-      }).finally(() => {
-        exitBlocker.resolvePending();
-      });
+      this.reporter
+        .registerEvent({
+          status: "running",
+          callId,
+          name: functionName,
+          startEpochMs: startTs,
+          details: {
+            arguments: args,
+            callStack,
+          },
+        })
+        .finally(() => {
+          exitBlocker.resolvePending();
+        });
 
       const registerError = (e: any) => {
         const endTs = new Date().getTime();
 
-        this.reporter.registerEvent({
-          status: "error",
-          callId,
-          name: functionName,
-          startEpochMs: startTs,
-          endEpochMs: endTs,
-          details: {
-            arguments: args,
-            error: serializeError(e),
-            callStack,
-          },
-        }).finally(() => {
-          exitBlocker.resolvePending();
-        });
+        return this.reporter
+          .registerEvent({
+            status: "error",
+            callId,
+            name: functionName,
+            startEpochMs: startTs,
+            endEpochMs: endTs,
+            details: {
+              arguments: args,
+              error: serializeError(e),
+              callStack,
+            },
+          })
+          .finally(() => {
+            exitBlocker.resolvePending();
+          });
       };
 
       let returned: Return;
       try {
         returned = fn(...args);
-        exitBlocker.addPending(1)
+        exitBlocker.addPending(1);
       } catch (e) {
-        registerError(e);
+        setTimeout(() => registerError(e), 0);
 
         throw e;
       }
@@ -95,7 +99,8 @@ export class FunctionTracer {
               arguments: args,
               return: output,
             },
-          }).finally(() => {
+          })
+          .finally(() => {
             exitBlocker.resolvePending();
           });
 
@@ -103,12 +108,15 @@ export class FunctionTracer {
       };
 
       if (returned instanceof Promise) {
-        return returned.then(registerSuccess).catch((e) => {
-          registerError(e);
-          return sleep(100).then(() => Promise.reject(e));
-        }) as Return;
+        return (
+          returned
+            .then(registerSuccess)
+            // wait at most a second to send the error
+            .catch((e) => Promise.race([registerError(e), sleep(1000)]).then(() => Promise.reject(e))) as Return
+        );
       } else {
-        registerSuccess(returned);
+        // if it's run synchronously it prevents process from exiting but only for Bun :(
+        setTimeout(() => registerSuccess(returned), 0);
         return returned;
       }
     };

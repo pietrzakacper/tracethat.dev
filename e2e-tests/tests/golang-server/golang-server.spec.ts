@@ -7,16 +7,16 @@ import path from "path";
 const exec = util.promisify(child_process.exec);
 
 const TOKEN = "test-token";
-const TEST_NAME = "johnny";
+const TEST_NAME = "barry";
 
-test("send hello from JS server", async ({ page }) => {
-  const serverPort = await runServer(3000);
+test("send hello from Go server", async ({ page }) => {
+  const serverPort = await runServer(4000);
 
   await page.goto(`http://localhost:${serverPort}`);
   await page.getByPlaceholder("Enter session ID").fill(TOKEN);
   await page.getByRole("button", { name: "Go" }).click();
 
-  await exec(`node hello.js ${TEST_NAME}`, {
+  await exec(`go run hello.go ${TEST_NAME}`, {
     env: { ...process.env, TT_TOKEN: TOKEN, TT_SERVER_URL: `ws://localhost:${serverPort}` },
     cwd: path.join(__dirname, "reporter"),
   });

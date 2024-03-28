@@ -17,8 +17,8 @@ export function waitForString(str: string, stream: Readable): Promise<void> {
   });
 }
 
-export async function runServer(): Promise<number> {
-  const [serverPort] = await freeports(1);
+export async function runServer(startPort: number): Promise<number> {
+  const [serverPort] = await freeports(1, { startPort });
 
   const serverProcess = exec("go run ./...", { env: { ...process.env, PORT: serverPort.toString() }, cwd: rootDir });
 

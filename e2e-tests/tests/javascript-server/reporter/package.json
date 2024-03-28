@@ -1,0 +1,12 @@
+{
+  "name": "hello",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hello.js",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "tracethat.dev": "file:../../../../reporters/javascript"
+  }
+}

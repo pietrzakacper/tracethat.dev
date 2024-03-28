@@ -1,2 +1,4 @@
 *_templ.go
-.vscode
+.vscode/**/*
+!.vscode/settings.json
+!.vscode/extensions.json

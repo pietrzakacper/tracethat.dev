@@ -1,0 +1,32 @@
+.container {
+  width: 100%;
+  height: 100%;
+
+  container-type: inline-size;
+}
+
+.grid {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+}
+
+.grid > *:nth-child(2) {
+  @apply border-t border-l-0;
+}
+
+@container (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr minmax(600px, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .grid > *:nth-child(2) {
+    @apply border-t-0 border-l;
+  }
+}
+
+@container (min-width: 1400px) {
+  .grid {
+    grid-template-columns: minmax(800px, 1fr) 2fr;
+  }
+}

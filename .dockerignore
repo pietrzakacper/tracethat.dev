@@ -2,8 +2,8 @@
 **/*_templ.go
 **/.vscode
 
-# flyctl launch added from reporter-js/.gitignore
-reporter-js/**/node_modules
-reporter-js/**/dist
-reporter-js/**/.vscode
+# flyctl launch added from reporters/javascript/.gitignore
+reporters/javascript/**/node_modules
+reporters/javascript/**/dist
+reporters/javascript/**/.vscode
 fly.toml

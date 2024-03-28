@@ -8,12 +8,14 @@ export const rootDir = path.resolve(__dirname, "../../");
 export function waitForString(str: string, stream: Readable): Promise<void> {
   return new Promise<void>((resolve) => {
     let out = "";
-    stream.on("data", (chunk) => {
+    const fn = (chunk: any) => {
       out += chunk;
       if (out.includes(str)) {
+        stream.off("data", fn);
         resolve();
       }
-    });
+    };
+    stream.on("data", fn);
   });
 }
 
@@ -28,3 +30,5 @@ export async function runServer(startPort: number): Promise<number> {
 
   return serverPort;
 }
+
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

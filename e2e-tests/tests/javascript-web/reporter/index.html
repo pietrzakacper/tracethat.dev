@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello</title>
+  </head>
+  <body>
+    <h1>Hello from JS client</h1>
+    <script src="/tracethat.min.js" type="application/javascript"></script>
+    <script>
+      window.addEventListener("DOMContentLoaded", main);
+
+      async function main() {
+        document.body.innerHTML += "<h2>client started</h2>";
+
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        TT.registerToken(token);
+        const serverPort = params.get("server_port");
+        TT.setServerUrl(`ws://localhost:${serverPort}`);
+
+        async function hello(name) {
+          await new Promise((res) => setTimeout(res, 100));
+          return `Hello ${name}`;
+        }
+
+        const name = params.get("name");
+        await traceThat(hello)(name);
+
+        document.body.innerHTML += "<h2>event sent</h2>";
+      }
+    </script>
+  </body>
+</html>

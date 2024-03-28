@@ -1,0 +1,16 @@
+{
+  "name": "hello",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hello.js",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "prestart": "ln -s ../../../../reporters/javascript/dist/tracethat.min.js tracethat.min.js || true",
+    "start": "http-server ."
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+}

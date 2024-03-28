@@ -10,7 +10,7 @@ const TOKEN = "test-token";
 const TEST_NAME = "barry";
 
 test("send hello from Go server", async ({ page }) => {
-  const serverPort = await runServer(4000);
+  const serverPort = await runServer(3100);
 
   await page.goto(`http://localhost:${serverPort}`);
   await page.getByPlaceholder("Enter session ID").fill(TOKEN);

@@ -5,6 +5,7 @@ import (
 	"devtools-project/model"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"time"
@@ -114,7 +115,15 @@ func main() {
 	if portFromEnv == "" {
 		portFromEnv = "3000"
 	}
+	l, err := net.Listen("tcp", ":"+portFromEnv)
+
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
 	fmt.Println("Listening on :" + portFromEnv)
-	http.ListenAndServe(":"+portFromEnv, nil)
+
+	if err := http.Serve(l, nil); err != nil {
+		log.Fatalf(err.Error())
+	}
 }

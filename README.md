@@ -1,32 +1,71 @@
 # tracethat.dev
-*No-setup remote debugging for any app*  
-***Use it yourself at [tracethat.dev](https://tracethat.dev)
-![](./docs/demo.gif)***
+
+_No-setup remote debugging for any app_  
+**_Use it yourself at [tracethat.dev](https://tracethat.dev)
+![](./docs/demo.gif)_**
 
 ## Developing locally
+
+For now only Unix/MacOS are supported for local development
+
+### Global dependencies
+
+- go (https://go.dev/doc/install) - tested with `go1.21.7`
+- bun (https://bun.sh/docs/installation) - tested with `1.0.29`
+- node/npm (https://nodejs.org/en/download) - tested with `v20.11.0`
+
 ### Golang Server
-1. Do only once before first build
+
+In `./`:
+
 ```bash
-# Install go from official webiste
-go mod tidy # install deps
+go mod tidy # install dependencies
+go ./... # re-run the server on each change
 ```
 
-2. Do on every build/change
+### React Frontend
+
+In `./frontend`
+
 ```bash
-go ./... # Runs the server
+bun install # install dependencies
+bun run dev # Run Vite server with hot-reloading
 ```
 
 ### JavaScript Reporter
+
+In `./reporters/javascript`
+
 ```bash
-cd reporters/javascript
-npm i # run only once
-npm run build # build on each change
-# Run the example using locally build reporter and local server
-SERVER_URL=ws://localhost:3000 TOKEN=123 npx tsx example/ping.ts
+bun install # install dependencies
+bun run build # build on each change
+# Run the example using locally built reporter and local server
+TT_SERVER_URL=ws://localhost:3000 TT_TOKEN=123 npx tsx example/index.ts
+```
+
+### Golang Reporter
+
+In `./reporters/golang`
+
+```bash
+go mod tidy # install dependencies
+cd example
+# Run the example using locally built reporter and local server
+TT_SERVER_URL=ws://localhost:4000 TT_TOKEN=123 go run ./...
+```
+
+### E2E tests
+
+In `e2e-tests` directory:
+
+```bash
+bun install # install dependencies
+bun run test # run tests
 ```
 
 ## Contributing
+
 This project is meant to be built by the community.
 Please refer to the list of `Issues` but don't limit yourself to it.
 If you have an idea/bugfix I'm open for any kind of contributions.
-Feel free to contact me on [LinkedIn](https://www.linkedin.com/in/kacper-pietrzak/) in case you want to help. 
+Feel free to contact me on [LinkedIn](https://www.linkedin.com/in/kacper-pietrzak/) in case you want to help.

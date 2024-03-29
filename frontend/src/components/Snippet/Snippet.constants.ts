@@ -51,15 +51,16 @@ import (
 
 func hello(name string) {
   defer tt.LogWithTime("hello", name)()
-
   time.Sleep(time.Second)
 }
 
 func main() {
-  tt.RegisterToken("${token}")
-
+  tt.Config.RegisterToken("${token}")
+  
   hello("world")
-}
+  
+  tt.Wait()
+} 
 `.trim();
 
 const CODE_BLOCKS = {

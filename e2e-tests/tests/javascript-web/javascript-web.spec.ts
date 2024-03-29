@@ -7,10 +7,12 @@ import findFreePorts from "find-free-ports";
 const TOKEN = "test-token";
 const TEST_NAME = "johnny";
 
-let clientProc: child_process.ChildProcess;
+let clientProcess: child_process.ChildProcess;
+let serverProcess: child_process.ChildProcess;
 
 test("send hello from JS web client", async ({ page, context }) => {
-  const serverPort = await runServer(3200);
+  let serverPort: number;
+  [serverProcess, serverPort] = await runServer(3200);
 
   await page.goto(`http://localhost:${serverPort}`);
   await page.getByPlaceholder("Enter session ID").fill(TOKEN);
@@ -18,11 +20,11 @@ test("send hello from JS web client", async ({ page, context }) => {
 
   const [clientPort] = await findFreePorts(1, { startPort: 3250 });
 
-  clientProc = child_process.exec(`npm run start -- -p ${clientPort.toString()}`, {
+  clientProcess = child_process.exec(`npm run start -- -p ${clientPort.toString()}`, {
     cwd: path.join(__dirname, "reporter"),
   });
 
-  await waitForString("Available on", clientProc.stdout!);
+  await waitForString("Available on", clientProcess.stdout!);
 
   const clientPage = await context.newPage();
   await clientPage.goto(`http://localhost:${clientPort}?token=${TOKEN}&server_port=${serverPort}&name=${TEST_NAME}`);
@@ -34,5 +36,6 @@ test("send hello from JS web client", async ({ page, context }) => {
 });
 
 test.afterAll(() => {
-  clientProc?.kill();
+  clientProcess?.kill();
+  serverProcess?.kill();
 });

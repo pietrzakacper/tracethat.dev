@@ -9,8 +9,11 @@ const exec = util.promisify(child_process.exec);
 const TOKEN = "test-token";
 const TEST_NAME = "johnny";
 
+let serverProcess: child_process.ChildProcess;
+
 test("send hello from JS server", async ({ page }) => {
-  const serverPort = await runServer(3000);
+  let serverPort: number;
+  [serverProcess, serverPort] = await runServer(3000);
 
   await page.goto(`http://localhost:${serverPort}`);
   await page.getByPlaceholder("Enter session ID").fill(TOKEN);
@@ -22,4 +25,8 @@ test("send hello from JS server", async ({ page }) => {
   });
 
   await expect(page.getByText(`hello ${TEST_NAME}`)).toBeVisible();
+});
+
+test.afterAll(() => {
+  serverProcess?.kill();
 });

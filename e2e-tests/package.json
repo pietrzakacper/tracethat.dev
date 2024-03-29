@@ -9,13 +9,16 @@
     "@types/node": "^20.11.30"
   },
   "description": "",
-  "directories": {
-    "doc": "docs"
+  "scripts": {
+    "install": "cd tests/javascript-web/reporter && bun install",
+    "build-frontend": "cd ../frontend && VITE_SERVER_URL=/ bun run build",
+    "build-js-reporter": "cd ../reporters/javascript && bun run build",
+    "pretest": "bun run build-frontend && bun run build-js-reporter",
+    "test": "playwright test"
   },
   "keywords": [],
   "license": "ISC",
   "private": true,
-  "scripts": {},
   "dependencies": {
     "find-free-ports": "^3.1.1"
   }

@@ -115,7 +115,13 @@ func main() {
 	if portFromEnv == "" {
 		portFromEnv = "3000"
 	}
-	l, err := net.Listen("tcp", "localhost:"+portFromEnv)
+
+	host := "0.0.0.0"
+	if os.Getenv("LOCAL") == "true" {
+		host = "localhost"
+	}
+
+	l, err := net.Listen("tcp", host+":"+portFromEnv)
 
 	if err != nil {
 		log.Fatalf(err.Error())

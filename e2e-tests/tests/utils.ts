@@ -27,7 +27,10 @@ export function waitForString(str: string, stream: Readable): Promise<void> {
 export async function runServer(startPort: number): Promise<[ChildProcess, number]> {
   const [serverPort] = await freeports(1, { startPort });
 
-  const serverProcess = exec("go run ./...", { env: { ...process.env, PORT: serverPort.toString() }, cwd: rootDir });
+  const serverProcess = exec("go run ./...", {
+    env: { ...process.env, PORT: serverPort.toString(), LOCAL: "true" },
+    cwd: rootDir,
+  });
   serverProcess.stderr?.pipe(process.stderr);
 
   await waitForString("Listening", serverProcess.stdout!);

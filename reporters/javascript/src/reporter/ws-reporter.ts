@@ -1,5 +1,5 @@
 import WebSocket from "isomorphic-ws";
-import { runtimeConfig } from "../runtime-config";
+import { onConfigChange, runtimeConfig } from "../runtime-config";
 import { Reporter } from "./interface";
 import { sleep, stringify } from "../utils";
 import { encrypt, sha256 } from "../crypto";
@@ -19,6 +19,10 @@ class WebSocketReporter implements Reporter {
   constructor() {
     ProcessExitBlocker.instance.onShouldExit(() => {
       this.cleanup(true);
+    });
+
+    onConfigChange(() => {
+      this.cleanup();
     });
   }
 

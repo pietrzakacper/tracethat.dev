@@ -61,7 +61,7 @@ export const Landing = () => {
                 </div>
                 <div>
                   <h2 className="text-[2rem] text-muted-foreground font-light text-center">
-                    no-setup observability for any app
+                    no-setup remote debugging for any app
                   </h2>
                 </div>
               </header>
@@ -106,19 +106,18 @@ export const Landing = () => {
   );
 };
 
+const userId = "${userId}";
 const TEST_CODE = `
-const $button = document.createElement("button");
-$button.textContent = "Click me!";
+import { registerToken, traceThat } from "tracethat.dev"
 
-const processPosition = (event) => {
-  const password = crackPassword("5fcfd41e547a12215b173ff47fdd3739");
+registerToken("trace-that-landing")
 
+const handler = traceThat(\`${userId}-onClickMe\`, (event) => {
   return {
     x: event.clientX,
     y: event.clientY,
-    password: password
-  };
-}
+  }
+})
 
-$button.addEventListener("click", traceThat("onClickMe", processPosition));
+$button.addEventListener("click", handler);
 `.trim();

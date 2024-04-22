@@ -95,6 +95,7 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
             indentWidth={4}
             enableClipboard={false}
             style={{ fontFamily: "inherit", background: "none" }}
+            shouldCollapse={({ name }) => name !== "root"}
           />
         </div>
       </div>

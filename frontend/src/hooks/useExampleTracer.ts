@@ -21,12 +21,11 @@ export const useExampleTracer = ({ token, eventName = "onTraceClick" }: UseExamp
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       traceThat(eventName, async (event: React.MouseEvent) => {
-        await wait(getRandomIntInRange(100, 500));
+        await wait(getRandomIntInRange(1, 10));
 
         return {
           x: event.clientX,
           y: event.clientY,
-          password: "passw0rd",
         };
       })(e);
     },

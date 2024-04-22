@@ -1,10 +1,8 @@
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import {
-  AlertTriangle,
   Circle,
   Heart,
-  Triangle,
   Star,
   PawPrint,
   Octagon,
@@ -24,10 +22,9 @@ import {
 
 type Color = { base: string; rest: string; hover: string; icon: LucideIcon };
 const COLORS: Color[] = [
-  { base: "rgba(255, 0, 0, 1)", rest: "rgba(255, 0, 0, 0.1)", hover: "rgba(255, 0, 0, 0.2)", icon: AlertTriangle },
   { base: "rgba(0, 255, 0, 1)", rest: "rgba(0, 255, 0, 0.1)", hover: "rgba(0, 255, 0, 0.2)", icon: Circle },
   { base: "rgba(0, 0, 255, 1)", rest: "rgba(0, 0, 255, 0.1)", hover: "rgba(0, 0, 255, 0.2)", icon: Heart },
-  { base: "rgba(255, 255, 0, 1)", rest: "rgba(255, 255, 0, 0.1)", hover: "rgba(255, 255, 0, 0.2)", icon: Triangle },
+  { base: "rgba(255, 255, 0, 1)", rest: "rgba(255, 255, 0, 0.1)", hover: "rgba(255, 255, 0, 0.2)", icon: Circle },
   { base: "rgba(0, 255, 255, 1)", rest: "rgba(0, 255, 255, 0.1)", hover: "rgba(0, 255, 255, 0.2)", icon: Star },
   { base: "rgba(255, 0, 255, 1)", rest: "rgba(255, 0, 255, 0.1)", hover: "rgba(255, 0, 255, 0.2)", icon: Octagon },
   {

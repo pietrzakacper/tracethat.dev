@@ -105,5 +105,5 @@ export const useSSE = <T>(token: string, sessionId: string, parseData: (event: u
     };
   }, [eventSource, parseData, token]);
 
-  return { data };
+  return { data, clearData: () => setData([]) };
 };

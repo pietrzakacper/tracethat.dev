@@ -7,7 +7,7 @@ import { Snippet } from "@/components/Snippet/Snippet";
 
 export function TraceWithToken() {
   const [token] = useSearchParam("token", StringParam);
-  const { data } = useEventsList(token);
+  const { data, clearData } = useEventsList(token);
 
   const [selectedEventCallId, setSelectedEventCallId] = useState<string | null>(null);
   const firstEvent = data[0];
@@ -23,7 +23,7 @@ export function TraceWithToken() {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <Header />
+      <Header onClear={clearData} />
       <div className="w-full flex-1 min-h-0">
         <EventsList
           data={data}

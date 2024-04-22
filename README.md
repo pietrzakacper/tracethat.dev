@@ -20,7 +20,7 @@ In `./`:
 
 ```bash
 go mod tidy # install dependencies
-go ./... # re-run the server on each change
+go run ./... # re-run the server on each change
 ```
 
 ### React Frontend
@@ -51,7 +51,7 @@ In `./reporters/golang`
 go mod tidy # install dependencies
 cd example
 # Run the example using locally built reporter and local server
-TT_SERVER_URL=ws://localhost:4000 TT_TOKEN=123 go run ./...
+TT_SERVER_URL=ws://localhost:3000 TT_TOKEN=123 go run ./...
 ```
 
 ### E2E tests

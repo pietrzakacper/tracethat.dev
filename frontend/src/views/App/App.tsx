@@ -1,14 +1,13 @@
-import { LocationContextProvider, useLocation } from "@/hooks/useSearchParam";
+import { TokenContextProvider } from "@/hooks/useToken";
 import { Root } from "../Root/Root";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 
 export const App = () => {
-  const location = useLocation();
   return (
     <ThemeProvider defaultTheme="dark">
-      <LocationContextProvider value={location}>
+      <TokenContextProvider>
         <Root />
-      </LocationContextProvider>
+      </TokenContextProvider>
     </ThemeProvider>
   );
 };

@@ -2,14 +2,12 @@ import { Github, DeleteIcon } from "lucide-react";
 import { Logo } from "./Logo";
 import { ModeToggle } from "./ModeToggle";
 import { Button } from "./ui/button/button";
-import { Link } from "./Link";
+import history from "history/browser";
 
 export const Header = (props: { onClear?: () => void }) => {
   return (
     <header className="col-span-full p-4 border-b flex items-center">
-      <Link to={{ pathname: "/" }}>
-        <Logo />
-      </Link>
+      <Logo onClick={() => history.push("/")} />
       <div className="flex-1" />
       <div className="flex items-center gap-2">
         {props.onClear && (

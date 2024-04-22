@@ -1,5 +1,3 @@
-import history from "history/browser";
-import { Link } from "@/components/Link";
 import { Button } from "@/components/ui/button/button";
 import { useCallback, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input/input";
@@ -11,11 +9,14 @@ import { LANDING_TOKEN } from "@/lib/constants";
 import { useEventsList } from "@/hooks/useEventsList";
 import { EventsList } from "@/layouts/EventsList/EventsList";
 import { HighlightedCode } from "@/components/HighlightedCode";
+import { useToken } from "@/hooks/useToken";
+import history from "history/browser";
 
 export const Landing = () => {
   const userId = useMemo(() => getRandomId(), []);
   const randomToken = useMemo(() => getRandomId(), []);
   const [customToken, setCustomToken] = useState("");
+  const [, setToken] = useToken();
   const onTraceClick = useExampleTracer({ token: LANDING_TOKEN, eventName: `${userId}-onClickMe` });
   const { data } = useEventsList(LANDING_TOKEN);
 
@@ -26,11 +27,16 @@ export const Landing = () => {
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!customToken) {
+    goToEvents(customToken);
+  };
+
+  const goToEvents = (token: string) => {
+    if (!token) {
       return;
     }
 
-    history.push({ pathname: "/", search: `?token=${customToken}` });
+    history.push("/events");
+    setToken(token);
   };
 
   return (
@@ -61,8 +67,8 @@ export const Landing = () => {
               </header>
               <main className="flex flex-row items-center justify-center space-x-4 w-full">
                 <section className="flex flex-1 items-center justify-end space-y-4">
-                  <Button asChild>
-                    <Link to={{ pathname: "/", search: `?token=${randomToken}` }}>Start New Session</Link>
+                  <Button asChild onClick={() => goToEvents(randomToken)}>
+                    <a>Start New Session</a>
                   </Button>
                 </section>
                 <span className="text-muted-foreground">or</span>

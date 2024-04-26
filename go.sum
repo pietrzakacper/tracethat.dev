@@ -1,4 +1,8 @@
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gorilla/websocket v1.5.1 h1:gmztn0JnHVt9JZquRuzLw3g4wouNVzKL15iLr/zn/QY=
 github.com/gorilla/websocket v1.5.1/go.mod h1:x3kM2JMyaluk02fnUJpQuwD2dCS5NDG2ZHL0uE0tcaY=
+github.com/pietrzakacper/tracethat.dev/reporters/golang/tt v0.0.0-20240325164611-8b0e77de6124 h1:elw8Rkpt4aGD8xlLZFuFO8AuNizlu3RQN2homHPR50I=
+github.com/pietrzakacper/tracethat.dev/reporters/golang/tt v0.0.0-20240325164611-8b0e77de6124/go.mod h1:AOck/jmu9D8xP4Z04+o1e6WIRLBrjb1MmZh9gCbUR9M=
 golang.org/x/net v0.17.0 h1:pVaXccu2ozPjCXewfr1S7xza/zcXTity9cCdXQYSjIM=
 golang.org/x/net v0.17.0/go.mod h1:NxSsAGuq816PNPmqtQdLE42eU2Fs7NoRIZrHJAlaCOE=

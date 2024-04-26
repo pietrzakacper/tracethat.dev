@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/pietrzakacper/tracethat.dev/reporters/golang/tt"
 )
 
 const inactivityDeadline = 30 * time.Second
@@ -20,7 +21,16 @@ func main() {
 
 	fs := http.FileServer(http.Dir("./frontend/dist"))
 
-	http.Handle("/", fs)
+	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			var ip string
+			if ip = r.Header.Get("Fly-Client-Ip"); ip == "" {
+				ip = r.RemoteAddr
+			}
+			defer tt.LogWithTime("landing visit from "+ip, r.URL, r.Header)()
+		}
+		fs.ServeHTTP(w, r)
+	}))
 
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -126,6 +136,9 @@ func main() {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+
+	tt.Config.SetServerUrl("ws://localhost:" + portFromEnv)
+	tt.Config.RegisterToken("trace-that-landing")
 
 	fmt.Println("Listening on :" + portFromEnv)
 

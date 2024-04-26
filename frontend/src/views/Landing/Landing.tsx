@@ -3,21 +3,16 @@ import { useCallback, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input/input";
 import { getRandomId } from "@/utils/getRandomId";
 import { Header } from "@/components/Header";
-import { MousePointerClick } from "lucide-react";
-import { useExampleTracer } from "@/hooks/useExampleTracer";
 import { LANDING_TOKEN } from "@/lib/constants";
 import { useEventsList } from "@/hooks/useEventsList";
 import { EventsList } from "@/layouts/EventsList/EventsList";
-import { HighlightedCode } from "@/components/HighlightedCode";
 import { useToken } from "@/hooks/useToken";
 import history from "history/browser";
 
 export const Landing = () => {
-  const userId = useMemo(() => getRandomId(), []);
   const randomToken = useMemo(() => getRandomId(), []);
   const [customToken, setCustomToken] = useState("");
   const [, setToken] = useToken();
-  const onTraceClick = useExampleTracer({ token: LANDING_TOKEN, eventName: `${userId}-onClickMe` });
   const { data } = useEventsList(LANDING_TOKEN);
 
   const [selectedEventCallId, setSelectedEventCallId] = useState<string | null>(null);
@@ -89,15 +84,6 @@ export const Landing = () => {
                 </section>
               </main>
             </div>
-            <section className="flex-col items-center space-y-4 w-full hidden viewer-2-cols:flex">
-              <HighlightedCode code={TEST_CODE} language="js" className="w-full" />
-              {onTraceClick && (
-                <Button variant="outline" onClick={onTraceClick}>
-                  Click me!
-                  <MousePointerClick className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-            </section>
           </div>
           <div className="flex-grow" />
         </div>
@@ -105,19 +91,3 @@ export const Landing = () => {
     </div>
   );
 };
-
-const userId = "${userId}";
-const TEST_CODE = `
-import { registerToken, traceThat } from "tracethat.dev"
-
-registerToken("trace-that-landing")
-
-const handler = traceThat(\`${userId}-onClickMe\`, (event) => {
-  return {
-    x: event.clientX,
-    y: event.clientY,
-  }
-})
-
-$button.addEventListener("click", handler);
-`.trim();

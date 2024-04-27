@@ -8,9 +8,11 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/ipinfo/go/v2/ipinfo"
 	"github.com/pietrzakacper/tracethat.dev/reporters/golang/tt"
 )
 
@@ -23,12 +25,34 @@ func main() {
 
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
-			var ip string
-			if ip = r.Header.Get("Fly-Client-Ip"); ip == "" {
-				ip = r.RemoteAddr
-			}
-			defer tt.LogWithTime("landing visit from "+ip, r.URL, r.Header)()
+			go func() {
+				var ipStr string
+				if ipStr = r.Header.Get("Fly-Client-Ip"); ipStr == "" {
+					ipStr = r.RemoteAddr
+				}
+
+				if ipInfoToken := os.Getenv("IP_INFO_TOKEN"); ipInfoToken != "" {
+					client := ipinfo.NewClient(nil, nil, ipInfoToken)
+					info, err := client.GetIPInfo(net.ParseIP(ipStr))
+					if err == nil {
+						ipStr = info.City + " " + info.CountryFlag.Emoji
+					}
+				} else {
+					fmt.Println("IP_INFO_TOKEN not set")
+				}
+
+				defer tt.LogWithTime("landing visit from "+ipStr, map[string]any{
+					"url":     r.URL,
+					"headers": r.Header,
+				})()
+			}()
 		}
+
+		// if it's any path, but not a file, route to index.html
+		if !strings.Contains(r.URL.Path, ".") {
+			r.URL.Path = "/"
+		}
+
 		fs.ServeHTTP(w, r)
 	}))
 

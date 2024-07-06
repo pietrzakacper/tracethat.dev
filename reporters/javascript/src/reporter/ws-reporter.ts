@@ -4,17 +4,29 @@ import { Reporter } from "./interface";
 import { sleep, stringify } from "../utils";
 import { encrypt, sha256 } from "../crypto";
 import { ProcessExitBlocker } from "../process-exit-blocker";
+import { log } from "../logger";
 
 async function sendRegisterEventMessage(ws: WebSocket, payload: any) {
   const msg = await encrypt(stringify(payload), runtimeConfig.token!);
-  ws.send(msg);
+  
+  return new Promise((res, rej) => {
+    ws.send(msg, (err) => {
+      if (err) {
+        rej(err);
+      } else {
+        res(undefined);
+      }
+    });
+  })
 }
 
 const INACTIVITY_TIMEOUT_MS = 30 * 1000;
+const MAX_PARALLEL_CALLS = 10;
 
 class WebSocketReporter implements Reporter {
   private ws: Promise<WebSocket> | null = null;
   private cleanupTimeoutRef: NodeJS.Timeout | null = null;
+  private parellelCalls = 0;
 
   constructor() {
     ProcessExitBlocker.instance.onShouldExit(() => {
@@ -22,28 +34,36 @@ class WebSocketReporter implements Reporter {
     });
 
     onConfigChange(() => {
+      log("Config changed")
       this.cleanup();
     });
   }
 
   private async open(): Promise<WebSocket> {
+    const callId = `[${Math.random().toString(36).substring(7)}] `;
+    log(callId + "open() called ")
+
     if (this.ws) {
+      log(callId + "returned existing ws")
       return this.ws;
     }
 
     if (!runtimeConfig.token) {
+      log(callId + "sleeping for token")
       await sleep(100);
     }
 
     if (!runtimeConfig.token) {
+      log(callId + "did not find token, rejecting")
+
       console.error("[tracethat.dev] Couldn't open a socket, no token provided");
       return Promise.reject("No token provided");
     }
 
-    const roomId = await sha256(runtimeConfig.token);
-    const ws = new WebSocket(`${runtimeConfig.serverUrl}/api/report?roomId=${roomId}`);
+    log(callId + "creating new connection with token: " + runtimeConfig.token)
 
-    return (this.ws = new Promise((resolve, reject) => {
+    return (this.ws = sha256(runtimeConfig.token).then(roomId => new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${runtimeConfig.serverUrl}/api/report?roomId=${roomId}&debugToken=${runtimeConfig.token}`);
       ws.onopen = function () {
         // The WebSocket type doesn't expose this property, but every Socket has it
         // we need to unref it so that it doesn't stop the Node.JS process from exiting
@@ -56,17 +76,17 @@ class WebSocketReporter implements Reporter {
         this.ws = null;
         reject(err);
       };
-    }));
+    })))
   }
 
   private async cleanup(force = false) {
     this.cleanupTimeoutRef && clearTimeout(this.cleanupTimeoutRef);
-
     if (this.ws) {
       return this.ws.then((ws) => {
         ws.close();
         force && ws.terminate?.();
         this.ws = null;
+        this.parellelCalls = 0;
       });
     }
   }
@@ -80,6 +100,12 @@ class WebSocketReporter implements Reporter {
 
   async registerEvent(payload: any) {
     const impl = async () => {
+      while (this.parellelCalls >= MAX_PARALLEL_CALLS) {
+        log(`[${payload.callId}] waiting for parellel calls to go down`)
+        await sleep(10);
+      }
+      this.parellelCalls++;
+
       try {
         const ws = await this.open();
 
@@ -93,6 +119,8 @@ class WebSocketReporter implements Reporter {
       } catch (e) {
         await this.cleanup();
         throw e;
+      } finally {
+        this.parellelCalls--;
       }
     };
 

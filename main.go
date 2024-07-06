@@ -63,10 +63,14 @@ func main() {
 
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
+	debugStats := map[string]int{}
+
 	http.Handle("/api/report", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("new /api/report connection from %s \n", r.RemoteAddr)
 
 		roomId := r.URL.Query().Get("roomId")
+
+		debugToken := r.URL.Query().Get("debugToken")
 
 		if roomId == "" {
 			w.WriteHeader(http.StatusBadRequest)
@@ -75,7 +79,7 @@ func main() {
 
 		c := make(chan model.Event)
 
-		s.AddProducer(roomId, c)
+		s.AddProducer(roomId, c, debugToken)
 
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -92,6 +96,11 @@ func main() {
 			if err != nil {
 				log.Println(err)
 				return
+			}
+
+			if debugToken != "" {
+				debugStats[debugToken]++
+				fmt.Printf("[%s] total events read: %d\n", debugToken, debugStats[debugToken])
 			}
 
 			c <- model.Event(p)

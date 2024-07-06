@@ -4,6 +4,7 @@ export const runtimeConfig = {
   enabled: env.TT_DISABLE !== "true",
   serverUrl: env.TT_SERVER_URL ?? "wss://tracethat.dev",
   token: env.TT_TOKEN ?? (null as string | null),
+  verbose: env.TT_VERBOSE === "true",
 };
 
 export const disableDevtools = () => {
@@ -28,3 +29,7 @@ export const registerToken = (token: string) => {
   runtimeConfig.token = token;
   onConfigChangeCb?.();
 };
+
+export const setVerbose = (verbose: boolean) => {
+  runtimeConfig.verbose = verbose;
+}

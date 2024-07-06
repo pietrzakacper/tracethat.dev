@@ -2,17 +2,21 @@ package controller
 
 import (
 	"devtools-project/model"
+	"encoding/json"
 	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"math/rand"
 )
 
 type consumer struct {
 	c chan model.Event // channel to propagate events to consumer
 }
 
-const maxEventsPerRoom = 1000
+const maxEventsPerRoom = 2000
+const eventsPurgeSize = maxEventsPerRoom * 0.1
 const maxRoomInactivity = 1 * time.Hour
 const inactivityCheckInterval = 5 * time.Minute
 
@@ -25,6 +29,10 @@ type room struct {
 
 	consumersLock *sync.RWMutex
 	consumers     map[string]consumer // sessionId -> Consumer
+
+	debugToken string
+	debugStats map[string]map[string]bool
+	debugLock  *sync.Mutex
 }
 
 type rooms map[string]*room // roomId -> Room
@@ -44,7 +52,7 @@ func NewRooms() rooms {
 	return rooms
 }
 
-func (s rooms) AddProducer(roomId string, c <-chan model.Event) {
+func (s rooms) AddProducer(roomId string, c <-chan model.Event, debugToken string) {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -53,6 +61,11 @@ func (s rooms) AddProducer(roomId string, c <-chan model.Event) {
 	}
 
 	room := s[roomId]
+
+	if debugToken != "" {
+		room.debugToken = debugToken
+	}
+
 	go func() {
 		for {
 			room.broadcast(<-c)
@@ -112,22 +125,88 @@ func newRoom(roomId string) *room {
 		lastActivity:  lastActivity,
 		consumersLock: &sync.RWMutex{},
 		consumers:     make(map[string]consumer),
+		debugLock:     &sync.Mutex{},
+	}
+}
+
+func (s *room) logEventDebug(e model.Event, debugToken string) {
+	if debugToken == "" {
+		return
+	}
+
+	jsonStr, err := decrypt(string(e), debugToken)
+
+	if err != nil {
+		fmt.Printf("Error decrypting event: %s\n", err)
+		return
+	}
+
+	eventJson := struct {
+		Status string `json:"status"`
+		CallId string `json:"callId"`
+		Name   string `json:"name"`
+	}{}
+	err = json.Unmarshal([]byte(jsonStr), &eventJson)
+
+	if err != nil {
+		fmt.Printf("Error unmarshalling event: %s\n", err)
+		return
+	}
+
+	fmt.Printf("=== %v\n", eventJson)
+
+	s.debugLock.Lock()
+	defer s.debugLock.Unlock()
+
+	if s.debugStats == nil {
+		s.debugStats = make(map[string]map[string]bool)
+	}
+
+	if _, ok := s.debugStats[eventJson.CallId]; !ok {
+		s.debugStats[eventJson.CallId] = make(map[string]bool)
+	}
+
+	s.debugStats[eventJson.CallId][eventJson.Status] = true
+
+	agg := make(map[string]int)
+	for _, stats := range s.debugStats {
+		for k := range stats {
+			agg[k]++
+		}
+	}
+
+	fmt.Printf("stats are: %v\n", agg)
+}
+
+func printDebugMsg(msg string, debugToken string, args ...any) {
+	if debugToken != "" {
+		fmt.Printf("[%s]", debugToken)
+		fmt.Printf(msg, args...)
 	}
 }
 
 func (s *room) broadcast(e model.Event) {
+	callId := fmt.Sprintf("[%07x] ", rand.Intn(0x10000000))
+
+	printDebugMsg(callId+"Broadcasting event to room %s\n", s.debugToken, s.roomId)
+	s.logEventDebug(e, s.debugToken)
+
 	s.saveEvent(e)
 
 	s.consumersLock.RLock()
 	defer s.consumersLock.RUnlock()
 
+	printDebugMsg(callId+"There are %d consumers\n", s.debugToken, len(s.consumers))
+
 	for sessionId, session := range s.consumers {
 		go func(sessionId string, session consumer) {
 			select {
 			case session.c <- e:
+				printDebugMsg(callId+"Just broadcasted to: %s\n", s.debugToken, sessionId)
 				return
 			case <-time.After(time.Second):
-				// if the consumer doesn't consume the event within a second, remove it
+				printDebugMsg(callId+"Broadcasting event timed out: %s\n", s.debugToken, sessionId)
+				// if the consumer doesn't consume the event within ten seconds, remove it
 				s.consumersLock.Lock()
 				delete(s.consumers, sessionId)
 				s.consumersLock.Unlock()
@@ -145,9 +224,8 @@ func (s *room) saveEvent(e model.Event) {
 	s.events = append(s.events, e)
 	if len(s.events) > maxEventsPerRoom {
 		fmt.Printf("Limiting events to %d for room %s\n", maxEventsPerRoom, s.roomId)
-		offset := len(s.events) - maxEventsPerRoom
-		// remove events old events that are already consumed
-		s.events = s.events[offset:]
+		// remove old events that are already consumed
+		s.events = s.events[eventsPurgeSize:]
 	}
 }
 

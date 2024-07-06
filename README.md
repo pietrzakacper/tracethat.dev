@@ -59,6 +59,7 @@ TT_SERVER_URL=ws://localhost:3000 TT_TOKEN=123 go run ./...
 In `e2e-tests` directory:
 
 ```bash
+bunx playwright install
 bun install # install dependencies
 bun run test # run tests
 ```

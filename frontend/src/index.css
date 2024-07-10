@@ -107,3 +107,13 @@ body,
 #root {
   height: 100%;
 }
+
+.copy-to-clipboard-container > span > span {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-to-clipboard-container > span > span > span:last-child {
+  margin-left: 0px !important; 
+}

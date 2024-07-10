@@ -63,7 +63,12 @@ class WebSocketReporter implements Reporter {
     log(callId + "creating new connection with token: " + runtimeConfig.token)
 
     return (this.ws = sha256(runtimeConfig.token).then(roomId => new Promise((resolve, reject) => {
-      const ws = new WebSocket(`${runtimeConfig.serverUrl}/api/report?roomId=${roomId}&debugToken=${runtimeConfig.token}`);
+      let url = `${runtimeConfig.serverUrl}/api/report?roomId=${roomId}`
+      if(runtimeConfig.debug) {
+        url += `&debugToken=${runtimeConfig.token}`
+      }
+
+      const ws = new WebSocket(url);
       ws.onopen = function () {
         // The WebSocket type doesn't expose this property, but every Socket has it
         // we need to unref it so that it doesn't stop the Node.JS process from exiting

@@ -5,7 +5,12 @@ export const runtimeConfig = {
   serverUrl: env.TT_SERVER_URL ?? "wss://tracethat.dev",
   token: env.TT_TOKEN ?? (null as string | null),
   verbose: env.TT_VERBOSE === "true",
+  debug: env.TT_DEBUG === 'true',
 };
+
+if (runtimeConfig.debug) {
+  console.warn('[tracethat.dev] Running in debug mode, the traffic will be decrypted on the server!')
+}
 
 export const disableDevtools = () => {
   runtimeConfig.enabled = false;

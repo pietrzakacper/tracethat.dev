@@ -20,6 +20,7 @@ test("traceThat: reports arguments and return value of synchronous fn", async (t
 
   const result = tracedFunction(1, 1);
 
+  await sleep(10);
   t.equals(result, 3);
 
   const [, registerEventPayload] = mockReporter.calls.find(
@@ -71,6 +72,8 @@ test("traceThat: reports exception of synchronous fn", async (t) => {
     tracedFunction(1);
   } catch {}
 
+  await sleep(10);
+
   const [, registerEventPayload] = mockReporter.calls.find(
     ([fn, payload]) => fn === "registerEvent" && payload?.status === "error",
   )!;
@@ -95,6 +98,8 @@ test("traceThat: reports exception of async fn", async (t) => {
   try {
     await tracedFunction(1);
   } catch {}
+
+  await sleep(10);
 
   const registerEventSpy = mockReporter.calls.find(
     ([fn, payload]) => fn === "registerEvent" && payload?.status === "error",

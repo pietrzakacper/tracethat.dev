@@ -18,8 +18,8 @@
     "build": "npm run build:dep && npm run build:web",
     "dev": "npm run build:dep -- --watch",
     "type-check": "tsc --noEmit",
-    "prepublishOnly": "npm run type-check && npm run build && npm run test",
-    "test": "tape ./dist/**/*.spec.js"
+    "prepublishOnly": "npm run type-check && npm run test && npm run build",
+    "test": "bun ./src/**/*.spec.*"
   },
   "homepage": "https://github.com/pietrzakacper/tracethat.dev",
   "keywords": [

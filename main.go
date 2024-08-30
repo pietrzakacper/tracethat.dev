@@ -37,6 +37,10 @@ func main() {
 		Handler: metricsMux,
 	}
 	go func() {
+		if os.Getenv("DISABLE_METRICS") == "true" {
+			return
+		}
+
 		err := metricsServer.ListenAndServe()
 
 		if err != nil {

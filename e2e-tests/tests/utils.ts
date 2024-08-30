@@ -27,8 +27,13 @@ export function waitForString(str: string, stream: Readable): Promise<void> {
 export async function runServer(startPort: number): Promise<[ChildProcess, number]> {
   const [serverPort] = await freeports(1, { startPort });
 
+  if (process.env["DEBUG"]) {
+    console.log(
+      `Starting server on port using command "PORT=${serverPort.toString()} LOCAL="true" DISABLE_METRICS="true" go run ./..." in ${rootDir}`,
+    );
+  }
   const serverProcess = exec("go run ./...", {
-    env: { ...process.env, PORT: serverPort.toString(), LOCAL: "true" },
+    env: { ...process.env, PORT: serverPort.toString(), LOCAL: "true", DISABLE_METRICS: "true" },
     cwd: rootDir,
   });
   serverProcess.stderr?.pipe(process.stderr);

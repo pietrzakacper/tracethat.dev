@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"devtools-project/metrics"
 	"devtools-project/model"
 	"encoding/json"
 	"fmt"
@@ -62,6 +63,8 @@ func (s rooms) AddProducer(roomId string, c <-chan model.Event, debugToken strin
 
 	room := s[roomId]
 
+	metrics.ActiveRooms.Set(float64(len(s)))
+
 	if debugToken != "" {
 		room.debugToken = debugToken
 	}
@@ -109,9 +112,12 @@ func (s rooms) removeInactiveRooms() {
 		activity := room.lastActivity.Load().(time.Time)
 		if time.Since(activity) > maxRoomInactivity {
 			fmt.Printf("Purging inactive room %s\n", roomId)
+			metrics.EventsInMemory.Sub(float64(len(room.events)))
 			delete(s, roomId)
 		}
 	}
+
+	metrics.ActiveRooms.Set(float64(len(s)))
 }
 
 func newRoom(roomId string) *room {
@@ -222,14 +228,17 @@ func (s *room) saveEvent(e model.Event) {
 	defer s.eventsLock.Unlock()
 
 	s.events = append(s.events, e)
+
+	metrics.EventsInMemory.Add(1)
+
 	if len(s.events) > maxEventsPerRoom {
 		fmt.Printf("Limiting events to %d for room %s\n", maxEventsPerRoom, s.roomId)
 		// remove old events that are already consumed
 		s.events = s.events[eventsPurgeSize:]
+		metrics.EventsInMemory.Sub(eventsPurgeSize)
 	}
 }
 
-// @TODO remove stale sessions
 func (s *room) registerActivity() {
 	s.lastActivity.Store(time.Now())
 }

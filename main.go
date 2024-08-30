@@ -2,7 +2,9 @@ package main
 
 import (
 	"devtools-project/controller"
+	"devtools-project/metrics"
 	"devtools-project/model"
+
 	"fmt"
 	"log"
 	"net"
@@ -14,6 +16,9 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/ipinfo/go/v2/ipinfo"
 	"github.com/pietrzakacper/tracethat.dev/reporters/golang/tt"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const inactivityDeadline = 30 * time.Second
@@ -23,23 +28,43 @@ func main() {
 
 	fs := http.FileServer(http.Dir("./frontend/dist"))
 
+	metricsMux := http.NewServeMux()
+
+	metricsMux.Handle("/metrics", promhttp.Handler())
+
+	metricsServer := &http.Server{
+		Addr:    ":9091",
+		Handler: metricsMux,
+	}
+	go func() {
+		err := metricsServer.ListenAndServe()
+
+		if err != nil {
+			log.Fatalf("failed to start metrics server: %v", err)
+		}
+	}()
+
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
 			go func() {
+
 				var ipStr string
 				if ipStr = r.Header.Get("Fly-Client-Ip"); ipStr == "" {
 					ipStr = r.RemoteAddr
 				}
-
+				city := "unknown"
 				if ipInfoToken := os.Getenv("IP_INFO_TOKEN"); ipInfoToken != "" {
 					client := ipinfo.NewClient(nil, nil, ipInfoToken)
 					info, err := client.GetIPInfo(net.ParseIP(ipStr))
 					if err == nil {
+						city = info.City
 						ipStr = info.City + " " + info.CountryFlag.Emoji
 					}
 				} else {
 					fmt.Println("IP_INFO_TOKEN not set")
 				}
+
+				metrics.LandingRequest.With(prometheus.Labels{"city": city}).Add(1)
 
 				defer tt.LogWithTime("landing visit from "+ipStr, map[string]any{
 					"url":     r.URL,

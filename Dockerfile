@@ -11,6 +11,7 @@ COPY *.go  ./
 COPY static/ ./static
 COPY model/ ./model
 COPY controller/ ./controller
+COPY metrics/ ./metrics
 COPY frontend/dist ./frontend/dist
 
 # Build

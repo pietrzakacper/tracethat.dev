@@ -1,5 +1,5 @@
 import path from "path";
-import { Readable } from "stream";
+import { PassThrough, Readable } from "stream";
 import freeports from "find-free-ports";
 import { ChildProcess, exec } from "child_process";
 
@@ -36,9 +36,17 @@ export async function runServer(startPort: number): Promise<[ChildProcess, numbe
     env: { ...process.env, PORT: serverPort.toString(), LOCAL: "true", DISABLE_METRICS: "true" },
     cwd: rootDir,
   });
+
+  const out = new PassThrough();
+  serverProcess.stdout?.pipe(out);
+  serverProcess.stdout?.pipe(process.stdout);
   serverProcess.stderr?.pipe(process.stderr);
 
-  await waitForString("Listening", serverProcess.stdout!);
+  await waitForString("Listening", out);
+
+  if (process.env["DEBUG"]) {
+    console.log(`Server started on port ${serverPort}`);
+  }
 
   return [serverProcess, serverPort];
 }

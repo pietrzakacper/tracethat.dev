@@ -1,3 +1,14 @@
+let cachedNodeCrypto: Crypto | undefined;
+
+const loadCrypto = async () => {
+  if (globalThis?.crypto) return globalThis.crypto;
+  try {
+    return (cachedNodeCrypto ||= (await import("node:crypto")).webcrypto as Crypto);
+  } catch (error) {
+    throw new Error("Failed to load crypto");
+  }
+};
+
 /**
  * Encrypts plaintext using AES-GCM with supplied password, for decryption with aes_gcm_decrypt()
  *
@@ -6,6 +17,7 @@
  * @returns {Promise<string>} encrypted cipher text
  */
 export async function encrypt(plaintext: string, password: string): Promise<string> {
+  const crypto = await loadCrypto();
   // encode password as UTF-8
   const pwUtf8 = new TextEncoder().encode(password);
   // hash the password
@@ -68,6 +80,8 @@ export async function decrypt(ciphertext: string, password: string): Promise<str
 }
 
 export async function sha256(message: string): Promise<string> {
+  const crypto = await loadCrypto();
+
   // encode as UTF-8
   const msgBuffer = new TextEncoder().encode(message);
 

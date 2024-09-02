@@ -64,7 +64,7 @@ In `e2e-tests` directory:
 
 ```bash
 bun install # install dependencies
-bunx playwright install
+bunx playwright install --with-deps chromium
 bun run test # run tests
 ```
 

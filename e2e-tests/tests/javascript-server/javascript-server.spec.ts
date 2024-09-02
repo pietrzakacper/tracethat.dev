@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { runServer } from "../utils";
+import { runServer, sleep } from "../utils";
 import child_process from "child_process";
 import util from "util";
 import path from "path";
@@ -20,10 +20,16 @@ test("send hello from JS server", async ({ page }) => {
   await page.getByPlaceholder("Enter session ID").fill(TOKEN);
   await page.getByRole("button", { name: "Go" }).click();
 
-  await exec(`node hello.js ${TEST_NAME}`, {
+  const result = await exec(`bun hello.js ${TEST_NAME}`, {
     env: { ...process.env, TT_TOKEN: TOKEN, TT_SERVER_URL: `ws://localhost:${serverPort}` },
     cwd: path.join(__dirname, "reporter"),
   });
+
+  if (process.env["DEBUG"]) {
+    console.log("Reporter output: ");
+    console.log(result.stdout);
+    console.error(result.stderr);
+  }
 
   await expect(page.getByText(`hello ${TEST_NAME}`)).toBeVisible();
 });

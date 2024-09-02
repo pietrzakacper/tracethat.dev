@@ -21,7 +21,7 @@ test("send 100 events from JS server", async ({ page }) => {
 
   const COUNT = 100;
 
-  await exec(`node count.js ${TEST_NAME} ${COUNT}`, {
+  await exec(`bun count.js ${TEST_NAME} ${COUNT}`, {
     env: { ...process.env, TT_TOKEN: TOKEN, TT_SERVER_URL: `ws://localhost:${serverPort}` },
     cwd: path.join(__dirname, "reporter"),
   });

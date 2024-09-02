@@ -23,15 +23,6 @@ go mod tidy # install dependencies
 go run ./... # re-run the server on each change
 ```
 
-### React Frontend
-
-In `./frontend`
-
-```bash
-bun install # install dependencies
-bun run dev # Run Vite server with hot-reloading
-```
-
 ### JavaScript Reporter
 
 In `./reporters/javascript`
@@ -39,8 +30,21 @@ In `./reporters/javascript`
 ```bash
 bun install # install dependencies
 bun run build # build on each change
+cd example && bun install && cd .. # install example's dependencies
 # Run the example using locally built reporter and local server
-TT_SERVER_URL=ws://localhost:3000 TT_TOKEN=123 npx tsx example/index.ts
+TT_SERVER_URL=ws://localhost:3000 TT_TOKEN=123 bun example/index.ts
+```
+
+### React Frontend
+
+Make sure you've built the JavaScript Reporter before as it's a local dependency.
+
+In `./frontend`
+
+```bash
+bun install # install dependencies
+cp .env.example .env # set env variables
+bun run dev # Run Vite server with hot-reloading
 ```
 
 ### Golang Reporter
@@ -59,10 +63,33 @@ TT_SERVER_URL=ws://localhost:3000 TT_TOKEN=123 go run ./...
 In `e2e-tests` directory:
 
 ```bash
-bunx playwright install
 bun install # install dependencies
+bunx playwright install
 bun run test # run tests
 ```
+
+## Troubleshooting
+
+### "The service was stopped" when building the frontend
+
+If you get the following error when building the frontend using `bun run build`
+
+```bash
+bun run build
+$ tsc && bunx --bun vite build
+failed to load config from /Users/kacper/Projects/tracethat.dev/frontend/vite.config.ts
+error during build:
+Error: The service was stopped
+    at <anonymous> (/Users/kacper/Projects/tracethat.dev/frontend/node_modules/esbuild/lib/main.js:1084:29)
+    at <anonymous> (/Users/kacper/Projects/tracethat.dev/frontend/node_modules/esbuild/lib/main.js:704:9)
+```
+
+Make sure the the frontend dev server isn't running.
+
+### "Cannot find module "tracethat.dev" when running e2e tests or examples
+
+Make sure that whatever package you run has installed dependencies using `bun install`.  
+Even though tracethat.dev is a local dependency a proper symbolic link needs to be made for that to work (it's done automatically when running `bun install`)
 
 ## Contributing
 

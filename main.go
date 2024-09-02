@@ -36,6 +36,7 @@ func main() {
 		Addr:    ":9091",
 		Handler: metricsMux,
 	}
+
 	go func() {
 		if os.Getenv("DISABLE_METRICS") == "true" {
 			return
@@ -51,7 +52,6 @@ func main() {
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
 			go func() {
-
 				var ipStr string
 				if ipStr = r.Header.Get("Fly-Client-Ip"); ipStr == "" {
 					ipStr = r.RemoteAddr

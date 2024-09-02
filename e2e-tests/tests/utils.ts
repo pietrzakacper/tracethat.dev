@@ -5,7 +5,7 @@ import { ChildProcess, exec } from "child_process";
 
 export const rootDir = path.resolve(__dirname, "../../");
 
-export function waitForString(str: string, stream: Readable): Promise<void> {
+export function waitForString(str: string, stream: Readable, timeoutMs = 20000): Promise<void> {
   const stringFoundPromise = new Promise<void>((resolve) => {
     let out = "";
     const fn = (chunk: any) => {
@@ -20,7 +20,7 @@ export function waitForString(str: string, stream: Readable): Promise<void> {
 
   return Promise.race([
     stringFoundPromise,
-    sleep(5000).then(() => Promise.reject(`Timeout waiting for string "${str}"`)),
+    sleep(timeoutMs).then(() => Promise.reject(`Timeout waiting for string "${str}"`)),
   ]);
 }
 

@@ -10,10 +10,10 @@
   },
   "description": "",
   "scripts": {
-    "install": "cd tests/javascript-web/reporter && bun install",
+    "install": "cd tests/javascript-web/reporter && bun install && cd ../../javascript-server/reporter && bun install ",
     "build-frontend": "cd ../frontend && VITE_SERVER_URL=/ bun run build",
     "build-js-reporter": "cd ../reporters/javascript && bun run build",
-    "pretest": "bun run build-frontend && bun run build-js-reporter",
+    "pretest": "bun run build-js-reporter && bun run build-frontend",
     "test": "playwright test"
   },
   "keywords": [],

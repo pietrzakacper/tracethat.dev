@@ -29,6 +29,5 @@ test("send hello from JS server", async ({ page }) => {
 });
 
 test.afterAll(() => {
-  console.log("===== Closing server");
   serverProcess?.kill();
 });

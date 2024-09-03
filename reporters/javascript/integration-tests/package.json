@@ -1,0 +1,20 @@
+{
+  "name": "integration-tests",
+  "version": "1.0.0",
+  "author": "",
+  "description": "",
+  "scripts": {
+    "pretest": "tsc",
+    "test": "tape dist/**/*.spec.js"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "private": true,
+  "devDependencies": {
+    "tape": "^5.8.1",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "tracethat.dev": "file:.."
+  }
+}

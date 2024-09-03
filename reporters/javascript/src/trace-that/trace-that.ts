@@ -3,6 +3,15 @@ import { sleep, generateId } from "../utils";
 import { Reporter } from "../reporter/interface";
 import { runtimeConfig } from "../runtime-config";
 import { ProcessExitBlocker } from "../process-exit-blocker";
+
+const globalContext = {
+  flushedPromise: Promise.resolve(),
+};
+
+export const waitForFlush = async () => {
+  await globalContext.flushedPromise;
+};
+
 export class FunctionTracer {
   constructor(private reporter: Reporter) {}
 
@@ -28,6 +37,13 @@ export class FunctionTracer {
       const exitBlocker = ProcessExitBlocker.instance;
 
       exitBlocker.addPending(1);
+
+      const flushResolver = { res: () => {} };
+      // flushPromise should resolve when both of the messages are sent
+      // used rather for testing
+      globalContext.flushedPromise = new Promise<void>((res) => {
+        flushResolver.res = res;
+      });
 
       const callId = generateId();
       const callStack = new Error().stack
@@ -71,6 +87,7 @@ export class FunctionTracer {
           })
           .finally(() => {
             exitBlocker.resolvePending();
+            flushResolver.res();
           });
       };
 
@@ -102,6 +119,7 @@ export class FunctionTracer {
           })
           .finally(() => {
             exitBlocker.resolvePending();
+            flushResolver.res();
           });
 
         return output;

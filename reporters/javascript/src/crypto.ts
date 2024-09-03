@@ -52,6 +52,8 @@ export async function encrypt(plaintext: string, password: string): Promise<stri
  * @returns {Promise<string>} decrypted plaintext
  */
 export async function decrypt(ciphertext: string, password: string): Promise<string> {
+  const crypto = await loadCrypto();
+
   // encode password as UTF-8
   const pwUtf8 = new TextEncoder().encode(password);
   // hash the password

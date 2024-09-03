@@ -1,0 +1,34 @@
+name: Unit & Integration tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  bun-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: cd reporters/javascript && bun install && bun run test | bunx tap-spec && cd ../..
+
+  node-tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x, 22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: oven-sh/setup-bun@v2
+      - run: cd reporters/javascript && bun install && bun run build && cd ../..
+      - run: cd reporters/javascript/integration-tests && npm ci && cd ../../..
+      - run: cd reporters/javascript/integration-tests && npm run test | bunx tap-spec && cd ../../..

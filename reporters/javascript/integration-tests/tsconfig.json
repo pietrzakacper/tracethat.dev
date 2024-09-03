@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "ES2021",
+    "strictNullChecks": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "declaration": true
+  },
+  "include": ["*.spec.ts"]
+}

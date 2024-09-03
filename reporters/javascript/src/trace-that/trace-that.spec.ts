@@ -1,7 +1,7 @@
 import test from "tape";
 import { Reporter } from "../reporter/interface";
 import { sleep } from "../utils";
-import { FunctionTracer } from "./trace-that";
+import { FunctionTracer, waitForFlush } from "./trace-that";
 
 class MockReporter implements Reporter {
   public calls: [string, any][] = [];
@@ -20,7 +20,7 @@ test("traceThat: reports arguments and return value of synchronous fn", async (t
 
   const result = tracedFunction(1, 1);
 
-  await sleep(10);
+  await waitForFlush();
   t.equals(result, 3);
 
   const [, registerEventPayload] = mockReporter.calls.find(
@@ -45,7 +45,7 @@ test("traceThat: reports arguments and return value of async fn", async (t) => {
 
   const result = await tracedFunction(1, 1);
 
-  await sleep(100);
+  await waitForFlush();
 
   t.equals(result, 3);
 
@@ -72,7 +72,7 @@ test("traceThat: reports exception of synchronous fn", async (t) => {
     tracedFunction(1);
   } catch {}
 
-  await sleep(10);
+  await waitForFlush();
 
   const [, registerEventPayload] = mockReporter.calls.find(
     ([fn, payload]) => fn === "registerEvent" && payload?.status === "error",
@@ -99,7 +99,7 @@ test("traceThat: reports exception of async fn", async (t) => {
     await tracedFunction(1);
   } catch {}
 
-  await sleep(10);
+  await waitForFlush();
 
   const registerEventSpy = mockReporter.calls.find(
     ([fn, payload]) => fn === "registerEvent" && payload?.status === "error",
@@ -115,8 +115,7 @@ test("traceThat: reports exception of async fn", async (t) => {
   t.end();
 });
 
-// @TODO bring back after we add that functionality
-test.skip("traceThat: reports that function is running", async (t) => {
+test("traceThat: reports that function is running", async (t) => {
   const mockReporter = new MockReporter();
   const tracer = new FunctionTracer(mockReporter);
 
@@ -127,7 +126,7 @@ test.skip("traceThat: reports that function is running", async (t) => {
 
   const result = await tracedFunction(1, 1);
 
-  await sleep(100);
+  await waitForFlush();
 
   t.equals(result, 3);
 
@@ -135,7 +134,7 @@ test.skip("traceThat: reports that function is running", async (t) => {
     ([fn, payload]) => fn === "registerEvent" && payload?.status === "running",
   )!;
 
-  t.equal(registerEventPayload.name, "(anonymous) (running)");
+  t.equal(registerEventPayload.name, "(anonymous)");
   t.deepEqual(registerEventPayload.details.arguments, [1, 1]);
 
   t.end();

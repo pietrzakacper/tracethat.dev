@@ -237,13 +237,14 @@ func (s *room) saveEvent(e model.Event) {
 	}
 
 	if totalEventsSize > maxMemoryPerRoom {
-		fmt.Printf("Limiting events to %d bytes for room %s\n", maxMemoryPerRoom, s.roomId)
+		metrics.RoomMemoryLimitReached.Inc()
+		fmt.Printf("Total events size: %d bytes is higher than the allowed limit of %d bytes\n", totalEventsSize, maxMemoryPerRoom)
 
 		newEventsStartIndex := 0
 		for index, e := range s.events {
 			newEventsStartIndex = index
 			totalEventsSize -= len(e)
-			metrics.EventsInMemory.Sub(float64(len(e)))
+			metrics.EventsInMemory.Sub(1)
 
 			if float64(totalEventsSize) <= reduceMemoryPerRoomThreshold {
 				break

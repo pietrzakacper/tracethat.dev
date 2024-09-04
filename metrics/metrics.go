@@ -19,3 +19,8 @@ var EventsInMemory = promauto.NewGauge(prometheus.GaugeOpts{
 	Name: "tracethat_events",
 	Help: "The total number of events from all active rooms",
 })
+
+var RoomMemoryLimitReached = promauto.NewCounter(prometheus.CounterOpts{
+	Name: "tracethat_room_memory_limit_reached",
+	Help: "The total number of room memory limit reached from all active rooms",
+})

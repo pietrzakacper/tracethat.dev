@@ -27,7 +27,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      - run: cd reporters/javascript && bun install && bun run build && cd ../..
+      - run: cd reporters/javascript/tracethat.dev && bun install && bun run build && cd ../..
 
       - run: cd frontend && bun install && VITE_SERVER_URL=/ bun run build && cd ../..
 

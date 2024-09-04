@@ -1,0 +1,35 @@
+name: Deploy main to Fly
+
+on:
+  push:
+    branches: [main]
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+jobs:
+  e2e-tests:
+    uses: ./.github/workflows/e2e-tests.yml
+
+  unit-and-integration-tests:
+    uses: ./.github/workflows/unit-tests.yml
+
+  deploy:
+    name: Deploy to Fly
+    needs: [e2e-tests, unit-and-integration-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: cd reporters/javascript && bun install && bun run build && cd ../..
+
+      - run: cd frontend && bun install && VITE_SERVER_URL=/ bun run build && cd ../..
+
+      - name: Deploy
+        run: flyctl deploy --env IP_INFO_TOKEN=${{ secrets.IP_INFO_TOKEN }}

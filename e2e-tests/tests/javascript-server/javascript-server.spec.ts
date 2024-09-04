@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { runServer, sleep } from "../utils";
+import { runServer } from "../utils";
 import child_process from "child_process";
 import util from "util";
 import path from "path";

@@ -16,8 +16,8 @@ type consumer struct {
 	c chan model.Event // channel to propagate events to consumer
 }
 
-const maxEventsPerRoom = 2000
-const eventsPurgeSize = maxEventsPerRoom * 0.1
+const maxMemoryPerRoom = 1024 * 1024 // 1MB
+const reduceMemoryPerRoomThreshold = maxMemoryPerRoom * 0.6
 const maxRoomInactivity = 1 * time.Hour
 const inactivityCheckInterval = 5 * time.Minute
 
@@ -231,11 +231,27 @@ func (s *room) saveEvent(e model.Event) {
 
 	metrics.EventsInMemory.Add(1)
 
-	if len(s.events) > maxEventsPerRoom {
-		fmt.Printf("Limiting events to %d for room %s\n", maxEventsPerRoom, s.roomId)
+	totalEventsSize := 0
+	for _, e := range s.events {
+		totalEventsSize += len(e)
+	}
+
+	if totalEventsSize > maxMemoryPerRoom {
+		fmt.Printf("Limiting events to %d bytes for room %s\n", maxMemoryPerRoom, s.roomId)
+
+		newEventsStartIndex := 0
+		for index, e := range s.events {
+			newEventsStartIndex = index
+			totalEventsSize -= len(e)
+			metrics.EventsInMemory.Sub(float64(len(e)))
+
+			if float64(totalEventsSize) <= reduceMemoryPerRoomThreshold {
+				break
+			}
+		}
+
 		// remove old events that are already consumed
-		s.events = s.events[eventsPurgeSize:]
-		metrics.EventsInMemory.Sub(eventsPurgeSize)
+		s.events = s.events[newEventsStartIndex:]
 	}
 }
 

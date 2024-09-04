@@ -7,6 +7,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "tracethat.dev": "file:../../../../reporters/javascript"
+    "tracethat.dev": "file:../../../../reporters/javascript/tracethat.dev"
   }
 }

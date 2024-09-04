@@ -10,6 +10,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "tracethat.dev": "file:.."
+    "tracethat.dev": "file:../tracethat.dev"
   }
 }

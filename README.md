@@ -91,6 +91,39 @@ Make sure the the frontend dev server isn't running.
 Make sure that whatever package you run has installed dependencies using `bun install`.  
 Even though tracethat.dev is a local dependency a proper symbolic link needs to be made for that to work (it's done automatically when running `bun install`)
 
+## Deploying the app
+
+### (Optional) Step 1 - JavaScript Reporter
+
+If you have made changes to the frontend and you want it to use the latest version of tracethat.dev from source, you can run:
+
+```bash
+cd reporters/javascript
+bun run build
+```
+
+### (Optional) Step 2 - Frontend
+
+If you have made changes to the frontend
+
+```bash
+cd frontend
+VITE_SERVER_URL=/ bun run build
+```
+
+### Step 3 - Deploy server
+
+```
+fly deploy --env IP_INFO_TOKEN=<token>
+```
+
+## Deploying the JS reporter
+
+```bash
+cd reporters/javascript
+npm publish
+```
+
 ## Contributing
 
 This project is meant to be built by the community.

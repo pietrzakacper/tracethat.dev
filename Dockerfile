@@ -17,7 +17,7 @@ COPY frontend/dist ./frontend/dist
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/trace-that
 
-ENV PORT 8080
+ENV PORT=8080
 EXPOSE 8080
 
 # Run

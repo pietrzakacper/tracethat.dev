@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: cd reporters/javascript && bun install && bun run test | bunx tap-spec && cd ../..
+      - run: cd reporters/javascript/tracethat.dev && bun install && bun run test | bunx tap-spec && cd ../..
 
   node-tests:
     runs-on: ubuntu-latest
@@ -28,6 +28,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - uses: oven-sh/setup-bun@v2
-      - run: cd reporters/javascript && bun install && bun run build && cd ../..
+      - run: cd reporters/javascript/tracethat.dev && bun install && bun run build && cd ../..
       - run: cd reporters/javascript/integration-tests && npm ci && cd ../../..
       - run: cd reporters/javascript/integration-tests && npm run test | bunx tap-spec && cd ../../..

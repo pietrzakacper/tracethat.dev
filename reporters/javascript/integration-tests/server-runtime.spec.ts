@@ -2,8 +2,8 @@ import test from "tape";
 import { traceThat, registerToken, setServerUrl } from "tracethat.dev";
 import { WebSocketServer, RawData } from "ws";
 import freeports from "find-free-ports";
-import { sleep } from "../src/utils";
-import { decrypt } from "../src/crypto";
+import { sleep } from "../tracethat.dev/src/utils";
+import { decrypt } from "../tracethat.dev/src/crypto";
 
 console.log("Running integration tests with node " + process.version);
 

@@ -18,7 +18,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: go mod tidy
       - run: cd reporters/golang && go mod tidy && cd ../..
-      - run: cd reporters/javascript && bun install && bun run build && cd ../..
+      - run: cd reporters/javascript/tracethat.dev && bun install && bun run build && cd ../..
       - run: cd frontend && bun install && cd ../..
       - run: cd e2e-tests && bun install && bunx playwright install --with-deps chromium && cd ../..
       - run: cd e2e-tests && bun run test && cd ../..

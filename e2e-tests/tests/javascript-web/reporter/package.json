@@ -7,10 +7,10 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "prestart": "ln -s ../../../../reporters/javascript/dist/tracethat.min.js tracethat.min.js || true",
     "start": "http-server ."
   },
   "dependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "tracethat.dev": "file:../../../../reporters/javascript/tracethat.dev"
   }
 }

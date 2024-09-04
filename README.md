@@ -25,12 +25,12 @@ go run ./... # re-run the server on each change
 
 ### JavaScript Reporter
 
-In `./reporters/javascript`
+In `./reporters/javascript/tracethat.dev`
 
 ```bash
 bun install # install dependencies
 bun run build # build on each change
-cd example && bun install && cd .. # install example's dependencies
+cd ../example && bun install && cd .. # install example's dependencies
 # Run the example using locally built reporter and local server
 TT_SERVER_URL=ws://localhost:3000 TT_TOKEN=123 bun example/index.ts
 ```
@@ -98,7 +98,7 @@ Even though tracethat.dev is a local dependency a proper symbolic link needs to 
 If you have made changes to the frontend and you want it to use the latest version of tracethat.dev from source, you can run:
 
 ```bash
-cd reporters/javascript
+cd reporters/javascript/tracethat.dev
 bun run build
 ```
 
@@ -120,7 +120,7 @@ fly deploy --env IP_INFO_TOKEN=<token>
 ## Deploying the JS reporter
 
 ```bash
-cd reporters/javascript
+cd reporters/javascript/tracethat.dev
 npm publish
 ```
 

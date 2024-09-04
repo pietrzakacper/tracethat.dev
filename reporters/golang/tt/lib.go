@@ -103,7 +103,6 @@ func LogWithTime(eventName string, payload ...interface{}) func() {
 				CallId:       callId,
 				StartEpochMs: startEpochMs,
 				EndEpochMs:   endEpochMs,
-				Details:      payload,
 				Rank:         rank,
 			})
 

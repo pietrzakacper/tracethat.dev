@@ -80,7 +80,6 @@ export class FunctionTracer {
             startEpochMs: startTs,
             endEpochMs: endTs,
             details: {
-              arguments: args,
               error: serializeError(e),
               callStack,
             },
@@ -113,7 +112,6 @@ export class FunctionTracer {
             endEpochMs: endTs,
             details: {
               callStack,
-              arguments: args,
               return: output,
             },
           })

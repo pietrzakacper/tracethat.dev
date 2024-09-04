@@ -44,6 +44,17 @@ export const useEventsList = (token: string) => {
       const event = sortedData[i];
       if (!visitedEvents.has(event.callId)) {
         outputData.unshift(event);
+      } else {
+        // combine details from events in different states e.g running and ok
+        const existingEvt = outputData.find((e) => e.callId === event.callId);
+        if (!existingEvt) continue;
+
+        if (Array.isArray(event.details)) {
+          existingEvt.details = event.details;
+        } else {
+          const mergedDetails = { ...(event.details ?? {}), ...(existingEvt?.details ?? {}) };
+          existingEvt.details = mergedDetails;
+        }
       }
 
       visitedEvents.add(event.callId);

@@ -28,7 +28,6 @@ test("traceThat: reports arguments and return value of synchronous fn", async (t
   )!;
 
   t.equal(registerEventPayload.name, "(anonymous)");
-  t.deepEqual(registerEventPayload.details.arguments, [1, 1]);
   t.equal(registerEventPayload.details.return, 3);
 
   t.end();
@@ -54,7 +53,6 @@ test("traceThat: reports arguments and return value of async fn", async (t) => {
   )!;
 
   t.equal(registerEventPayload.name, "(anonymous)");
-  t.deepEqual(registerEventPayload.details.arguments, [1, 1]);
   t.equal(registerEventPayload.details.return, 3);
 
   t.end();
@@ -79,7 +77,6 @@ test("traceThat: reports exception of synchronous fn", async (t) => {
   )!;
 
   t.equal(registerEventPayload.name, "(anonymous)");
-  t.deepEqual(registerEventPayload.details.arguments, [1]);
   t.equal(typeof registerEventPayload.details.error, "object");
   t.equal(registerEventPayload.details.error.message, "Crashed on 1");
 
@@ -108,7 +105,6 @@ test("traceThat: reports exception of async fn", async (t) => {
   t.ok(registerEventSpy);
 
   t.equal(registerEventSpy[1].name, "(anonymous)");
-  t.deepEqual(registerEventSpy[1].details.arguments, [1]);
   t.equal(typeof registerEventSpy[1].details.error, "object");
   t.equal(registerEventSpy[1].details.error.message, "Crashed on 1");
 

@@ -61,10 +61,14 @@ test("traceThat: reports arguments and return value of a synchronous fn", async 
     server.state.messages.map((msg) => decrypt(msg.toString("utf-8"), token).then(JSON.parse)),
   );
 
+  const runningMsg = decryptedMessages.find((msg) => msg.status === "running")!;
+
+  t.equal(runningMsg.name, "(anonymous)");
+  t.deepEqual(runningMsg.details.arguments, [1, 1]);
+
   const okMsg = decryptedMessages.find((msg) => msg.status === "ok")!;
 
   t.equal(okMsg.name, "(anonymous)");
-  t.deepEqual(okMsg.details.arguments, [1, 1]);
   t.equal(okMsg.details.return, 3);
 
   t.end();

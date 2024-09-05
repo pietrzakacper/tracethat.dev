@@ -47,10 +47,9 @@ export class FunctionTracer {
 
       const callId = generateId();
       const callStack = new Error().stack
-        ?.replaceAll("\n", "")
-        .split("at ")
-        ?.map((s) => s.trim())
-        ?.slice(2);
+        ?.split("\n")
+        ?.filter((s) => !s.match(/^\s*Error\s*$/))
+        ?.map((s) => s.replace("at ", "").trim());
 
       const startTs = new Date().getTime();
 
@@ -81,7 +80,6 @@ export class FunctionTracer {
             endEpochMs: endTs,
             details: {
               error: serializeError(e),
-              callStack,
             },
           })
           .finally(() => {
@@ -111,7 +109,6 @@ export class FunctionTracer {
             startEpochMs: startTs,
             endEpochMs: endTs,
             details: {
-              callStack,
               return: output,
             },
           })

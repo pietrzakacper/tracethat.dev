@@ -1,6 +1,6 @@
 {
   "name": "tracethat.dev",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "JS/TS reporter for tracethat.dev",
   "main": "./dist/index.js",
   "type": "module",

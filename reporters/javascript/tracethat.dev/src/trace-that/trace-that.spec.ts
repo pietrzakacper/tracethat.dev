@@ -135,3 +135,30 @@ test("traceThat: reports that function is running", async (t) => {
 
   t.end();
 });
+
+test("traceThat: some callstack entry contains caller function name", async (t) => {
+  const mockReporter = new MockReporter();
+  const tracer = new FunctionTracer(mockReporter);
+
+  async function hello() {
+    const tracedFunction = tracer.traceThat((a, b) => sleep(1000).then(() => a + b + 1));
+
+    const result = await tracedFunction(1, 1);
+    return result;
+  }
+
+  const result = await hello();
+
+  await waitForFlush();
+
+  t.equals(result, 3);
+
+  const [, registerEventPayload] = mockReporter.calls.find(
+    ([fn, payload]) => fn === "registerEvent" && payload?.status === "running",
+  )!;
+
+  t.ok(Array.isArray(registerEventPayload.details.callStack));
+  t.ok(registerEventPayload.details.callStack.some((s) => s.includes("hello")));
+
+  t.end();
+});

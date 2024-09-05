@@ -3,11 +3,16 @@ import { useCallback, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input/input";
 import { getRandomId } from "@/utils/getRandomId";
 import { Header } from "@/components/Header";
-import { LANDING_TOKEN } from "@/lib/constants";
+import { LANDING_TOKEN, SERVER_URL } from "@/lib/constants";
 import { useEventsList } from "@/hooks/useEventsList";
 import { EventsList } from "@/layouts/EventsList/EventsList";
 import { useToken } from "@/hooks/useToken";
 import history from "history/browser";
+import { registerToken, setServerUrl, traceThat } from "tracethat.dev";
+
+setServerUrl(SERVER_URL.replace("http", "ws"));
+registerToken("tracethat-client");
+traceThat("launch", (_: any) => {})({ lang: window.navigator.language, device: window.navigator.userAgent });
 
 export const Landing = () => {
   const randomToken = useMemo(() => getRandomId(), []);
@@ -29,6 +34,8 @@ export const Landing = () => {
     if (!token) {
       return;
     }
+
+    traceThat("goToEvents", () => {})();
 
     history.push("/events");
     setToken(token);

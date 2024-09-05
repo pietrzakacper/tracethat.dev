@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import styles from "./EventsList.module.css";
 import { TraceEvent } from "@/validators/TraceEvent";
 import { ReactNode } from "react";
+import { traceThat } from "tracethat.dev";
 
 interface EventsListProps {
   data: TraceEvent[];
@@ -26,7 +27,7 @@ export function EventsList({
           <EventsTable
             events={data}
             selectedEventCallId={selectedEventCallId}
-            setSelectedEventCallId={setSelectedEventCallId}
+            setSelectedEventCallId={traceThat(setSelectedEventCallId)}
           />
         </div>
         <EventViewer

@@ -8,16 +8,22 @@ import { log } from "../logger";
 
 async function sendRegisterEventMessage(ws: WebSocket, payload: any) {
   const msg = await encrypt(stringify(payload), runtimeConfig.token!);
-  
-  return new Promise((res, rej) => {
+
+  log(`[${payload.callId}] ws.send encrypt resolved`);
+
+  const wsSendPromised = new Promise((res, rej) => {
     ws.send(msg, (err) => {
+      log(`[${payload.callId}] ws.send callback called`);
       if (err) {
         rej(err);
       } else {
         res(undefined);
       }
     });
-  })
+  });
+
+  // sometimes the ws.send callback isn't called in the browser
+  return Promise.race([wsSendPromised, sleep(100)]);
 }
 
 const INACTIVITY_TIMEOUT_MS = 30 * 1000;
@@ -34,54 +40,57 @@ class WebSocketReporter implements Reporter {
     });
 
     onConfigChange(() => {
-      log("Config changed")
+      log("Config changed");
       this.cleanup();
     });
   }
 
   private async open(): Promise<WebSocket> {
     const callId = `[${Math.random().toString(36).substring(7)}] `;
-    log(callId + "open() called ")
+    log(callId + "open() called ");
 
     if (this.ws) {
-      log(callId + "returned existing ws")
+      log(callId + "returned existing ws");
       return this.ws;
     }
 
     if (!runtimeConfig.token) {
-      log(callId + "sleeping for token")
+      log(callId + "sleeping for token");
       await sleep(100);
     }
 
     if (!runtimeConfig.token) {
-      log(callId + "did not find token, rejecting")
+      log(callId + "did not find token, rejecting");
 
       console.error("[tracethat.dev] Couldn't open a socket, no token provided");
       return Promise.reject("No token provided");
     }
 
-    log(callId + "creating new connection with token: " + runtimeConfig.token)
+    log(callId + "creating new connection with token: " + runtimeConfig.token);
 
-    return (this.ws = sha256(runtimeConfig.token).then(roomId => new Promise((resolve, reject) => {
-      let url = `${runtimeConfig.serverUrl}/api/report?roomId=${roomId}`
-      if(runtimeConfig.debug) {
-        url += `&debugToken=${runtimeConfig.token}`
-      }
+    return (this.ws = sha256(runtimeConfig.token).then(
+      (roomId) =>
+        new Promise((resolve, reject) => {
+          let url = `${runtimeConfig.serverUrl}/api/report?roomId=${roomId}`;
+          if (runtimeConfig.debug) {
+            url += `&debugToken=${runtimeConfig.token}`;
+          }
 
-      const ws = new WebSocket(url);
-      ws.onopen = function () {
-        // The WebSocket type doesn't expose this property, but every Socket has it
-        // we need to unref it so that it doesn't stop the Node.JS process from exiting
-        this._socket?.unref();
-        resolve(ws);
-      };
+          const ws = new WebSocket(url);
+          ws.onopen = function () {
+            // The WebSocket type doesn't expose this property, but every Socket has it
+            // we need to unref it so that it doesn't stop the Node.JS process from exiting
+            this._socket?.unref();
+            resolve(ws);
+          };
 
-      ws.onerror = (err) => {
-        ws.close();
-        this.ws = null;
-        reject(err);
-      };
-    })))
+          ws.onerror = (err) => {
+            ws.close();
+            this.ws = null;
+            reject(err);
+          };
+        }),
+    ));
   }
 
   private async cleanup(force = false) {
@@ -104,9 +113,11 @@ class WebSocketReporter implements Reporter {
   }
 
   async registerEvent(payload: any) {
+    log(`[${payload.callId}] registerEvent called`);
+
     const impl = async () => {
       while (this.parellelCalls >= MAX_PARALLEL_CALLS) {
-        log(`[${payload.callId}] waiting for parellel calls to go down`)
+        log(`[${payload.callId}] waiting for parellel calls to go down`);
         await sleep(10);
       }
       this.parellelCalls++;
@@ -118,11 +129,16 @@ class WebSocketReporter implements Reporter {
           throw new Error("Socked closed, failed to send an event");
         }
 
+        log(`[${payload.callId}] started sending event`);
         await sendRegisterEventMessage(ws, payload);
+        log(`[${payload.callId}] finished sending event`);
 
         this.scheduleCleanup();
+        log(`[${payload.callId}] cleanup scheduled`);
       } catch (e) {
+        log(`[${payload.callId}] error caught, cleaning up`);
         await this.cleanup();
+        log(`[${payload.callId}] cleanup done`);
         throw e;
       } finally {
         this.parellelCalls--;
@@ -133,6 +149,7 @@ class WebSocketReporter implements Reporter {
       await impl();
       return;
     } catch (e) {
+      log(`[${payload.callId}] failed to send event, trying again`);
       // first one failed, try again
     }
 

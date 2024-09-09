@@ -1,0 +1,11 @@
+aiohappyeyeballs==2.4.0
+aiohttp==3.10.5
+aiosignal==1.3.1
+attrs==24.2.0
+cffi==1.17.1
+cryptography==43.0.1
+frozenlist==1.4.1
+idna==3.8
+multidict==6.0.5
+pycparser==2.22
+yarl==1.11.0

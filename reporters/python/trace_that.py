@@ -1,5 +1,5 @@
-from typing import Callable, TypeVar, Type, ParamSpec
-
+from typing import Callable, TypeVar, Type
+from typing_extensions import ParamSpec
 import time
 import uuid
 import inspect

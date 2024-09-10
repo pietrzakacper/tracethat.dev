@@ -89,5 +89,27 @@ class TestTraceThat(unittest.TestCase):
         self.assertIsInstance(ok_msg['startEpochMs'], int)
         self.assertIsInstance(ok_msg['endEpochMs'], int)
 
+    def test_exceptions(self):
+        reporter = MemoryReporter()
+        trace_that = create_trace_that(reporter)
+
+        @trace_that
+        def hello():
+            raise Exception('Oops')
+        
+        propagated_exception = None
+        try:
+            hello()
+        except Exception as e:
+            propagated_exception = e
+            pass
+
+        self.assertIsNotNone(propagated_exception)
+        self.assertTrue('Oops' in str(propagated_exception))
+
+        error_msg = next(m for m in reporter.messages if m['status'] == 'error')
+        self.assertIsNotNone(error_msg)
+        self.assertTrue('Oops' in error_msg['details']['exception'])
+
 if __name__ == '__main__':
     unittest.main()

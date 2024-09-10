@@ -33,7 +33,23 @@ def create_trace_that(reporter: Type[Reporter]):
                 }
             })
 
-            return_value = func(*args, **kwargs)
+            try:
+                return_value = func(*args, **kwargs)
+            except Exception as e:
+                reporter.send({
+                    'status': 'error',
+                    'callId': call_id,
+                    'name': name,
+                    'startEpochMs': start_time,
+                    'endEpochMs': int(time.time() * 1000),
+                    'details': {
+                        'exception': str(e),
+                    }
+                })
+                # sleep to wait for reporter to flush the error, before possible crash
+                time.sleep(0.1)
+                raise e
+
             end_time = int(time.time() * 1000)
 
             reporter.send({

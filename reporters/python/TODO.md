@@ -1,6 +1,6 @@
 * [x] Split architecture
 * [x] Add tests
-* [ ] Report exceptions 
+* [x] Report exceptions 
 * [ ] Support coroutines
 * [ ] Add runtime config
 * [ ] Thread safety

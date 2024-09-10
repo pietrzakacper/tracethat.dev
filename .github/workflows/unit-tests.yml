@@ -48,12 +48,10 @@ jobs:
       - name: Install dependencies
         run: |
           cd reporters/python
-          source .venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
         run: |
           cd reporters/python
-          source .venv/bin/activate
           python -m unittest discover -p '*_test.py'
       

@@ -47,13 +47,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          cd reporters/python/tracethat.dev
+          cd reporters/python
           source .venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
         run: |
-          cd reporters/python/tracethat.dev
+          cd reporters/python
           source .venv/bin/activate
           python -m unittest discover -p '*_test.py'
       

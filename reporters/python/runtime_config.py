@@ -1,8 +1,9 @@
 import os 
+from typing import Optional
 
 class Config:
     server_url: str
-    token: str | None
+    token: Optional[str]
     enabled: bool
 
     def __init__(self):

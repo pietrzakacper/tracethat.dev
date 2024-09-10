@@ -46,7 +46,7 @@ def create_trace_that(reporter: Type[Reporter]):
                     'return': return_value,
                 }
             })
-            return 
+            return return_value
         return wrapper
     
     return trace_that

@@ -10,7 +10,10 @@
   },
   "description": "",
   "scripts": {
-    "install": "cd tests/javascript-web/reporter && bun install && cd ../../javascript-server/reporter && bun install ",
+    "install": "bun run install:js-web && bun run install:js-server && bun run install:python-server",
+    "install:js-web": "cd tests/javascript-web/reporter && bun install && cd ../../..",
+    "install:js-server": "cd tests/javascript-server/reporter && bun install && cd ../../..",
+    "install:python-server": "cd tests/python-server/reporter && ./install.sh && cd ../../..",
     "build-frontend": "cd ../frontend && VITE_SERVER_URL=/ bun run build",
     "build-js-reporter": "cd ../reporters/javascript/tracethat.dev && bun run build",
     "pretest": "bun run build-js-reporter && bun run build-frontend",

@@ -16,10 +16,10 @@ config = Config()
 def load() -> Config:
     return config
 
-def registerToken(token: str) -> None:
+def register_token(token: str) -> None:
     config.token = token
 
-def setServerUrl(url: str) -> None:
+def set_server_url(url: str) -> None:
     config.server_url = url
 
 def disable() -> None:

@@ -30,9 +30,15 @@ class WebSocketReporter:
             session = ClientSession()
             async with session.ws_connect(f'{runtime_config.load().server_url}/api/report?roomId={room_id}') as ws:
                 while True:
-                    msg = self.queue.get()
-                    encrypted_msg = encrypt(json.dumps(msg), token)
-                    await ws.send_str(encrypted_msg)
+                    try:
+                        print('[trace_that] Waiting for message')
+                        msg = self.queue.get(timeout=1)
+                        encrypted_msg = encrypt(json.dumps(msg), token)
+                        await ws.send_str(encrypted_msg)
+                    except queue.Empty:
+                        print('[trace_that] No messages in queue, exiting')
+                        self.connected = False
+                        break
 
         threading.Thread(target=lambda: asyncio.run(run()), daemon=False).start()
         

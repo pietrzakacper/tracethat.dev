@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(
-    name='tracethat.dev',
+    name='trace_that',
     version='1.0',
     description='tracethat.dev reporter for Python',
     author='Kacper Pietrzak',

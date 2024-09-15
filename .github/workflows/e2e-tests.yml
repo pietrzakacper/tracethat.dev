@@ -23,7 +23,7 @@ jobs:
       - run: go mod tidy
       - run: cd reporters/golang && go mod tidy && cd ../..
       - run: cd reporters/javascript/tracethat.dev && bun install && bun run build && cd ../..
-      - run: cd reporters/python && pip install -r requirements.txt && cd ../..    
+      - run: cd reporters/python && ./install.sh && cd ../..   
       - run: cd frontend && bun install && cd ../..
       - run: cd e2e-tests && bun install && bunx playwright install --with-deps chromium && cd ../..
       - run: cd e2e-tests && bun run test && cd ../..

@@ -60,6 +60,7 @@ def create_trace_that(reporter: Type[Reporter]):
                     'return': return_value,
                 }
             })
+            
         if inspect.iscoroutinefunction(func):
             async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
                 name, start_time, call_id = before(*args, **kwargs)

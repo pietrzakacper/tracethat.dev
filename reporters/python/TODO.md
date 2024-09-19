@@ -4,8 +4,8 @@
 * [x] Add runtime config
 * [x] Add e2e tests
 * [x] Support coroutines
-* [ ] Thread safety
-* [ ] Manage exiting
+* [x] Thread safety
+* [x] Manage exiting
 * [ ] Set up linter
 * [ ] Manage connection health (stale/reopening/error handling)
 * [ ] Release to pip

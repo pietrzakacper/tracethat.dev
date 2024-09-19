@@ -7,22 +7,40 @@ from crypto import encrypt
 import asyncio
 import runtime_config
 
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        # Handle sets
+        if isinstance(obj, set):
+            return list(obj)
+        # Handle functions
+        elif callable(obj):
+            name = obj.__name__ if hasattr(obj, '__name__') else '(anonymous)'
+            return f"<function {name}>"
+        # Handle custom objects
+        elif hasattr(obj, '__dict__'):
+            return obj.__dict__
+        # Default case
+        else:
+            return str(obj)
+
 class WebSocketReporter:
     def __init__(self):
         self.queue = queue.Queue()
         self.connected = False
+        self.lock = threading.Lock()
 
     def connect(self):
-        if self.connected:
-            return
+        with self.lock:
+            if self.connected:
+                return
 
-        token = runtime_config.load().token
+            token = runtime_config.load().token
 
-        if not token:
-            print('[trace_that] No token provided, skipping connection')
-            return
+            if not token:
+                print('[trace_that] No token provided, skipping connection')
+                return
 
-        self.connected = True
+            self.connected = True
 
         room_id = sha256(token.encode('utf-8')).hexdigest()
 
@@ -32,11 +50,16 @@ class WebSocketReporter:
                 while True:
                     try:
                         msg = self.queue.get(timeout=1)
-                        encrypted_msg = encrypt(json.dumps(msg), token)
+                        encrypted_msg = encrypt(json.dumps(msg, cls=CustomJSONEncoder), token)
                         await ws.send_str(encrypted_msg)
                     except queue.Empty:
-                        self.connected = False
                         break
+                    except Exception as e:
+                        print(f'[trace_that] Error while sending message: {e}')
+                        break
+            await session.close()
+            with self.lock:
+                self.connected = False
 
         threading.Thread(target=lambda: asyncio.run(run()), daemon=False).start()
         

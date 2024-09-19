@@ -13,6 +13,6 @@ setup(
     install_requires=[
     'typing_extensions>=4.12.2',
     'cryptography>=43.0.1',
-    'aiohttp>=3.10.5'
+    'aiohttp>=3.9.5'
     ],
 )

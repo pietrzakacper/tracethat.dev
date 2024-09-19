@@ -3,7 +3,7 @@
 * [x] Report exceptions 
 * [x] Add runtime config
 * [x] Add e2e tests
-* [ ] Support coroutines
+* [x] Support coroutines
 * [ ] Thread safety
 * [ ] Manage exiting
 * [ ] Set up linter

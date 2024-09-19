@@ -45,7 +45,6 @@ class TestTraceThat(unittest.TestCase):
         ok_msg = next(m for m in reporter.messages if m['status'] == 'ok')
         self.assertIsNotNone(ok_msg)
         self.assertEqual(ok_msg['details']['return'], 'Hello, John!')
-
     
     def test_report_callstack(self):
         reporter = MemoryReporter()
@@ -78,7 +77,6 @@ class TestTraceThat(unittest.TestCase):
             return f'Hello, {name}!'
         
         hello('John')
-
         
         running_msg = next(m for m in reporter.messages if m['status'] == 'running')
         self.assertIsNotNone(running_msg)

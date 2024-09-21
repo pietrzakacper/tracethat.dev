@@ -21,7 +21,7 @@ class TestTraceThatAsync(unittest.IsolatedAsyncioTestCase):
         
         return_value = await hello('John')
 
-        assert return_value == 'Hello, John!'
+        self.assertEqual(return_value, 'Hello, John!')
 
         ok_msg = next(m for m in reporter.messages if m['status'] == 'ok')
         self.assertIsNotNone(ok_msg)

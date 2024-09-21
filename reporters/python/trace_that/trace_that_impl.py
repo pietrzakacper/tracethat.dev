@@ -81,10 +81,9 @@ def create_trace_that(reporter: Type[Reporter]):
 
             if inspect.isawaitable(return_value):
                 async def awaiter():
-                    nonlocal return_value
-                    return_value = await return_value
-                    after(name, start_time, call_id, return_value)
-                    return return_value
+                    awaited_return_value = await return_value
+                    after(name, start_time, call_id, awaited_return_value)
+                    return awaited_return_value
                 return awaiter()
             
             after(name, start_time, call_id, return_value)

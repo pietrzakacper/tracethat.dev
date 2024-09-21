@@ -6,7 +6,7 @@
 - [x] Support coroutines
 - [x] Thread safety
 - [x] Manage exiting
-- [ ] Check circular references
+- [x] Check circular references
 - [ ] Add log method
 - [ ] Export only what's needed and rename to `trace_that`
 - [ ] Manage connection health (stale/reopening/error handling)

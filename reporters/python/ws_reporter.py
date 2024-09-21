@@ -1,28 +1,11 @@
 from hashlib import sha256
 from aiohttp import ClientSession
-import json
 import threading
 import queue
 from crypto import encrypt
 import asyncio
 import runtime_config
-
-class CustomJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        # Handle sets
-        if isinstance(obj, set):
-            return list(obj)
-        # Handle functions
-        elif callable(obj):
-            name = obj.__name__ if hasattr(obj, '__name__') else '(anonymous)'
-            return f"<function {name}>"
-        # Handle custom objects
-        elif hasattr(obj, '__dict__'):
-            return obj.__dict__
-        # Default case
-        else:
-            return str(obj)
-
+from json_marhsaller import marshall_to_json
 class WebSocketReporter:
     def __init__(self):
         self.queue = queue.Queue()
@@ -50,7 +33,7 @@ class WebSocketReporter:
                 while True:
                     try:
                         msg = self.queue.get(timeout=1)
-                        encrypted_msg = encrypt(json.dumps(msg, cls=CustomJSONEncoder), token)
+                        encrypted_msg = encrypt(marshall_to_json(msg), token)
                         await ws.send_str(encrypted_msg)
                     except queue.Empty:
                         break

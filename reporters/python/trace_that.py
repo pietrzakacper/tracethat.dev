@@ -61,32 +61,28 @@ def create_trace_that(reporter: Type[Reporter]):
                 }
             })
             
-        if inspect.iscoroutinefunction(func):
-            async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-                name, start_time, call_id = before(*args, **kwargs)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+            name, start_time, call_id = before(*args, **kwargs)
 
-                try:
-                    return_value = await func(*args, **kwargs)
-                except Exception as e:
-                    on_error(name, start_time, call_id, e)
-                    raise e
+            try:
+                return_value = func(*args, **kwargs)
+                        
+            except Exception as e:
+                on_error(name, start_time, call_id, e)
+                raise e
 
-                after(name, start_time, call_id, return_value)
-                
-                return return_value
-        else:
-            def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-                name, start_time, call_id = before(*args, **kwargs)
+            if inspect.isawaitable(return_value):
+                async def awaiter():
+                    nonlocal return_value
+                    return_value = await return_value
+                    after(name, start_time, call_id, return_value)
+                    return return_value
+                return awaiter()
+            
+            after(name, start_time, call_id, return_value)
+            
+            return return_value
 
-                try:
-                    return_value = func(*args, **kwargs)
-                except Exception as e:
-                    on_error(name, start_time, call_id, e)
-                    raise e
-
-                after(name, start_time, call_id, return_value)
-                
-                return return_value
         return wrapper
     
     return trace_that

@@ -1,17 +1,25 @@
-from typing import Callable, TypeVar, Type
+from typing import Callable, TypeVar, Type, Any
 from typing_extensions import ParamSpec
 import time
 import uuid
 import inspect
 from ws_reporter import WebSocketReporter
 
-class Reporter:
-    def send(self, msg: str) -> None:
-        pass
-
 T = TypeVar('T')
 R = TypeVar('R')
 P = ParamSpec('P')
+
+class TraceThat:
+    def __init__(self, trace_that_fn: Callable[[Callable[P, R]], Callable[P,R]], log: Callable[[str, Any], None]):
+        self.trace_that_fn = trace_that_fn
+        self.log = log
+
+    def __call__(self, func: Callable[P, R]) -> Callable[P, R]:
+        return self.trace_that_fn(func)
+
+class Reporter:
+    def send(self, msg: str) -> None:
+        pass
 
 def create_trace_that(reporter: Type[Reporter]):
     def trace_that(func: Callable[P, R]) -> Callable[P, R]:
@@ -87,5 +95,24 @@ def create_trace_that(reporter: Type[Reporter]):
     
     return trace_that
 
+def create_log(reporter: Type[Reporter]):
+    def log(name: str, msg: any) -> None:
+        print(f'[trace_that] {name} {msg=}')
+        call_id = uuid.uuid4().hex
+        start_time = int(time.time() * 1000)
+        reporter.send({
+            'status': 'ok',
+            'callId': call_id,
+            'name': name,
+            'startEpochMs': start_time,
+            'endEpochMs': start_time,
+            'details': msg
+        })
+        
+    return log
 
-trace_that = create_trace_that(WebSocketReporter())
+reporter = WebSocketReporter()
+log = create_log(reporter)
+trace_that_fun = create_trace_that(reporter)
+
+trace_that = TraceThat(trace_that_fun, log)

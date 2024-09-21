@@ -7,7 +7,7 @@
 - [x] Thread safety
 - [x] Manage exiting
 - [x] Check circular references
-- [ ] Add log method
+- [x] Add log method
 - [ ] Export only what's needed and rename to `trace_that`
 - [ ] Manage connection health (stale/reopening/error handling)
 - [ ] Release to pip

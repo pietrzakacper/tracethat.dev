@@ -2,15 +2,16 @@ import json
 
 def serialize(obj, seen=None):
     if seen is None:
-        seen = {}
+        seen = set()
     obj_id = id(obj)
 
     if obj_id in seen:
         # Circular reference detected; return a reference placeholder
         return "<circular reference>"
     
+    seen = seen.copy()
     # Mark the current object as seen
-    seen[obj_id] = obj
+    seen.add(obj_id)
 
     # Handle basic data types
     if isinstance(obj, (str, int, float, bool, type(None))):

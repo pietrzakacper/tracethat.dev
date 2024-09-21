@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trace_that"
+version = "1.0"
+description = "tracethat.dev reporter for Python"
+authors = [
+  { name = "Kacper Pietrzak", email = "kacpietrzak@gmail.com" },
+]
+dependencies = [
+  "typing_extensions>=4.12.2",
+  "cryptography>=43.0.1",
+  "aiohttp>=3.9.5",
+]
+[tool.setuptools.packages.find]
+where = ["."]

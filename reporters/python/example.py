@@ -1,5 +1,4 @@
 import asyncio
-import time
 from trace_that import trace_that
 
 @trace_that

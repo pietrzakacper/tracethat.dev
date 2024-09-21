@@ -16,7 +16,7 @@
     "install:python-server": "cd tests/python-server/reporter && ./install.sh && cd ../../..",
     "build-frontend": "cd ../frontend && VITE_SERVER_URL=/ bun run build",
     "build-js-reporter": "cd ../reporters/javascript/tracethat.dev && bun run build",
-    "pretest": "bun run build-js-reporter && bun run build-frontend && bun run install:python-server",
+    "pretest": "bun run build-js-reporter && bun run build-frontend",
     "test": "playwright test"
   },
   "keywords": [],

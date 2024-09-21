@@ -2,10 +2,11 @@ from hashlib import sha256
 from aiohttp import ClientSession
 import threading
 import queue
-from crypto import encrypt
+from trace_that.crypto import encrypt
 import asyncio
-import runtime_config
-from json_marhsaller import marshall_to_json
+import trace_that.runtime_config as runtime_config
+from trace_that.json_marhsaller import marshall_to_json
+
 class WebSocketReporter:
     def __init__(self):
         self.queue = queue.Queue()

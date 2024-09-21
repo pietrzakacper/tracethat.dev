@@ -3,7 +3,7 @@ from typing_extensions import ParamSpec
 import time
 import uuid
 import inspect
-from ws_reporter import WebSocketReporter
+from trace_that.ws_reporter import WebSocketReporter
 
 T = TypeVar('T')
 R = TypeVar('R')
@@ -97,7 +97,6 @@ def create_trace_that(reporter: Type[Reporter]):
 
 def create_log(reporter: Type[Reporter]):
     def log(name: str, msg: any) -> None:
-        print(f'[trace_that] {name} {msg=}')
         call_id = uuid.uuid4().hex
         start_time = int(time.time() * 1000)
         reporter.send({

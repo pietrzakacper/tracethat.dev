@@ -1,6 +1,6 @@
 import unittest
 import asyncio
-from trace_that import create_trace_that
+from trace_that.trace_that_impl import create_trace_that
 
 class MemoryReporter:
     def __init__(self):

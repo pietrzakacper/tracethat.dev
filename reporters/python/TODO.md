@@ -9,5 +9,4 @@
 - [x] Check circular references
 - [x] Add log method
 - [x] Export only what's needed and rename to `trace_that`
-- [ ] Manage connection health (stale/reopening/error handling)
 - [ ] Release to pip

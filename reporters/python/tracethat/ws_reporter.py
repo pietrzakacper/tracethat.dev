@@ -2,10 +2,10 @@ from hashlib import sha256
 from aiohttp import ClientSession
 import threading
 import queue
-from trace_that.crypto import encrypt
+from tracethat.crypto import encrypt
 import asyncio
-import trace_that.runtime_config as runtime_config
-from trace_that.json_marhsaller import marshall_to_json
+import tracethat.runtime_config as runtime_config
+from tracethat.json_marhsaller import marshall_to_json
 
 class WebSocketReporter:
     def __init__(self):
@@ -21,7 +21,7 @@ class WebSocketReporter:
             token = runtime_config.load().token
 
             if not token:
-                print('[trace_that] No token provided, skipping connection')
+                print('[tracethat] No token provided, skipping connection')
                 return
 
             self.connected = True
@@ -39,7 +39,7 @@ class WebSocketReporter:
                     except queue.Empty:
                         break
                     except Exception as e:
-                        print(f'[trace_that] Error while sending message: {e}')
+                        print(f'[tracethat] Error while sending message: {e}')
                         break
             await session.close()
             with self.lock:

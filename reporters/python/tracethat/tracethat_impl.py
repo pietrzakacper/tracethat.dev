@@ -3,26 +3,26 @@ from typing_extensions import ParamSpec
 import time
 import uuid
 import inspect
-from trace_that.ws_reporter import WebSocketReporter
+from tracethat.ws_reporter import WebSocketReporter
 
 T = TypeVar('T')
 R = TypeVar('R')
 P = ParamSpec('P')
 
 class TraceThat:
-    def __init__(self, trace_that_fn: Callable[[Callable[P, R]], Callable[P,R]], log: Callable[[str, Any], None]):
-        self.trace_that_fn = trace_that_fn
+    def __init__(self, tracethat_fn: Callable[[Callable[P, R]], Callable[P,R]], log: Callable[[str, Any], None]):
+        self._tracethat_fn = tracethat_fn
         self.log = log
 
     def __call__(self, func: Callable[P, R]) -> Callable[P, R]:
-        return self.trace_that_fn(func)
+        return self._tracethat_fn(func)
 
 class Reporter:
     def send(self, msg: str) -> None:
         pass
 
-def create_trace_that(reporter: Type[Reporter]):
-    def trace_that(func: Callable[P, R]) -> Callable[P, R]:
+def create_tracethat(reporter: Type[Reporter]):
+    def tracethat(func: Callable[P, R]) -> Callable[P, R]:
         def before(*args: P.args, **kwargs: P.kwargs) -> None:
             name = func.__name__ if hasattr(func, '__name__') else '(anonymous)'
             start_time = int(time.time() * 1000)
@@ -92,7 +92,7 @@ def create_trace_that(reporter: Type[Reporter]):
 
         return wrapper
     
-    return trace_that
+    return tracethat
 
 def create_log(reporter: Type[Reporter]):
     def log(name: str, msg: any) -> None:
@@ -111,6 +111,6 @@ def create_log(reporter: Type[Reporter]):
 
 reporter = WebSocketReporter()
 log = create_log(reporter)
-trace_that_fun = create_trace_that(reporter)
+tracethat_fun = create_tracethat(reporter)
 
-trace_that = TraceThat(trace_that_fun, log)
+tracethat = TraceThat(tracethat_fun, log)

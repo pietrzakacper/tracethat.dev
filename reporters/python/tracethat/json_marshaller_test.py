@@ -1,5 +1,5 @@
 import unittest
-from trace_that.json_marhsaller import marshall_to_json
+from tracethat.json_marhsaller import marshall_to_json
 import json
 
 class TestJsonMarshaller(unittest.TestCase):

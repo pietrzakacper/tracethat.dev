@@ -1,12 +1,13 @@
 import asyncio
-from trace_that import trace_that
+from tracethat import tracethat
 
-@trace_that
+@tracethat
 async def hello(name: str, greeting='Hello') -> str:
     await asyncio.sleep(1)
     return f'{greeting}, {name}!'
 
 async def main():
+    tracethat.log('yo', {'a': [1, 2, 3]})
     await hello(name='Kacper', greeting='Yo')
 
 if __name__ == '__main__':

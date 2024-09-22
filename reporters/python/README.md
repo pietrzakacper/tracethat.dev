@@ -1,15 +1,15 @@
 ## Installation
 
 ```bash
-pip install trace_that
+pip install tracethat
 ```
 
 ## Usage
 
 ```python
-from trace_that import trace_that
+from tracethat import tracethat
 
-@trace_that
+@tracethat
 async def hello(name: str) -> str:
     await asyncio.sleep(1)
     return f'Hello, {name}!'
@@ -27,7 +27,7 @@ TT_TOKEN=your_token python3 main.py
 or by calling `register_token` function:
 
 ```python
-from trace_that import register_token
+from tracethat import register_token
 
 register_token('your_token')
 ```

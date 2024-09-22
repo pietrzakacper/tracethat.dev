@@ -1,5 +1,5 @@
 import unittest
-from trace_that.trace_that_impl import create_trace_that
+from tracethat.tracethat_impl import create_tracethat
 
 class MemoryReporter:
     def __init__(self):
@@ -10,9 +10,9 @@ class MemoryReporter:
 
 class TestTraceThat(unittest.TestCase):
     def test_return_value_unchanged(self):
-        trace_that = create_trace_that(MemoryReporter())
+        tracethat = create_tracethat(MemoryReporter())
 
-        @trace_that
+        @tracethat
         def hello(name: str) -> str:
             return f'Hello, {name}!'
         
@@ -20,9 +20,9 @@ class TestTraceThat(unittest.TestCase):
 
     def test_report_arguments(self):
         reporter = MemoryReporter()
-        trace_that = create_trace_that(reporter)
+        tracethat = create_tracethat(reporter)
 
-        @trace_that
+        @tracethat
         def hello(name: str) -> str:
             return f'Hello, {name}!'
         
@@ -34,9 +34,9 @@ class TestTraceThat(unittest.TestCase):
 
     def test_report_return_value(self):
         reporter = MemoryReporter()
-        trace_that = create_trace_that(reporter)
+        tracethat = create_tracethat(reporter)
 
-        @trace_that
+        @tracethat
         def hello(name: str) -> str:
             return f'Hello, {name}!'
         
@@ -48,9 +48,9 @@ class TestTraceThat(unittest.TestCase):
     
     def test_report_callstack(self):
         reporter = MemoryReporter()
-        trace_that = create_trace_that(reporter)
+        tracethat = create_tracethat(reporter)
 
-        @trace_that
+        @tracethat
         def hello(name: str) -> str:
             return f'Hello, {name}!'
         
@@ -70,9 +70,9 @@ class TestTraceThat(unittest.TestCase):
 
     def test_timestamps(self):
         reporter = MemoryReporter()
-        trace_that = create_trace_that(reporter)
+        tracethat = create_tracethat(reporter)
 
-        @trace_that
+        @tracethat
         def hello(name: str) -> str:
             return f'Hello, {name}!'
         
@@ -89,9 +89,9 @@ class TestTraceThat(unittest.TestCase):
 
     def test_exceptions(self):
         reporter = MemoryReporter()
-        trace_that = create_trace_that(reporter)
+        tracethat = create_tracethat(reporter)
 
-        @trace_that
+        @tracethat
         def hello():
             raise Exception('Oops')
         

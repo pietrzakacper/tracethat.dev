@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "trace_that"
+name = "tracethat"
 version = "1.0.0"
-description = "TraceThat.dev reporter for Python"
+description = "tracethat.dev reporter for Python"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
@@ -26,7 +26,7 @@ requires-python = ">=3.6"
 
 [project.urls]
 Homepage = "https://tracethat.dev"
-Repository = "https://github.com/yourusername/trace_that"
+Repository = "https://github.com/yourusername/tracethat"
 
 [tool.setuptools.packages.find]
 where = ["."]

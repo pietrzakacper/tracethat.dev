@@ -1,8 +1,8 @@
 import time
 import sys
-from trace_that import trace_that
+from tracethat import tracethat
 
-@trace_that
+@tracethat
 def hello(name: str, greeting='Hello') -> str:
     time.sleep(1)
     return f'{greeting} {name}'

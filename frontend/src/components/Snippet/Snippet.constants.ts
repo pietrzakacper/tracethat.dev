@@ -29,14 +29,20 @@ traceThat(hello)("world");
 
 const getPythonBlock = (token: string) =>
   `
-from tracethat_dev import trace_that, register_token
+import asyncio
+from tracethat import tracethat
 
-register_token('${token}')
+tracethat.register_token('${token}')
 
-def hello(name):
-    return f'Hello {name}!'
+@tracethat
+async def hello(name: str) -> str:
+    await asyncio.sleep(1)
+    return f'Hello, {name}!'
 
-trace_that(hello)('world')
+async def main():
+    await hello(name='Kacper')
+
+asyncio.run(main())
 `.trim();
 
 const getGoBlock = (token: string) =>

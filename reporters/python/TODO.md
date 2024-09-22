@@ -8,5 +8,5 @@
 - [x] Manage exiting
 - [x] Check circular references
 - [x] Add log method
-- [x] Export only what's needed and rename to `trace_that`
+- [x] Export only what's needed and rename to `tracethat`
 - [ ] Release to pip

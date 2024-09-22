@@ -1,4 +1,4 @@
-from trace_that.trace_that_impl import create_log
+from tracethat.tracethat_impl import create_log
 import unittest
 
 class MemoryReporter:

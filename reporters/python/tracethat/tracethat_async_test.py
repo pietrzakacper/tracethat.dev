@@ -1,6 +1,6 @@
 import unittest
 import asyncio
-from trace_that.trace_that_impl import create_trace_that
+from tracethat.tracethat_impl import create_tracethat
 
 class MemoryReporter:
     def __init__(self):
@@ -12,9 +12,9 @@ class MemoryReporter:
 class TestTraceThatAsync(unittest.IsolatedAsyncioTestCase):        
     async def test_report_return_value(self):
         reporter = MemoryReporter()
-        trace_that = create_trace_that(reporter)
+        tracethat = create_tracethat(reporter)
 
-        @trace_that
+        @tracethat
         async def hello(name: str) -> str:
             await asyncio.sleep(0.1)
             return f'Hello, {name}!'

@@ -13,6 +13,7 @@ For now only Unix/MacOS are supported for local development
 - go (https://go.dev/doc/install) - tested with `go1.21.7`
 - bun (https://bun.sh/docs/installation) - tested with `1.0.29`
 - node/npm (https://nodejs.org/en/download) - tested with `v20.11.0`
+- python3 (https://www.python.org/downloads/) - tested with `3.12.0`
 
 ### Golang Server
 
@@ -56,6 +57,17 @@ go mod tidy # install dependencies
 cd example
 # Run the example using locally built reporter and local server
 TT_SERVER_URL=ws://localhost:3000 TT_TOKEN=123 go run ./...
+```
+
+### Python Reporter
+
+In `./reporters/python`
+
+```bash
+./install.sh # install dependencies
+source .venv/bin/activate # activate virtual environment
+python3 example.py # run the example using locally built reporter and local server
+deactivate
 ```
 
 ### E2E tests

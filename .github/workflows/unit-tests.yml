@@ -31,3 +31,27 @@ jobs:
       - run: cd reporters/javascript/tracethat.dev && bun install && bun run build && cd ../..
       - run: cd reporters/javascript/integration-tests && npm ci && cd ../../..
       - run: cd reporters/javascript/integration-tests && npm run test | bunx tap-spec && cd ../../..
+
+  python-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["pypy3.9", "pypy3.10", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          cd reporters/python
+          ./install.sh
+          cd ../..
+      - name: Run tests
+        run: |
+          cd reporters/python
+          source .venv/bin/activate
+          python -m unittest discover -p '*_test.py'
+          cd ../..

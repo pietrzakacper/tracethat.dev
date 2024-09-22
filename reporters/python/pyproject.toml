@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tracethat"
+version = "1.0.3"
+description = "tracethat.dev reporter for Python"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Kacper Pietrzak", email = "kacpietrzak@gmail.com" },
+]
+keywords = ["tracing", "logging", "debugging"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "typing_extensions>=4.12.2",
+  "cryptography>=42.0.3",
+  "aiohttp>=3.9.5",
+]
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://tracethat.dev"
+Repository = "https://github.com/yourusername/tracethat"
+
+[tool.setuptools.packages.find]
+where = ["."]

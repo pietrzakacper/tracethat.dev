@@ -17,7 +17,7 @@ class TestLog(unittest.TestCase):
         ok_msg = next(m for m in reporter.messages if m['status'] == 'ok')
         self.assertIsNotNone(ok_msg)
         self.assertEqual(ok_msg['name'], 'hello')
-        self.assertEqual(ok_msg['details'], {'a': 1})
+        self.assertEqual(ok_msg['details'], {'payload': {'a': 1}})
         
 if __name__ == '__main__':    
     unittest.main()

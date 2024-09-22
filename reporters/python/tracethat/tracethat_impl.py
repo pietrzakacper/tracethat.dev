@@ -21,7 +21,13 @@ class Reporter:
     def send(self, msg: str) -> None:
         pass
 
-def create_tracethat(reporter: Type[Reporter]):
+rank_counter = 0
+def get_next_rank():
+    global rank_counter
+    rank_counter += 1
+    return rank_counter
+
+def create_tracethat(reporter: Type[Reporter]):    
     def tracethat(func: Callable[P, R]) -> Callable[P, R]:
         def before(*args: P.args, **kwargs: P.kwargs) -> None:
             name = func.__name__ if hasattr(func, '__name__') else '(anonymous)'
@@ -38,7 +44,8 @@ def create_tracethat(reporter: Type[Reporter]):
                     'args': args,
                     'kwargs': kwargs,
                     'callStack': call_stack,
-                }
+                },
+                'rank': get_next_rank()
             })
             
             return name, start_time, call_id
@@ -52,7 +59,8 @@ def create_tracethat(reporter: Type[Reporter]):
                 'endEpochMs': int(time.time() * 1000),
                 'details': {
                     'exception': str(e),
-                }
+                },
+                'rank': get_next_rank()
             })
             # sleep to wait for reporter to flush the error, before possible crash
             time.sleep(0.1)
@@ -66,7 +74,8 @@ def create_tracethat(reporter: Type[Reporter]):
                 'endEpochMs': int(time.time() * 1000),
                 'details': {
                     'return': return_value,
-                }
+                },
+                'rank': get_next_rank()
             })
             
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
@@ -104,7 +113,8 @@ def create_log(reporter: Type[Reporter]):
             'name': name,
             'startEpochMs': start_time,
             'endEpochMs': start_time,
-            'details': msg
+            'details': msg,
+            'rank': get_next_rank()
         })
         
     return log

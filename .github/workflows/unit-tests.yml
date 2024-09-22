@@ -51,5 +51,7 @@ jobs:
           cd ../..
       - name: Run tests
         run: |
-          cd reporters/python/tracethat
+          cd reporters/python
+          source .venv/bin/activate
           python -m unittest discover -p '*_test.py'
+          cd ../..

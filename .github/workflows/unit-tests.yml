@@ -47,8 +47,8 @@ jobs:
       - name: Install dependencies
         run: |
           cd reporters/python
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          ./install.sh
+          cd ../..
       - name: Run tests
         run: |
           cd reporters/python/tracethat

@@ -9,4 +9,6 @@
 - [x] Check circular references
 - [x] Add log method
 - [x] Export only what's needed and rename to `tracethat`
-- [ ] Release to pip
+- [x] Release to test pip
+- [ ] Add sorting by call order
+- [ ] Release to proper pip

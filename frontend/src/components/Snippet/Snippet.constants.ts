@@ -1,5 +1,6 @@
 import jsLogo from "@/assets/logos/js.png";
 import goLogo from "@/assets/logos/go.png";
+import pythonLogo from "@/assets/logos/python.png";
 
 const getJavaScriptBlock = (token: string) =>
   `
@@ -14,25 +15,12 @@ const hello = (name) => {
 traceThat(hello)("world");
 `.trim();
 
-const getTypeScriptBlock = (token: string) =>
-  `
-import { traceThat, registerToken } from "tracethat.dev";
-
-registerToken("${token}");
-
-const hello = (name: string) => {
-  return \`Hello \${name}!\`;
-}
-
-traceThat(hello)("world");
-`.trim();
-
 const getPythonBlock = (token: string) =>
   `
 import asyncio
-from tracethat import tracethat
+from tracethat import tracethat, register_token
 
-tracethat.register_token('${token}')
+register_token('${token}')
 
 @tracethat
 async def hello(name: str) -> str:
@@ -40,7 +28,7 @@ async def hello(name: str) -> str:
     return f'Hello, {name}!'
 
 async def main():
-    await hello(name='Kacper')
+  await hello(name='world')
 
 asyncio.run(main())
 `.trim();
@@ -71,9 +59,13 @@ func main() {
 
 const CODE_BLOCKS = {
   js: getJavaScriptBlock,
-  ts: getTypeScriptBlock,
   python: getPythonBlock,
   go: getGoBlock,
+};
+const INSTALLATION_CODE_BLOCKS = {
+  js: "npm install tracethat.dev",
+  python: "pip install tracethat",
+  go: "go get github.com/pietrzakacper/tracethat.dev/reporters/golang/tt",
 };
 export type AvailableLanguage = keyof typeof CODE_BLOCKS;
 interface LanguageDisplayData {
@@ -82,11 +74,11 @@ interface LanguageDisplayData {
 }
 const DISPLAY_DATA: Record<AvailableLanguage, LanguageDisplayData> = {
   js: { name: "JavaScript", logo: jsLogo },
-  ts: { name: "TypeScript", logo: jsLogo },
-  python: { name: "Python", logo: jsLogo },
+  python: { name: "Python", logo: pythonLogo },
   go: { name: "Go", logo: goLogo },
 };
 
+export const getInstallationSnippet = (language: AvailableLanguage) => INSTALLATION_CODE_BLOCKS[language];
 export const getSnippet = (language: AvailableLanguage, token: string) => CODE_BLOCKS[language](token);
-export const SHOWN_LANGUAGES: AvailableLanguage[] = ["js", "go"];
+export const SHOWN_LANGUAGES: AvailableLanguage[] = ["js", "python", "go"];
 export const getDisplayData = (language: AvailableLanguage) => DISPLAY_DATA[language];

@@ -1,54 +1,33 @@
-import { useMemo, useState } from "react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
-import { AvailableLanguage, SHOWN_LANGUAGES, getDisplayData, getSnippet } from "./Snippet.constants";
-import { Button } from "../ui/button/button";
-import { ChevronDown } from "lucide-react";
+import { SHOWN_LANGUAGES, getDisplayData, getInstallationSnippet, getSnippet } from "./Snippet.constants";
 import { HighlightedCode } from "../HighlightedCode";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 interface SnippetProps {
   token: string;
 }
 export const Snippet = ({ token }: SnippetProps) => {
-  const [language, setLanguage] = useState<AvailableLanguage>("js");
-  const code = useMemo(() => getSnippet(language, token), [language, token]);
-
-  const selectedButton = useMemo(() => {
-    const { logo, name } = getDisplayData(language);
-    return (
-      <Button variant="outline" size="sm" className="px-1">
-        <div className="relative">
-          <img src={logo} alt={name} className="h-5 aspect-square rounded-tiny" />
-          <div className="fill-absolute ring-1 ring-primary/10 ring-inset rounded-tiny" />
-        </div>
-        <ChevronDown className="ml-1 h-4 w-4" />
-      </Button>
-    );
-  }, [language]);
-
   return (
-    <div className="relative">
-      <div className="absolute top-2 right-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>{selectedButton}</DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {SHOWN_LANGUAGES.map((lang) => {
-              const { logo, name } = getDisplayData(lang);
-
-              return (
-                <DropdownMenuItem key={lang} onClick={() => setLanguage(lang)}>
-                  <div className="relative">
-                    <img src={logo} alt={name} className="w-6 aspect-square rounded-tiny" />
-                    <div className="fill-absolute ring-1 ring-primary/10 ring-inset rounded-tiny" />
-                  </div>
-                  <span className="ml-2">{name}</span>
-                </DropdownMenuItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <HighlightedCode code={code} language={language} />
-    </div>
+    <Tabs defaultValue={SHOWN_LANGUAGES[0]} className="flex flex-col w-full items-end">
+      <TabsList>
+        {SHOWN_LANGUAGES.map((language) => {
+          const { logo, name } = getDisplayData(language);
+          return (
+            <TabsTrigger key={language} value={language}>
+              <div className="relative">
+                <img src={logo} alt={name} className="w-6 aspect-square rounded-tiny" />
+                <div className="fill-absolute ring-1 ring-primary/10 ring-inset rounded-tiny" />
+              </div>
+            </TabsTrigger>
+          );
+        })}
+      </TabsList>
+      {SHOWN_LANGUAGES.map((language) => (
+        <TabsContent key={language} value={language} className="w-full">
+          <HighlightedCode language="bash" code={getInstallationSnippet(language)} />
+          <br />
+          <HighlightedCode language={language} code={getSnippet(language, token)} />
+        </TabsContent>
+      ))}
+    </Tabs>
   );
 };

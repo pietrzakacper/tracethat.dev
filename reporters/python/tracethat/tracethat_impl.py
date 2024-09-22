@@ -104,7 +104,7 @@ def create_tracethat(reporter: Type[Reporter]):
     return tracethat
 
 def create_log(reporter: Type[Reporter]):
-    def log(name: str, msg: any) -> None:
+    def log(name: str, payload: any = '<empty payload>') -> None:
         call_id = uuid.uuid4().hex
         start_time = int(time.time() * 1000)
         reporter.send({
@@ -113,7 +113,9 @@ def create_log(reporter: Type[Reporter]):
             'name': name,
             'startEpochMs': start_time,
             'endEpochMs': start_time,
-            'details': msg,
+            'details': {
+                "payload": payload,
+            },
             'rank': get_next_rank()
         })
         

@@ -24,3 +24,6 @@ export const parseTraceEvent = (data: unknown): TraceEvent | null => {
 
   return result.data;
 };
+
+const EventSearchCriteria = z.enum(['eventName', 'eventDetails', 'all']);
+export type EventSearchCriteria = z.infer<typeof EventSearchCriteria>;

@@ -62,7 +62,7 @@ export function EventsList({
                 No Results Found
               </h2>
               <p className="mt-2 ">
-                No results for: <span className="bg-[mark] text-black">{searchValue}</span>
+                No results for: <span className="bg-[mark] text-[marktext]">{searchValue}</span>
               </p>
             </div>
           </div>

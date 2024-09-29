@@ -31,12 +31,16 @@ export function EventsList({
   const [searchBy, setSearchBy] = useState<EventSearchCriteria>("all");
   const debouncedSearchValue = useDebounce(searchValue, 600)
 
-  const { filteredData } = useEventsSearch({ data, searchValue: debouncedSearchValue, searchBy });
+  const { searchResult } = useEventsSearch({ data, searchValue: debouncedSearchValue, searchBy });
 
   const searchValueByName = searchBy !== "eventDetails" ? searchValue : "";
   const searchValueByDetails = searchBy !== "eventName" ? searchValue : "";
 
-  const isSearchNotFound = Array.isArray(filteredData) && filteredData.length === 0
+  const filteredData = searchResult.filteredData;
+  const arrayKeyToExpand = searchResult.arrayKeyToExpand;
+
+  const isSearchNotFound = Array.isArray(filteredData) && filteredData.length === 0;
+
 
   return (
     <div className={styles.container}>
@@ -76,6 +80,8 @@ export function EventsList({
           viewerPlaceholder={viewerPlaceholder}
           searchValue={searchValueByDetails}
           searchBy={searchBy}
+          arrayKeyToExpand={arrayKeyToExpand}
+
         />
       </div>
     </div>

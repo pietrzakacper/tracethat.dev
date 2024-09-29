@@ -21,12 +21,17 @@ interface EventViewerProps {
   viewerPlaceholder: ReactNode;
   searchValue: string;
   searchBy: EventSearchCriteria
+  arrayKeyToExpand: string[]
 }
-export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerPlaceholder, searchValue, searchBy }: EventViewerProps) => {
+
+export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerPlaceholder, searchValue, searchBy, arrayKeyToExpand }: EventViewerProps) => {
   const [searchValueMarker, setSearchValueMarker] = useState({ searchValue });
+
+  useEffect(() => {
+    setSearchValueMarker({ searchValue: searchValue });
+  }, [searchValue, searchBy, arrayKeyToExpand])
+
   const jsonViewerRef = useRef(null);
-
-
   useEffect(() => {
     const observer = new MutationObserver((mutationsList) => {
 
@@ -48,10 +53,6 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
     };
   }, [events, selectedEventCallId, onEventClose, viewerPlaceholder, searchValue, searchBy]);
 
-  useEffect(() => {
-    setSearchValueMarker({ searchValue: searchValue });
-  }, [searchValue, searchBy])
-
   const selectedEvent = useMemo(() => {
     if (selectedEventCallId == null) {
       return undefined;
@@ -70,6 +71,7 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
   const start = new Date(selectedEvent.startEpochMs);
   const end = new Date(selectedEvent.endEpochMs ?? 0);
   const { hover, icon: Icon, base } = getColor(selectedEvent.name);
+
 
   return (
     <div className="min-h-0 min-w-0 flex flex-col">
@@ -116,11 +118,9 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
         </div>
       </div>
 
-
       <div className="p-4 overflow-auto flex-1">
         <div className="font-mono select-text p-4 rounded-sm bg-muted overflow-x-auto w-full">
           <div ref={jsonViewerRef}>
-
             <Marker mark={searchValueMarker.searchValue} >
               <ReactJson
                 // Needed to properly handle theme changes
@@ -133,9 +133,9 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
                 indentWidth={4}
                 enableClipboard={true}
                 style={{ fontFamily: "inherit", background: "none" }}
-                collapsed={false}
-              //Tutaj mechanizm should collapse
-              // shouldCollapse={(field) => { console.log(field, "p"); }}
+                shouldCollapse={({ name, type }) => {
+                  return !arrayKeyToExpand.includes(name!)
+                }}
               />
             </Marker>
           </div>

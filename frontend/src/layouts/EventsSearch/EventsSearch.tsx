@@ -4,15 +4,14 @@ import { Input } from "@/components/ui/input/input";
 import { Root as ToogleGroup, Item as ToogleItem } from '@radix-ui/react-toggle-group';
 import styles from "./EventsSearch.module.css";
 import { cn } from "@/lib/utils";
-import { EventSearchCriteria } from "@/validators/TraceEvent";
+import { EventSearchCriteria } from "@/hooks/useEventsSearch";
 
 interface EventsSearchProps {
     setSearchValue: React.Dispatch<React.SetStateAction<string>>;
     setSearchBy: React.Dispatch<React.SetStateAction<EventSearchCriteria>>;
-    isFilterLoadingData: boolean;
 }
 
-export function EventsSearch({ setSearchValue, setSearchBy, isFilterLoadingData }: EventsSearchProps) {
+export function EventsSearch({ setSearchValue, setSearchBy }: EventsSearchProps) {
     const [toggleGroupValue, setToggleGroupValue] = useState("all");
 
     const handleSearchByValue = (eventValue: EventSearchCriteria) => {

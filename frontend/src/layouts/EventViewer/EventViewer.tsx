@@ -12,7 +12,7 @@ import { ReactNode, useMemo } from "react";
 import ReactJson, { ThemeObject } from "react-json-view";
 import { Marker } from "react-mark.js";
 import { useRef, useEffect, useState } from "react";
-import { EventSearchCriteria } from "@/validators/TraceEvent";
+import { EventSearchCriteria } from "@/hooks/useEventsSearch";
 
 interface EventViewerProps {
   events: TraceEvent[];
@@ -134,8 +134,8 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
                 enableClipboard={true}
                 style={{ fontFamily: "inherit", background: "none" }}
                 collapsed={false}
-                //Tutaj mechanizm should collapse
-                // shouldCollapse={(field) => { console.log(field, "p"); }}
+              //Tutaj mechanizm should collapse
+              // shouldCollapse={(field) => { console.log(field, "p"); }}
               />
             </Marker>
           </div>

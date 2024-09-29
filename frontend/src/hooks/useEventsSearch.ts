@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react"
-import { TraceEvent, EventSearchCriteria } from "@/validators/TraceEvent";
+import { TraceEvent } from "@/validators/TraceEvent";
 
 interface UseEventsSearchArguments {
     searchValue: string,
     searchBy: EventSearchCriteria
     data: TraceEvent[]
 }
+
+export type EventSearchCriteria = 'eventName' | 'eventDetails' | 'all';
 
 export const useEventsSearch = ({ searchValue, data, searchBy }: UseEventsSearchArguments) => {
     const [filteredData, setFilteredData] = useState<TraceEvent[] | null>();

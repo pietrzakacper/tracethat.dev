@@ -5,7 +5,7 @@ import styles from "./EventsList.module.css";
 import { TraceEvent } from "@/validators/TraceEvent";
 import { ReactNode } from "react";
 import { traceThat } from "tracethat.dev";
-import { EventSearchCriteria } from "@/validators/TraceEvent";
+import { EventSearchCriteria } from "@/hooks/useEventsSearch";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useState } from "react";
 import { EventsSearch } from "@/layouts/EventsSearch/EventsSearch";
@@ -41,7 +41,7 @@ export function EventsList({
       <div className={cn("w-full h-full grid", styles.grid)}>
         <div className="min-h-0 min-w-0">
           {!isSearchBarHidden &&
-            <EventsSearch setSearchValue={setSearchValue} setSearchBy={setSearchBy} isFilterLoadingData={isFilterLoadingData} />
+            <EventsSearch setSearchValue={setSearchValue} setSearchBy={setSearchBy}  />
           }
 
           <EventsTable

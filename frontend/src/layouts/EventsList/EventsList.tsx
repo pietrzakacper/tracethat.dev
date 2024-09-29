@@ -36,20 +36,38 @@ export function EventsList({
   const searchValueByName = searchBy !== "eventDetails" ? searchValue : "";
   const searchValueByDetails = searchBy !== "eventName" ? searchValue : "";
 
+  const isSearchNotFound = Array.isArray(filteredData) && filteredData.length === 0
+
   return (
     <div className={styles.container}>
       <div className={cn("w-full h-full grid", styles.grid)}>
         <div className="min-h-0 min-w-0">
+
           {!isSearchBarHidden &&
-            <EventsSearch setSearchValue={setSearchValue} setSearchBy={setSearchBy}  />
+            < EventsSearch setSearchValue={setSearchValue} setSearchBy={setSearchBy} />
           }
 
-          <EventsTable
-            events={filteredData ? filteredData : data}
-            selectedEventCallId={selectedEventCallId}
-            setSelectedEventCallId={traceThat(setSelectedEventCallId)}
-            searchValue={searchValueByName}
-          />
+          {!isSearchNotFound &&
+            <EventsTable
+              events={filteredData ? filteredData : data}
+              selectedEventCallId={selectedEventCallId}
+              setSelectedEventCallId={traceThat(setSelectedEventCallId)}
+              searchValue={searchValueByName}
+            />
+          }
+
+          {isSearchNotFound && <div className="mt-8">
+            <div className=" p-6 max-w-md mx-auto text-center">
+              <h2 className="text-xl font-semibold">
+                No Results Found
+              </h2>
+              <p className="mt-2 ">
+                No results for: <span className="bg-[mark] text-black">{searchValue}</span>
+              </p>
+            </div>
+          </div>
+          }
+
         </div>
         <EventViewer
           events={filteredData ? filteredData : data}

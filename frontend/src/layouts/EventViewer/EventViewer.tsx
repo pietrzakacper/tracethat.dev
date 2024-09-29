@@ -133,8 +133,10 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
                 indentWidth={4}
                 enableClipboard={true}
                 style={{ fontFamily: "inherit", background: "none" }}
-                shouldCollapse={({ name, type }) => {
-                  return !arrayKeyToExpand.includes(name!)
+                shouldCollapse={({ name, type, namespace, src }) => {
+                  console.log(name, type, namespace, src, "dupppppppppppaa", arrayKeyToExpand);
+
+                  return !arrayKeyToExpand.flat().includes(name!)
                 }}
               />
             </Marker>

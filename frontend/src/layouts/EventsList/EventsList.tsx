@@ -3,11 +3,10 @@ import { EventsTable } from "../EventsTable/EventsTable";
 import { cn } from "@/lib/utils";
 import styles from "./EventsList.module.css";
 import { TraceEvent } from "@/validators/TraceEvent";
-import { ReactNode } from "react";
+import { ReactNode, useState, useMemo } from "react";
 import { traceThat } from "tracethat.dev";
 import { EventSearchCriteria } from "@/hooks/useEventsSearch";
 import { useDebounce } from "@/hooks/useDebounce";
-import { useState } from "react";
 import { EventsSearch } from "@/layouts/EventsSearch/EventsSearch";
 import { useEventsSearch } from "@/hooks/useEventsSearch";
 
@@ -37,9 +36,15 @@ export function EventsList({
   const searchValueByDetails = searchBy !== "eventName" ? searchValue : "";
 
   const filteredData = searchResult.filteredData;
-  const arrayKeyToExpand = searchResult.arrayKeyToExpand;
+  const keysNotToCollapse = searchResult.keysNotToCollapse;
 
   const isSearchNotFound = Array.isArray(filteredData) && filteredData.length === 0;
+
+  useMemo(() => {
+    if ( filteredData?.[0]) {
+      setSelectedEventCallId(filteredData[0].callId);
+    }
+  }, [filteredData]);
 
 
   return (
@@ -48,7 +53,7 @@ export function EventsList({
         <div className="min-h-0 min-w-0">
 
           {!isSearchBarHidden &&
-            < EventsSearch setSearchValue={setSearchValue} setSearchBy={setSearchBy} />
+            <EventsSearch setSearchValue={setSearchValue} setSearchBy={setSearchBy} />
           }
 
           {!isSearchNotFound &&
@@ -80,7 +85,7 @@ export function EventsList({
           viewerPlaceholder={viewerPlaceholder}
           searchValue={searchValueByDetails}
           searchBy={searchBy}
-          arrayKeyToExpand={arrayKeyToExpand}
+          keysNotToCollapse={keysNotToCollapse}
 
         />
       </div>

@@ -21,7 +21,6 @@ export const EventsTable = ({ events, selectedEventCallId, setSelectedEventCallI
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.callId,
   });
-
   const iconColumnClassNames = "pr-0";
   const { tableRef, tableWrapperRef } = useHandleTableScroll();
 

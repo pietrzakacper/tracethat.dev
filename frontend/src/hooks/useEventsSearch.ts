@@ -10,90 +10,59 @@ interface UseEventsSearchArguments {
 export type EventSearchCriteria = 'eventName' | 'eventDetails' | 'all';
 
 
-function flattenAndSearch(obj, searchWord, parent = '', res = []) {
-    // Convert searchWord to lowercase for case-insensitive search
+function getKeysForSearchedValue(obj: any, searchWord: string, parent = '', res: string[] = []) {
     const lowerSearchWord = searchWord.toLowerCase();
 
-
-    // Check if the current object is an object or an array
     if (typeof obj === 'object' && obj !== null) {
         for (let key in obj) {
             const propName = parent ? `${parent}.${key}` : key;
-            // Only flatten if the value is an object or an array
-            flattenAndSearch(obj[key], lowerSearchWord, propName, res);
+
+            if (key.toLowerCase().includes(lowerSearchWord)) {
+                res.push(propName);
+            }
+
+            getKeysForSearchedValue(obj[key], lowerSearchWord, propName, res);
         }
     } else if (typeof obj === 'string' && obj.toLowerCase().includes(lowerSearchWord)) {
-        // If the current value is a string and contains the search word (case-insensitive), add the parent path
         res.push(parent);
     }
 
-    return res; // Return an array of found paths
-}
+    const result = res.flatMap(item => item.split('.'));
 
-function formatResults(paths: string[]) {
-
-    console.log(paths, "paths")
-
-    return paths.map(path => {
-        const elements = path.split('.');
-
-        // Check if the last element is a number
-        const lastElement = Number(elements[elements.length - 1]);
-
-
-        if (elements.length === 1 && !isNaN(lastElement)) {
-            return Number(lastElement); // If only one element and it's a number, return the number
-        }
-
-        if (!isNaN(lastElement)) {
-            return elements[elements.length - 2]; // If last element is a number, return the previous element
-        }
-
-        if (isNaN(lastElement)) {
-            console.log(elements[elements.length - 1], "00000000000000")
-            return elements.map(item => [item]);
-
-        }
-
-
-        return path; // Otherwise return the path as is
-    });
+    return result;
 }
 
 
 export const useEventsSearch = ({ searchValue, data, searchBy }: UseEventsSearchArguments) => {
     const searchResult = useMemo(() => {
-        let arrayKeyToExpand: string[] = ["root"];
+        let keysNotToCollapse: string[] = ["root"];
 
         if (!searchValue) {
-            return { filteredData: null, arrayKeyToExpand };
+            return { filteredData: null, keysNotToCollapse };
         }
 
         const filteredData = data.filter((item) => {
             const lowerCaseSearchValue = searchValue.toLowerCase();
 
+            const handleDetailsSearch = (details: any) => {
+                const newkeysNotToCollapse = getKeysForSearchedValue(details, searchValue);
+                keysNotToCollapse = [...new Set([...keysNotToCollapse, ...newkeysNotToCollapse])];
+                return JSON.stringify(details).toLowerCase().includes(lowerCaseSearchValue);
+            };
+
             if (searchBy === "eventName") {
                 return item.name.toLowerCase().includes(lowerCaseSearchValue);
             } else if (searchBy === "eventDetails") {
-
-                return JSON.stringify(item.details).toLowerCase().includes(lowerCaseSearchValue);
+                return handleDetailsSearch(item.details);
             } else {
-
-                const format = formatResults(flattenAndSearch(item.details, searchValue)).flat();
-
-                arrayKeyToExpand = [...new Set([...arrayKeyToExpand, ...format])];
-
-
                 return (
                     item.name.toLowerCase().includes(lowerCaseSearchValue) ||
-                    JSON.stringify(item.details).toLowerCase().includes(lowerCaseSearchValue)
+                    handleDetailsSearch(item.details)
                 );
             }
         });
 
-        console.log(arrayKeyToExpand, "array key to")
-
-        return { filteredData, arrayKeyToExpand };
+        return { filteredData, keysNotToCollapse };
 
     }, [searchValue, searchBy, data]);
 

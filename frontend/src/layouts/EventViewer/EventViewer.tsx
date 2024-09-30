@@ -21,22 +21,21 @@ interface EventViewerProps {
   viewerPlaceholder: ReactNode;
   searchValue: string;
   searchBy: EventSearchCriteria
-  arrayKeyToExpand: string[]
+  keysNotToCollapse: string[]
 }
 
-export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerPlaceholder, searchValue, searchBy, arrayKeyToExpand }: EventViewerProps) => {
+export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerPlaceholder, searchValue, searchBy, keysNotToCollapse }: EventViewerProps) => {
   const [searchValueMarker, setSearchValueMarker] = useState({ searchValue });
 
   useEffect(() => {
     setSearchValueMarker({ searchValue: searchValue });
-  }, [searchValue, searchBy, arrayKeyToExpand])
+  }, [searchValue, searchBy, keysNotToCollapse])
 
   const jsonViewerRef = useRef(null);
   useEffect(() => {
     const observer = new MutationObserver((mutationsList) => {
 
       if ((mutationsList[0].target as HTMLElement).className === "icon-container") {
-        console.log("test")
         setSearchValueMarker({ searchValue: searchValue })
       }
     });
@@ -133,9 +132,8 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
                 indentWidth={4}
                 enableClipboard={true}
                 style={{ fontFamily: "inherit", background: "none" }}
-                shouldCollapse={({ name, type, namespace, src }) => {
-
-                  return !arrayKeyToExpand.flat().includes(name!)
+                shouldCollapse={({ name }) => {
+                  return !keysNotToCollapse.flat().includes(name!)
                 }}
               />
             </Marker>

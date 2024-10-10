@@ -7,7 +7,7 @@ import { getColor } from "@/utils/colors";
 import { formatDuration, formatTime } from "@/utils/format";
 import { NBSP } from "@/utils/text";
 import { TraceEvent } from "@/validators/TraceEvent";
-import { Loader2, Target, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { ReactNode, useMemo } from "react";
 import ReactJson, { ThemeObject } from "react-json-view";
 import { Marker } from "react-mark.js";

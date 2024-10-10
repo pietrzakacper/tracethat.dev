@@ -133,7 +133,7 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
                 style={{ fontFamily: "inherit", background: "none" }}
                 shouldCollapse={({ name, src }) => {
 
-                  if(searchBy === "eventName"){
+                  if(searchBy === "eventName" || searchValue === ""){
                      return name !== "root"
                   }
 

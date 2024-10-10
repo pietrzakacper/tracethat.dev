@@ -36,7 +36,6 @@ export function EventsList({
   const searchValueByDetails = searchBy !== "eventName" ? searchValue : "";
 
   const filteredData = searchResult.filteredData;
-  const keysNotToCollapse = searchResult.keysNotToCollapse;
 
   const isSearchNotFound = Array.isArray(filteredData) && filteredData.length === 0;
 
@@ -85,8 +84,6 @@ export function EventsList({
           viewerPlaceholder={viewerPlaceholder}
           searchValue={searchValueByDetails}
           searchBy={searchBy}
-          keysNotToCollapse={keysNotToCollapse}
-
         />
       </div>
     </div>

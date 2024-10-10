@@ -21,15 +21,14 @@ interface EventViewerProps {
   viewerPlaceholder: ReactNode;
   searchValue: string;
   searchBy: EventSearchCriteria
-  keysNotToCollapse: string[]
 }
 
-export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerPlaceholder, searchValue, searchBy, keysNotToCollapse }: EventViewerProps) => {
+export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerPlaceholder, searchValue, searchBy }: EventViewerProps) => {
   const [searchValueMarker, setSearchValueMarker] = useState({ searchValue });
 
   useEffect(() => {
     setSearchValueMarker({ searchValue: searchValue });
-  }, [searchValue, searchBy, keysNotToCollapse])
+  }, [searchValue, searchBy])
 
   const jsonViewerRef = useRef(null);
   useEffect(() => {
@@ -70,7 +69,7 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
   const start = new Date(selectedEvent.startEpochMs);
   const end = new Date(selectedEvent.endEpochMs ?? 0);
   const { hover, icon: Icon, base } = getColor(selectedEvent.name);
-
+  
 
   return (
     <div className="min-h-0 min-w-0 flex flex-col">
@@ -132,8 +131,15 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
                 indentWidth={4}
                 enableClipboard={true}
                 style={{ fontFamily: "inherit", background: "none" }}
-                shouldCollapse={({ name }) => {
-                  return !keysNotToCollapse.flat().includes(name!)
+                shouldCollapse={({ name, src }) => {
+
+                  if(searchBy === "eventName"){
+                     return name !== "root"
+                  }
+
+                  const isSearchedDataHere = JSON.stringify(src).toLowerCase().includes(searchValue);
+                  
+                  return !isSearchedDataHere;
                 }}
               />
             </Marker>

@@ -50,7 +50,7 @@ export function EventsList({
   return (
     <div className={styles.container}>
       <div className={cn("w-full h-full grid", styles.grid)}>
-        <div className="min-h-0 min-w-0">
+        <div className="min-h-0 min-w-0 grid">
 
           {!isSearchBarHidden &&
             <EventsSearch setSearchValue={setSearchValue} setSearchBy={setSearchBy} />

@@ -17,25 +17,31 @@ import { EventSearchCriteria } from "@/hooks/useEventsSearch";
 interface EventViewerProps {
   events: TraceEvent[];
   selectedEventCallId: string | null;
-  onEventClose: () => void
+  onEventClose: () => void;
   viewerPlaceholder: ReactNode;
   searchValue: string;
-  searchBy: EventSearchCriteria
+  searchBy: EventSearchCriteria;
 }
 
-export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerPlaceholder, searchValue, searchBy }: EventViewerProps) => {
+export const EventViewer = ({
+  events,
+  selectedEventCallId,
+  onEventClose,
+  viewerPlaceholder,
+  searchValue,
+  searchBy,
+}: EventViewerProps) => {
   const [searchValueMarker, setSearchValueMarker] = useState({ searchValue });
 
   useEffect(() => {
     setSearchValueMarker({ searchValue: searchValue });
-  }, [searchValue, searchBy])
+  }, [searchValue, searchBy]);
 
   const jsonViewerRef = useRef(null);
   useEffect(() => {
     const observer = new MutationObserver((mutationsList) => {
-
       if ((mutationsList[0].target as HTMLElement).className === "icon-container") {
-        setSearchValueMarker({ searchValue: searchValue })
+        setSearchValueMarker({ searchValue: searchValue });
       }
     });
 
@@ -69,7 +75,6 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
   const start = new Date(selectedEvent.startEpochMs);
   const end = new Date(selectedEvent.endEpochMs ?? 0);
   const { hover, icon: Icon, base } = getColor(selectedEvent.name);
-  
 
   return (
     <div className="min-h-0 min-w-0 flex flex-col">
@@ -119,7 +124,7 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
       <div className="p-4 overflow-auto flex-1">
         <div className="font-mono select-text p-4 rounded-sm bg-muted overflow-x-auto w-full">
           <div ref={jsonViewerRef}>
-            <Marker mark={searchValueMarker.searchValue} >
+            <Marker mark={searchValueMarker.searchValue}>
               <ReactJson
                 // Needed to properly handle theme changes
                 key={theme.theme}
@@ -132,13 +137,12 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
                 enableClipboard={true}
                 style={{ fontFamily: "inherit", background: "none" }}
                 shouldCollapse={({ name, src }) => {
-
-                  if(searchBy === "eventName" || searchValue === ""){
-                     return name !== "root"
+                  if (searchBy === "eventName" || searchValue === "") {
+                    return name !== "root";
                   }
 
-                  const isSearchedDataHere = JSON.stringify(src).toLowerCase().includes(searchValue);
-                  
+                  const isSearchedDataHere = JSON.stringify(src).toLowerCase().includes(searchValue.toLowerCase());
+
                   return !isSearchedDataHere;
                 }}
               />
@@ -146,7 +150,7 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

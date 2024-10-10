@@ -5,10 +5,12 @@ import styles from "./EventsList.module.css";
 import { TraceEvent } from "@/validators/TraceEvent";
 import { ReactNode, useState, useMemo, useEffect, useCallback } from "react";
 import { traceThat } from "tracethat.dev";
-import { EventSearchCriteria } from "@/hooks/useEventsSearch";
 import { useDebounce } from "@/hooks/useDebounce";
 import { EventsSearch } from "@/layouts/EventsSearch/EventsSearch";
-import { useEventsSearch } from "@/hooks/useEventsSearch";
+import { usePrevious } from "@/hooks/usePrevious";
+import { useRemount } from "@/hooks/useRemount";
+
+export type EventSearchCriteria = "eventName" | "eventDetails" | "all";
 
 interface EventsListProps {
   data: TraceEvent[];
@@ -22,24 +24,63 @@ export function EventsList({ data, viewerPlaceholder, isSearchBarHidden = false 
     setSelectedEventCallId(null);
   }, [setSelectedEventCallId]);
 
-  const [searchValue, setSearchValue] = useState("");
+  const [rawSearchValue, setSearchValue] = useState("");
   const [searchBy, setSearchBy] = useState<EventSearchCriteria>("all");
-  const debouncedSearchValue = useDebounce(searchValue, 600);
+  const searchValue = useDebounce(rawSearchValue, 600);
 
-  const { searchResult } = useEventsSearch({ data, searchValue: debouncedSearchValue, searchBy });
+  const filteredData = useMemo(() => {
+    if (!searchValue) {
+      return data;
+    }
+
+    return data.filter((item) => {
+      const lowerCaseSearchValue = searchValue.toLowerCase();
+
+      const handleDetailsSearch = (details: any) => {
+        return JSON.stringify(details).toLowerCase().includes(lowerCaseSearchValue);
+      };
+
+      if (searchBy === "eventName") {
+        return item.name.toLowerCase().includes(lowerCaseSearchValue);
+      } else if (searchBy === "eventDetails") {
+        return handleDetailsSearch(item.details);
+      } else {
+        return item.name.toLowerCase().includes(lowerCaseSearchValue) || handleDetailsSearch(item.details);
+      }
+    });
+  }, [searchValue, searchBy, data]);
 
   const searchValueByName = searchBy !== "eventDetails" ? searchValue : "";
   const searchValueByDetails = searchBy !== "eventName" ? searchValue : "";
 
-  const filteredData = searchResult.filteredData;
+  const isSearchNotFound = searchValue && filteredData.length === 0;
 
-  const isSearchNotFound = Array.isArray(filteredData) && filteredData.length === 0;
+  const previousFirst = usePrevious(filteredData[0]);
+  const previousSearchValue = usePrevious(searchValue);
 
-  useMemo(() => {
-    if (filteredData?.[0]) {
+  useEffect(() => {
+    if (!filteredData[0]) return;
+
+    if (filteredData[0] != previousFirst || previousSearchValue != searchValue) {
       setSelectedEventCallId(filteredData[0].callId);
     }
-  }, [filteredData?.[0]]);
+  }, [filteredData[0], previousFirst, searchValue, previousSearchValue]);
+
+  const { mounted: viewerMounted, remount: remountViewer } = useRemount();
+
+  useEffect(() => {
+    remountViewer();
+  }, [searchValue]);
+
+  const onEventSelected = useCallback(
+    (value: string | null) => {
+      if (searchValue) {
+        remountViewer();
+      }
+      setSelectedEventCallId(value);
+    },
+    [searchValue],
+  );
 
   return (
     <div className={styles.container}>
@@ -51,7 +92,7 @@ export function EventsList({ data, viewerPlaceholder, isSearchBarHidden = false 
             <EventsTable
               events={filteredData ? filteredData : data}
               selectedEventCallId={selectedEventCallId}
-              setSelectedEventCallId={traceThat(setSelectedEventCallId)}
+              setSelectedEventCallId={traceThat(onEventSelected)}
               searchValue={searchValueByName}
             />
           )}
@@ -67,14 +108,16 @@ export function EventsList({ data, viewerPlaceholder, isSearchBarHidden = false 
             </div>
           )}
         </div>
-        <EventViewer
-          events={filteredData}
-          selectedEventCallId={selectedEventCallId}
-          onEventClose={onEventClose}
-          viewerPlaceholder={viewerPlaceholder}
-          searchValue={searchValueByDetails}
-          searchBy={searchBy}
-        />
+        {viewerMounted && (
+          <EventViewer
+            events={filteredData}
+            selectedEventCallId={selectedEventCallId}
+            onEventClose={onEventClose}
+            viewerPlaceholder={viewerPlaceholder}
+            searchValue={searchValueByDetails}
+            searchBy={searchBy}
+          />
+        )}
       </div>
     </div>
   );

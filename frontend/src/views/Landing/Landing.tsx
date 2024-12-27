@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button/button";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input/input";
 import { getRandomId } from "@/utils/getRandomId";
 import { Header } from "@/components/Header";
@@ -19,11 +19,6 @@ export const Landing = () => {
   const [customToken, setCustomToken] = useState("");
   const [, setToken] = useToken();
   const { data } = useEventsList(LANDING_TOKEN);
-
-  const [selectedEventCallId, setSelectedEventCallId] = useState<string | null>(null);
-  const onEventClose = useCallback(() => {
-    setSelectedEventCallId(null);
-  }, [setSelectedEventCallId]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -45,12 +40,7 @@ export const Landing = () => {
     <div className="w-full h-full grid grid-cols-1 viewer-2-cols:grid-cols-[minmax(800px,_1fr)_2fr] grid-rows-layout">
       <Header />
       <div className="border-r min-h-0 hidden viewer-2-cols:block">
-        <EventsList
-          data={data}
-          selectedEventCallId={selectedEventCallId}
-          onEventClose={onEventClose}
-          setSelectedEventCallId={setSelectedEventCallId}
-        />
+        <EventsList data={data} />
       </div>
       <div className="min-h-0 min-w-0">
         <div className="p-8 flex flex-col h-full w-full overflow-auto">

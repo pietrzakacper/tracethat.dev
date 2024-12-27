@@ -10,14 +10,55 @@ import { TraceEvent } from "@/validators/TraceEvent";
 import { Loader2, X } from "lucide-react";
 import { ReactNode, useMemo } from "react";
 import ReactJson, { ThemeObject } from "react-json-view";
+import { Marker } from "react-mark.js";
+import { useRef, useEffect, useState } from "react";
+import { SearchBy } from "../EventsSearch/EventsSearch";
 
 interface EventViewerProps {
   events: TraceEvent[];
   selectedEventCallId: string | null;
   onEventClose: () => void;
   viewerPlaceholder: ReactNode;
+  searchValue: string;
+  searchBy: SearchBy;
 }
-export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerPlaceholder }: EventViewerProps) => {
+
+export const EventViewer = ({
+  events,
+  selectedEventCallId,
+  onEventClose,
+  viewerPlaceholder,
+  searchValue,
+  searchBy,
+}: EventViewerProps) => {
+  const [searchValueMarker, setSearchValueMarker] = useState({ searchValue });
+
+  useEffect(() => {
+    setSearchValueMarker({ searchValue: searchValue });
+  }, [searchValue, searchBy]);
+
+  const jsonViewerRef = useRef(null);
+  useEffect(() => {
+    // New properties might appear in the JSON
+    // and we need to remount the higlighter so it picks up the changes
+    const observer = new MutationObserver((mutationsList) => {
+      if ((mutationsList[0].target as HTMLElement).className === "icon-container") {
+        setSearchValueMarker({ searchValue: searchValue });
+      }
+    });
+
+    if (jsonViewerRef.current) {
+      observer.observe(jsonViewerRef.current, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [events, selectedEventCallId, onEventClose, viewerPlaceholder, searchValue, searchBy]);
+
   const selectedEvent = useMemo(() => {
     if (selectedEventCallId == null) {
       return undefined;
@@ -84,19 +125,31 @@ export const EventViewer = ({ events, selectedEventCallId, onEventClose, viewerP
 
       <div className="p-4 overflow-auto flex-1">
         <div className="font-mono select-text p-4 rounded-sm bg-muted overflow-x-auto w-full">
-          <ReactJson
-            // Needed to properly handle theme changes
-            key={theme.theme}
-            src={selectedEvent.details}
-            theme={viewerTheme}
-            iconStyle="square"
-            displayDataTypes={false}
-            displayObjectSize={false}
-            indentWidth={4}
-            enableClipboard={true}
-            style={{ fontFamily: "inherit", background: "none" }}
-            shouldCollapse={({ name }) => name !== "root"}
-          />
+          <div ref={jsonViewerRef}>
+            <Marker mark={searchValueMarker.searchValue}>
+              <ReactJson
+                // Needed to properly handle theme changes
+                key={theme.theme}
+                src={selectedEvent.details}
+                theme={viewerTheme}
+                iconStyle="square"
+                displayDataTypes={false}
+                displayObjectSize={false}
+                indentWidth={4}
+                enableClipboard={true}
+                style={{ fontFamily: "inherit", background: "none" }}
+                shouldCollapse={({ name, src }) => {
+                  if (searchBy === "eventName" || searchValue === "") {
+                    return name !== "root";
+                  }
+
+                  const isSearchedDataHere = JSON.stringify(src).toLowerCase().includes(searchValue.toLowerCase());
+
+                  return !isSearchedDataHere;
+                }}
+              />
+            </Marker>
+          </div>
         </div>
       </div>
     </div>

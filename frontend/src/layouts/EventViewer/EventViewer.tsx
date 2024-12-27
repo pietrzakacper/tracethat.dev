@@ -12,7 +12,7 @@ import { ReactNode, useMemo } from "react";
 import ReactJson, { ThemeObject } from "react-json-view";
 import { Marker } from "react-mark.js";
 import { useRef, useEffect, useState } from "react";
-import { EventSearchCriteria } from "@/hooks/useEventsSearch";
+import { SearchBy } from "../EventsSearch/EventsSearch";
 
 interface EventViewerProps {
   events: TraceEvent[];
@@ -20,7 +20,7 @@ interface EventViewerProps {
   onEventClose: () => void;
   viewerPlaceholder: ReactNode;
   searchValue: string;
-  searchBy: EventSearchCriteria;
+  searchBy: SearchBy;
 }
 
 export const EventViewer = ({
@@ -39,6 +39,8 @@ export const EventViewer = ({
 
   const jsonViewerRef = useRef(null);
   useEffect(() => {
+    // New properties might appear in the JSON
+    // and we need to remount the higlighter so it picks up the changes
     const observer = new MutationObserver((mutationsList) => {
       if ((mutationsList[0].target as HTMLElement).className === "icon-container") {
         setSearchValueMarker({ searchValue: searchValue });

@@ -6,11 +6,9 @@ import { TraceEvent } from "@/validators/TraceEvent";
 import { ReactNode, useState, useMemo, useEffect, useCallback } from "react";
 import { traceThat } from "tracethat.dev";
 import { useDebounce } from "@/hooks/useDebounce";
-import { EventsSearch } from "@/layouts/EventsSearch/EventsSearch";
+import { EventsSearch, SearchBy } from "@/layouts/EventsSearch/EventsSearch";
 import { usePrevious } from "@/hooks/usePrevious";
 import { useRemount } from "@/hooks/useRemount";
-
-export type EventSearchCriteria = "eventName" | "eventDetails" | "all";
 
 interface EventsListProps {
   data: TraceEvent[];
@@ -25,8 +23,8 @@ export function EventsList({ data, viewerPlaceholder, isSearchBarHidden = false 
   }, [setSelectedEventCallId]);
 
   const [rawSearchValue, setSearchValue] = useState("");
-  const [searchBy, setSearchBy] = useState<EventSearchCriteria>("all");
-  const searchValue = useDebounce(rawSearchValue, 600);
+  const [searchBy, setSearchBy] = useState<SearchBy>("all");
+  const searchValue = useDebounce(rawSearchValue, 200);
 
   const filteredData = useMemo(() => {
     if (!searchValue) {
@@ -34,19 +32,20 @@ export function EventsList({ data, viewerPlaceholder, isSearchBarHidden = false 
     }
 
     return data.filter((item) => {
-      const lowerCaseSearchValue = searchValue.toLowerCase();
+      const searchInName = () => {
+        return item.name.toLowerCase().includes(searchValue.toLowerCase());
+      };
 
-      const handleDetailsSearch = (details: any) => {
-        return JSON.stringify(details).toLowerCase().includes(lowerCaseSearchValue);
+      const searchInDetails = () => {
+        return JSON.stringify(item.details).toLowerCase().includes(searchValue.toLowerCase());
       };
 
       if (searchBy === "eventName") {
-        return item.name.toLowerCase().includes(lowerCaseSearchValue);
+        return searchInName();
       } else if (searchBy === "eventDetails") {
-        return handleDetailsSearch(item.details);
-      } else {
-        return item.name.toLowerCase().includes(lowerCaseSearchValue) || handleDetailsSearch(item.details);
+        return searchInDetails();
       }
+      return searchInName() || searchInDetails();
     });
   }, [searchValue, searchBy, data]);
 
@@ -61,6 +60,7 @@ export function EventsList({ data, viewerPlaceholder, isSearchBarHidden = false 
   useEffect(() => {
     if (!filteredData[0]) return;
 
+    // auto select the first event if the search changed
     if (filteredData[0] != previousFirst || previousSearchValue != searchValue) {
       setSelectedEventCallId(filteredData[0].callId);
     }

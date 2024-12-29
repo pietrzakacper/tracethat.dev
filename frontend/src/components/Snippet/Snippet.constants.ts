@@ -50,11 +50,11 @@ func hello(name string) {
 
 func main() {
   tt.Config.RegisterToken("${token}")
-  
+
   hello("world")
-  
+
   tt.Wait()
-} 
+}
 `.trim();
 
 const CODE_BLOCKS = {
@@ -71,11 +71,12 @@ export type AvailableLanguage = keyof typeof CODE_BLOCKS;
 interface LanguageDisplayData {
   name: string;
   logo: string;
+  addRing: boolean;
 }
 const DISPLAY_DATA: Record<AvailableLanguage, LanguageDisplayData> = {
-  js: { name: "JavaScript", logo: jsLogo },
-  python: { name: "Python", logo: pythonLogo },
-  go: { name: "Go", logo: goLogo },
+  js: { name: "JavaScript", logo: jsLogo, addRing: false },
+  python: { name: "Python", logo: pythonLogo, addRing: false },
+  go: { name: "Go", logo: goLogo, addRing: true },
 };
 
 export const getInstallationSnippet = (language: AvailableLanguage) => INSTALLATION_CODE_BLOCKS[language];

@@ -20,7 +20,7 @@ export function EventsSearch({ setSearchValue, setSearchBy }: EventsSearchProps)
   };
 
   return (
-    <div className="grid  p-2 gap-4 xl:grid-cols-2">
+    <div className="grid py-2 px-4 gap-2 xl:grid-cols-2">
       <Input
         size="lg"
         name="searchValue"
@@ -31,14 +31,14 @@ export function EventsSearch({ setSearchValue, setSearchBy }: EventsSearchProps)
       />
       <div className="flex gap-2 items-center">
         <ToggleGroup type="single" onValueChange={handleSearchByValue} defaultValue="all" value={toggleGroupValue}>
+          <ToggleGroupItem value="all" aria-label="Search by all">
+            All
+          </ToggleGroupItem>
           <ToggleGroupItem value="eventName" aria-label="Search by name">
-            name
+            Name
           </ToggleGroupItem>
           <ToggleGroupItem value="eventDetails" aria-label="Search by details">
-            details
-          </ToggleGroupItem>
-          <ToggleGroupItem value="all" aria-label="Search by all">
-            all
+            Details
           </ToggleGroupItem>
         </ToggleGroup>
       </div>

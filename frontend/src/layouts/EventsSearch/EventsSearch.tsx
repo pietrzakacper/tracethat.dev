@@ -31,14 +31,14 @@ export function EventsSearch({ setSearchValue, setSearchBy }: EventsSearchProps)
       />
       <div className="flex gap-2 items-center">
         <ToggleGroup type="single" onValueChange={handleSearchByValue} defaultValue="all" value={toggleGroupValue}>
+          <ToggleGroupItem value="all" aria-label="Search by all">
+            All
+          </ToggleGroupItem>
           <ToggleGroupItem value="eventName" aria-label="Search by name">
             Name
           </ToggleGroupItem>
           <ToggleGroupItem value="eventDetails" aria-label="Search by details">
             Details
-          </ToggleGroupItem>
-          <ToggleGroupItem value="all" aria-label="Search by all">
-            All
           </ToggleGroupItem>
         </ToggleGroup>
       </div>

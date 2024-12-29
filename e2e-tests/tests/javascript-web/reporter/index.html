@@ -17,8 +17,10 @@
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
         TT.registerToken(token);
+
         const serverPort = params.get("server_port");
-        TT.setServerUrl(`ws://localhost:${serverPort}`);
+        const serverUrl = params.get("server_url") || `ws://localhost:${serverPort}`;
+        TT.setServerUrl(serverUrl);
 
         async function hello(name) {
           await new Promise((res) => setTimeout(res, 100));

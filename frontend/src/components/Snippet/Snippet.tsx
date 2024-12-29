@@ -8,14 +8,14 @@ interface SnippetProps {
 export const Snippet = ({ token }: SnippetProps) => {
   return (
     <Tabs defaultValue={SHOWN_LANGUAGES[0]} className="flex flex-col w-full items-end">
-      <TabsList>
+      <TabsList className="h-auto">
         {SHOWN_LANGUAGES.map((language) => {
-          const { logo, name } = getDisplayData(language);
+          const { logo, name, addRing } = getDisplayData(language);
           return (
-            <TabsTrigger key={language} value={language}>
+            <TabsTrigger key={language} value={language} className="p-2">
               <div className="relative">
-                <img src={logo} alt={name} className="w-6 aspect-square rounded-tiny" />
-                <div className="fill-absolute ring-1 ring-primary/10 ring-inset rounded-tiny" />
+                <img src={logo} alt={name} className="w-5 aspect-square rounded-tiny" />
+                {addRing && <div className="fill-absolute ring-1 ring-primary/10 ring-inset rounded-tiny" />}
               </div>
             </TabsTrigger>
           );

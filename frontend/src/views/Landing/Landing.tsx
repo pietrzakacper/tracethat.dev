@@ -58,18 +58,16 @@ export const Landing = () => {
                 </div>
               </header>
               <main className="flex flex-row items-center justify-center space-x-4 w-full">
-                <section className="flex flex-1 items-center justify-end space-y-4">
+                <section className="flex items-center justify-center gap-4">
                   <Button asChild onClick={() => goToEvents(randomToken)}>
                     <a>Start New Session</a>
                   </Button>
-                </section>
-                <span className="text-muted-foreground">or</span>
-                <section className="flex flex-1 items-center justify-start space-y-4">
+                  <span className="text-muted-foreground">or</span>
                   <form className="flex space-x-2 w-full" onSubmit={onSubmit}>
                     <Input
                       size="lg"
                       name="token"
-                      placeholder="Enter session ID"
+                      placeholder="Enter existing token"
                       value={customToken}
                       onChange={(event) => setCustomToken(event.target.value)}
                       className="max-w-56"

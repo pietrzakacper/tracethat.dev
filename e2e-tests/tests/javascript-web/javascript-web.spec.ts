@@ -15,7 +15,7 @@ test("send hello from JS web client", async ({ page, context }) => {
   [serverProcess, serverPort] = await runServer(3200);
 
   await page.goto(`http://localhost:${serverPort}`);
-  await page.getByPlaceholder("Enter session ID").fill(TOKEN);
+  await page.getByPlaceholder("Enter existing token").fill(TOKEN);
   await page.getByRole("button", { name: "Go" }).click();
 
   const [clientPort] = await findFreePorts(1, { startPort: 3250 });

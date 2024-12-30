@@ -17,7 +17,7 @@ test("send hello from JS server", async ({ page }) => {
 
   await page.goto(`http://localhost:${serverPort}`);
 
-  await page.getByPlaceholder("Enter session ID").fill(TOKEN);
+  await page.getByPlaceholder("Enter existing token").fill(TOKEN);
   await page.getByRole("button", { name: "Go" }).click();
 
   const result = await exec(`bun hello.js ${TEST_NAME}`, {

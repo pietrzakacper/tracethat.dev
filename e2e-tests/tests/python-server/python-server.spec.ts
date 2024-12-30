@@ -16,7 +16,7 @@ test("send hello from Python server", async ({ page }) => {
   [serverProcess, serverPort] = await runServer(3500);
 
   await page.goto(`http://localhost:${serverPort}`);
-  await page.getByPlaceholder("Enter session ID").fill(TOKEN);
+  await page.getByPlaceholder("Enter existing token").fill(TOKEN);
   await page.getByRole("button", { name: "Go" }).click();
 
   await exec(`./start.sh ${TEST_NAME}`, {

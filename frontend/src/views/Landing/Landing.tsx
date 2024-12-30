@@ -69,7 +69,7 @@ export const Landing = () => {
                     <Input
                       size="lg"
                       name="token"
-                      placeholder="Enter session ID"
+                      placeholder="Enter existing token"
                       value={customToken}
                       onChange={(event) => setCustomToken(event.target.value)}
                       className="max-w-56"

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tracethat"
-version = "1.0.4"
+version = "1.0.5"
 description = "tracethat.dev reporter for Python"
 readme = "README.md"
 license = { file = "LICENSE" }

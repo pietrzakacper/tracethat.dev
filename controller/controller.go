@@ -16,7 +16,7 @@ type consumer struct {
 	c chan model.Event // channel to propagate events to consumer
 }
 
-const maxMemoryPerRoom = 1024 * 1024 // 1MB
+const maxMemoryPerRoom = 10 * 1024 * 1024 // 10MB
 const reduceMemoryPerRoomThreshold = maxMemoryPerRoom * 0.6
 const maxRoomInactivity = 1 * time.Hour
 const inactivityCheckInterval = 5 * time.Minute

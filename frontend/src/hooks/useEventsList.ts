@@ -11,16 +11,8 @@ export const useEventsList = (token: string) => {
     const visitedEvents = new Set<string>();
 
     const sortedData = data.toSorted((a, b) => {
-      const startEpochMsA = a.startEpochMs;
-      const endEpochMsA = a.endEpochMs;
-      const startEpochMsB = b.startEpochMs;
-      const endEpochMsB = b.endEpochMs;
-
-      const epochMsA = endEpochMsA || startEpochMsA;
-      const epochMsB = endEpochMsB || startEpochMsB;
-
-      if (epochMsA != epochMsB) {
-        return epochMsA - epochMsB;
+      if (a.startEpochMs != b.startEpochMs) {
+        return a.startEpochMs - b.startEpochMs;
       }
 
       const rankA = a.rank ?? 0;

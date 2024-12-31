@@ -27,7 +27,7 @@ def serialize(obj, seen=None):
 
     # Handle dictionaries
     elif isinstance(obj, dict):
-        return {key: serialize(value, seen) for key, value in obj.items()}
+        return {str(key): serialize(value, seen) for key, value in obj.items()}
 
     # Handle functions
     elif callable(obj):
@@ -36,10 +36,10 @@ def serialize(obj, seen=None):
 
     # Handle custom objects
     elif hasattr(obj, '__dict__'):
-        result = {'$id': obj_id}
+        result = {}
         # Recursively serialize object attributes
         for key, value in obj.__dict__.items():
-            result[key] = serialize(value, seen)
+            result[str(key)] = serialize(value, seen)
         return result
 
     # Fallback for other types

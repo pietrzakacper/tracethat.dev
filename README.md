@@ -70,6 +70,12 @@ python3 example.py # run the example using locally built reporter and local serv
 deactivate
 ```
 
+#### Python Unit tests
+
+```bash
+python -m unittest discover -p '*_test.py'
+```
+
 ### E2E tests
 
 In `e2e-tests` directory:
@@ -134,6 +140,14 @@ fly deploy --env IP_INFO_TOKEN=<token>
 ```bash
 cd reporters/javascript/tracethat.dev
 npm publish
+```
+
+## Deploying the Python reporter
+
+```bash
+cd reporters/python
+python3 -m build
+python3 -m twine upload dist/*
 ```
 
 ## Contributing

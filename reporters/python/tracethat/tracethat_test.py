@@ -30,7 +30,7 @@ class TestTraceThat(unittest.TestCase):
         
         running_msg = next(m for m in reporter.messages if m['status'] == 'running')
         self.assertIsNotNone(running_msg)
-        self.assertEqual(running_msg['details']['args'], ('John',))
+        self.assertEqual(running_msg['details']['args'], ['John'])
 
     def test_report_return_value(self):
         reporter = MemoryReporter()

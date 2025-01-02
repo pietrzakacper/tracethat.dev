@@ -5,6 +5,8 @@ import uuid
 import inspect
 from tracethat.ws_reporter import WebSocketReporter
 
+from tracethat.json_marhsaller import serialize
+
 T = TypeVar('T')
 R = TypeVar('R')
 P = ParamSpec('P')
@@ -41,8 +43,8 @@ def create_tracethat(reporter: Type[Reporter]):
                 'name': name,
                 'startEpochMs': start_time,
                 'details': {
-                    'args': args,
-                    'kwargs': kwargs,
+                    'args': serialize(args),
+                    'kwargs': serialize(kwargs),
                     'callStack': call_stack,
                 },
                 'rank': get_next_rank()
@@ -73,7 +75,7 @@ def create_tracethat(reporter: Type[Reporter]):
                 'startEpochMs': start_time,
                 'endEpochMs': int(time.time() * 1000),
                 'details': {
-                    'return': return_value,
+                    'return': serialize(return_value),
                 },
                 'rank': get_next_rank()
             })
@@ -114,7 +116,7 @@ def create_log(reporter: Type[Reporter]):
             'startEpochMs': start_time,
             'endEpochMs': start_time,
             'details': {
-                "payload": payload,
+                "payload": serialize(payload),
             },
             'rank': get_next_rank()
         })
